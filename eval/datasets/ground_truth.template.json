@@ -1,0 +1,8 @@
+{
+  "expected_change_ids": [],
+  "predicted_change_ids": [],
+  "qa_cases": [],
+  "known_failure_cases": [
+    "The supplied PDFs are different compressor systems rather than confirmed revisions; they are unsuitable as unlabeled revision ground truth."
+  ]
+}

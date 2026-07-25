@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import logging
 from math import sqrt
 
 from rapidfuzz import fuzz
 from src.config.settings import settings
+from src.observability.logging import get_logger, stage
 
 from src.canonical.model import (
     BoundingBox,
@@ -14,7 +14,7 @@ from src.canonical.model import (
     AlignmentResult,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class Aligner:
@@ -44,7 +44,15 @@ class Aligner:
         new_document: CanonicalDocument,
     ) -> AlignmentResult:
 
-        logger.info("Starting document alignment")
+        with stage(logger, "document_alignment"):
+            return self._align(old_document, new_document)
+
+    def _align(
+        self,
+        old_document: CanonicalDocument,
+        new_document: CanonicalDocument,
+    ) -> AlignmentResult:
+        """Match elements deterministically by page, type, location and text."""
 
         result = AlignmentResult()
 

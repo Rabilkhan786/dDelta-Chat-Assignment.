@@ -99,6 +99,8 @@ temp/
 
 output/
 outputs/
+data/output/
+data/bm25/
 
 
 

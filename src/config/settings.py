@@ -1,8 +1,10 @@
+"""Centralised, validated configuration for Delta Chat."""
+
+from functools import lru_cache
 from pathlib import Path
-from typing import Any
+
 import yaml
-from box import ConfigBox
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AppConfig(BaseModel):
@@ -11,15 +13,15 @@ class AppConfig(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    provider: str
+    provider: str = "openai"
     model: str
-    temperature: float
-    max_tokens: int
+    temperature: float = Field(ge=0.0, le=2.0)
+    max_tokens: int = Field(gt=0)
 
 
 class EmbeddingConfig(BaseModel):
     model: str
-    device: str 
+    device: str = "cpu"
 
 
 class ChromaConfig(BaseModel):
@@ -28,10 +30,10 @@ class ChromaConfig(BaseModel):
 
 
 class RetrievalConfig(BaseModel):
-    top_k: int
-    hybrid: bool
-    use_bm25: bool
-    use_semantic: bool
+    top_k: int = Field(gt=0)
+    hybrid: bool = True
+    use_bm25: bool = True
+    use_semantic: bool = True
 
 
 class ChunkingConfig(BaseModel):
@@ -49,9 +51,9 @@ class PathsConfig(BaseModel):
     bm25_documents: str
 
 
-class Align(BaseModel):
-    similarity_threshold: float 
-    max_bbox_distance: float
+class AlignConfig(BaseModel):
+    similarity_threshold: float = Field(ge=0.0, le=100.0)
+    max_bbox_distance: float = Field(gt=0.0)
 
 
 class Settings(BaseModel):
@@ -62,13 +64,24 @@ class Settings(BaseModel):
     retrieval: RetrievalConfig
     chunking: ChunkingConfig
     paths: PathsConfig
-    align: Align
+    align: AlignConfig
 
 
+CONFIG_PATH = Path(__file__).with_name("config.yaml")
+PROJECT_ROOT = CONFIG_PATH.parents[2]
 
-# Load YAML Configuration
 
-CONFIG_PATH = Path(__file__).parent / "config.yaml"
+@lru_cache(maxsize=1)
+def load_settings() -> Settings:
+    """Load and validate the checked-in, non-secret YAML configuration."""
+    with CONFIG_PATH.open("r", encoding="utf-8") as config_file:
+        return Settings.model_validate(yaml.safe_load(config_file))
 
-with CONFIG_PATH.open("r", encoding="utf-8") as file:
-    settings = ConfigBox(yaml.safe_load(file))
+
+def project_path(path: str | Path) -> Path:
+    """Resolve a configured relative path from the repository root."""
+    candidate = Path(path)
+    return candidate if candidate.is_absolute() else PROJECT_ROOT / candidate
+
+
+settings = load_settings()
