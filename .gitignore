@@ -1,0 +1,121 @@
+# Python
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+
+.venv/
+venv/
+env/
+ENV/
+
+
+# UV
+
+.python-version
+
+# Environment Variables
+
+.env
+.env.*
+!.env.example
+
+# IDEs
+
+.vscode/
+.idea/
+*.code-workspace
+
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# Logs
+
+logs/
+*.log
+
+
+# Testing
+
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+
+# Build
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+
+# Chroma Vector Database
+
+chroma_db/
+chroma/
+*.sqlite3
+
+# Model Files
+
+models/
+checkpoints/
+
+
+# OCR
+
+ocr_output/
+
+
+# Temporary Files
+
+tmp/
+temp/
+*.tmp
+
+
+# Cache
+
+.cache/
+
+
+# Generated Outputs
+
+output/
+outputs/
+
+
+
+
+# Secrets
+
+secrets/
+credentials.json
+service_account.json
+
+
+# Local Database
+
+*.db
+*.sqlite
+
+# PyMuPDF Temporary
+
+fitz_cache/
+

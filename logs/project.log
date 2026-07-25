@@ -1,0 +1,257 @@
+{"timestamp": "2026-07-24 18:52:02,455", "level": "INFO", "logger": "delta_chat", "request_id": "eb77d99b-a645-4c76-86c2-167623ed062b", "message": "Logger initialized successfully."}
+{"timestamp": "2026-07-24 18:52:02,455", "level": "INFO", "logger": "delta_chat", "request_id": "eb77d99b-a645-4c76-86c2-167623ed062b", "message": "Loading PDF."}
+{"timestamp": "2026-07-24 18:52:02,455", "level": "WARNING", "logger": "delta_chat", "request_id": "eb77d99b-a645-4c76-86c2-167623ed062b", "message": "This is a warning message."}
+{"timestamp": "2026-07-24 18:52:02,455", "level": "ERROR", "logger": "delta_chat", "request_id": "eb77d99b-a645-4c76-86c2-167623ed062b", "message": "This is an error message."}
+{"timestamp": "2026-07-25 00:49:57,400", "level": "INFO", "logger": "delta_chat", "request_id": "9854c107-e295-41d4-972f-2727040d22e9", "message": "Loading PDF: sample.pdf"}
+{"timestamp": "2026-07-25 00:51:10,644", "level": "INFO", "logger": "delta_chat", "request_id": "a1448314-7ad4-4bce-91ff-bb920a5357c9", "message": "Loading PDF: Export Gas Compressor-P&ID (1).pdf"}
+{"timestamp": "2026-07-25 00:51:10,656", "level": "INFO", "logger": "delta_chat", "request_id": "a1448314-7ad4-4bce-91ff-bb920a5357c9", "message": "Total pages: 1"}
+{"timestamp": "2026-07-25 00:51:10,656", "level": "INFO", "logger": "delta_chat", "request_id": "a1448314-7ad4-4bce-91ff-bb920a5357c9", "message": "Extracting page 1"}
+{"timestamp": "2026-07-25 00:51:10,681", "level": "INFO", "logger": "delta_chat", "request_id": "a1448314-7ad4-4bce-91ff-bb920a5357c9", "message": "Successfully parsed 'Export Gas Compressor-P&ID (1).pdf' (1 pages)"}
+{"timestamp": "2026-07-25 00:55:31,100", "level": "INFO", "logger": "delta_chat", "request_id": "713e70f5-e342-42b8-80a3-92aad1cdd5a1", "message": "Loading PDF: Export Gas Compressor-P&ID (1).pdf"}
+{"timestamp": "2026-07-25 00:55:31,101", "level": "INFO", "logger": "delta_chat", "request_id": "713e70f5-e342-42b8-80a3-92aad1cdd5a1", "message": "Total pages: 1"}
+{"timestamp": "2026-07-25 00:55:31,102", "level": "INFO", "logger": "delta_chat", "request_id": "713e70f5-e342-42b8-80a3-92aad1cdd5a1", "message": "Extracting page 1"}
+{"timestamp": "2026-07-25 00:55:31,116", "level": "INFO", "logger": "delta_chat", "request_id": "713e70f5-e342-42b8-80a3-92aad1cdd5a1", "message": "Successfully parsed 'Export Gas Compressor-P&ID (1).pdf' (1 pages)"}
+{"timestamp": "2026-07-25 01:04:06,416", "level": "INFO", "logger": "delta_chat", "request_id": "3918db47-d57e-4553-86e8-85bc5d36930f", "message": "Loading PDF: Export Gas Compressor-P&ID (1).pdf"}
+{"timestamp": "2026-07-25 01:04:06,418", "level": "INFO", "logger": "delta_chat", "request_id": "3918db47-d57e-4553-86e8-85bc5d36930f", "message": "Total pages: 1"}
+{"timestamp": "2026-07-25 01:04:06,418", "level": "INFO", "logger": "delta_chat", "request_id": "3918db47-d57e-4553-86e8-85bc5d36930f", "message": "Extracting page 1"}
+{"timestamp": "2026-07-25 01:04:06,433", "level": "INFO", "logger": "delta_chat", "request_id": "3918db47-d57e-4553-86e8-85bc5d36930f", "message": "Successfully parsed 'Export Gas Compressor-P&ID (1).pdf' (1 pages)"}
+{"timestamp": "2026-07-25 01:05:12,042", "level": "INFO", "logger": "delta_chat", "request_id": "8fc48d27-887e-4708-84be-aa5c40804f59", "message": "Loading PDF: Export Gas Compressor-P&ID (1).pdf"}
+{"timestamp": "2026-07-25 01:05:12,044", "level": "INFO", "logger": "delta_chat", "request_id": "8fc48d27-887e-4708-84be-aa5c40804f59", "message": "Total pages: 1"}
+{"timestamp": "2026-07-25 01:05:12,044", "level": "INFO", "logger": "delta_chat", "request_id": "8fc48d27-887e-4708-84be-aa5c40804f59", "message": "Extracting page 1"}
+{"timestamp": "2026-07-25 01:05:12,057", "level": "INFO", "logger": "delta_chat", "request_id": "8fc48d27-887e-4708-84be-aa5c40804f59", "message": "Successfully parsed 'Export Gas Compressor-P&ID (1).pdf' (1 pages)"}
+{"timestamp": "2026-07-25 01:06:23,853", "level": "INFO", "logger": "delta_chat", "request_id": "32fbd865-02f2-4709-8575-e0355ffc6b72", "message": "Loading PDF: Export Gas Compressor-P&ID (1).pdf"}
+{"timestamp": "2026-07-25 01:06:23,855", "level": "INFO", "logger": "delta_chat", "request_id": "32fbd865-02f2-4709-8575-e0355ffc6b72", "message": "Total pages: 1"}
+{"timestamp": "2026-07-25 01:06:23,856", "level": "INFO", "logger": "delta_chat", "request_id": "32fbd865-02f2-4709-8575-e0355ffc6b72", "message": "Extracting page 1"}
+{"timestamp": "2026-07-25 01:06:23,870", "level": "INFO", "logger": "delta_chat", "request_id": "32fbd865-02f2-4709-8575-e0355ffc6b72", "message": "Successfully parsed 'Export Gas Compressor-P&ID (1).pdf' (1 pages)"}
+{"timestamp": "2026-07-25 01:58:11,081", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "b6d6c423-c02b-4825-9666-ad022c2370f5", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 01:58:11,083", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "b6d6c423-c02b-4825-9666-ad022c2370f5", "message": "Extracting page"}
+{"timestamp": "2026-07-25 01:58:11,102", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "b6d6c423-c02b-4825-9666-ad022c2370f5", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 01:58:11,104", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "b6d6c423-c02b-4825-9666-ad022c2370f5", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 01:58:11,104", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "b6d6c423-c02b-4825-9666-ad022c2370f5", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 01:58:47,114", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "34a21e65-ebd1-4123-9568-0132c92215b4", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 01:58:47,116", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "34a21e65-ebd1-4123-9568-0132c92215b4", "message": "Extracting page"}
+{"timestamp": "2026-07-25 01:58:47,132", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "34a21e65-ebd1-4123-9568-0132c92215b4", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 01:58:47,134", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "34a21e65-ebd1-4123-9568-0132c92215b4", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 01:58:47,135", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "34a21e65-ebd1-4123-9568-0132c92215b4", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 02:16:18,005", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ad16246a-393f-479f-a7e6-424c9432b967", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 02:16:18,007", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ad16246a-393f-479f-a7e6-424c9432b967", "message": "Extracting page"}
+{"timestamp": "2026-07-25 02:16:18,024", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ad16246a-393f-479f-a7e6-424c9432b967", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 02:16:18,025", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ad16246a-393f-479f-a7e6-424c9432b967", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 02:16:18,025", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ad16246a-393f-479f-a7e6-424c9432b967", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 02:17:35,322", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0e15b477-c6d9-4fa8-9757-4a5e9b18a5e4", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 02:17:35,323", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0e15b477-c6d9-4fa8-9757-4a5e9b18a5e4", "message": "Extracting page"}
+{"timestamp": "2026-07-25 02:17:35,341", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0e15b477-c6d9-4fa8-9757-4a5e9b18a5e4", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 02:17:35,343", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0e15b477-c6d9-4fa8-9757-4a5e9b18a5e4", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 02:17:35,344", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0e15b477-c6d9-4fa8-9757-4a5e9b18a5e4", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 02:18:10,854", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "44279c5c-6f56-4645-8ef4-2bd8714f7e5e", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 02:18:10,856", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "44279c5c-6f56-4645-8ef4-2bd8714f7e5e", "message": "Extracting page"}
+{"timestamp": "2026-07-25 02:18:10,871", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "44279c5c-6f56-4645-8ef4-2bd8714f7e5e", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 02:18:10,872", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "44279c5c-6f56-4645-8ef4-2bd8714f7e5e", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 02:18:10,873", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "44279c5c-6f56-4645-8ef4-2bd8714f7e5e", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 02:22:40,906", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0af4d203-0f2f-49a9-bfc1-4767248033f1", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 02:22:40,908", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0af4d203-0f2f-49a9-bfc1-4767248033f1", "message": "Extracting page"}
+{"timestamp": "2026-07-25 02:22:40,927", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0af4d203-0f2f-49a9-bfc1-4767248033f1", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 02:22:40,928", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0af4d203-0f2f-49a9-bfc1-4767248033f1", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 02:22:40,928", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "0af4d203-0f2f-49a9-bfc1-4767248033f1", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 02:24:26,007", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a34a0a04-950b-4a02-9df3-689f5a271aea", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 02:24:26,010", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a34a0a04-950b-4a02-9df3-689f5a271aea", "message": "Extracting page"}
+{"timestamp": "2026-07-25 02:24:26,030", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a34a0a04-950b-4a02-9df3-689f5a271aea", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 02:24:26,031", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a34a0a04-950b-4a02-9df3-689f5a271aea", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 02:24:26,031", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a34a0a04-950b-4a02-9df3-689f5a271aea", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 03:41:07,065", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ff52c197-f2c9-42de-a5ed-bc3eff0afb11", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 03:41:07,097", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ff52c197-f2c9-42de-a5ed-bc3eff0afb11", "message": "Extracting page"}
+{"timestamp": "2026-07-25 03:41:07,121", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ff52c197-f2c9-42de-a5ed-bc3eff0afb11", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 03:41:07,122", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ff52c197-f2c9-42de-a5ed-bc3eff0afb11", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 03:41:07,122", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ff52c197-f2c9-42de-a5ed-bc3eff0afb11", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:19:09,184", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c8b5207e-51b7-42eb-b8d6-3bc0532bce9d", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:20:44,079", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:20:44,140", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:20:44,194", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:20:44,195", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:20:44,196", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:20:44,196", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:20:44,213", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:20:44,234", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:20:44,234", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:20:44,236", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "99465a09-4d1b-4ed2-84db-242f6c23a61a", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:24:48,904", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:24:48,906", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:24:48,922", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:24:48,923", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:24:48,924", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:24:48,924", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:24:48,925", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:24:48,943", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:24:48,944", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:24:48,945", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "14f377dd-12b8-461e-98ef-733fd8e771d6", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:26:54,155", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:26:54,157", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:26:54,174", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:26:54,175", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:26:54,176", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:26:54,176", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:26:54,177", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:26:54,195", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:26:54,195", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:26:54,196", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e8a57a47-b774-4280-9498-9887a244b8a8", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:28:26,925", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:28:26,927", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:28:26,949", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:28:26,950", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:28:26,950", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:28:26,950", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:28:26,952", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:28:26,976", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:28:26,977", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:28:26,977", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "9a63817f-8406-485d-b7e7-f514e22a4ff2", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:36:40,025", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:36:40,026", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:36:40,040", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:36:40,043", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:36:40,043", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:36:40,045", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:36:40,047", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:36:40,083", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:36:40,084", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:36:40,085", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "a49e29c7-1a32-4eb2-ac43-64aae1ba0d8d", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:39:42,425", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:39:42,427", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:39:42,442", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:39:42,443", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:39:42,443", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:39:42,443", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:39:42,444", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:39:42,465", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:39:42,467", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:39:42,467", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "320fabe1-eaf7-4c2f-8901-5b1148544057", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:46:18,227", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:46:18,229", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:46:18,246", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:46:18,248", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:46:18,248", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:46:18,248", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:46:18,250", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:46:18,271", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:46:18,273", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:46:18,273", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "2fdcffd7-6afa-43dc-b5f1-f50c36f05761", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:53:06,241", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:53:06,242", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:53:06,257", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:53:06,257", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:53:06,258", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:53:06,258", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:53:06,260", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:53:06,279", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:53:06,279", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:53:06,280", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c0152eac-e526-47c5-85c4-63be281a3e6a", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:54:24,272", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:54:24,273", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:54:24,289", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:54:24,290", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:54:24,290", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 06:54:24,290", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 06:54:24,292", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Extracting page"}
+{"timestamp": "2026-07-25 06:54:24,308", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 06:54:24,308", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 06:54:24,309", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "3b7da642-57ff-4daf-a8ee-8a8ccb275b82", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 07:07:14,158", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 07:07:14,159", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Extracting page"}
+{"timestamp": "2026-07-25 07:07:14,176", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 07:07:14,177", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 07:07:14,177", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 07:07:14,178", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 07:07:14,178", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Extracting page"}
+{"timestamp": "2026-07-25 07:07:14,195", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 07:07:14,197", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 07:07:14,197", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "cf607c1f-95ad-49dc-87f9-907300e3ceba", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 07:08:17,086", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 07:08:17,088", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Extracting page"}
+{"timestamp": "2026-07-25 07:08:17,110", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 07:08:17,111", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 07:08:17,112", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 07:08:17,112", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 07:08:17,113", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Extracting page"}
+{"timestamp": "2026-07-25 07:08:17,133", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 07:08:17,134", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 07:08:17,135", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "486bacb0-3379-41e6-beb0-279b7d630742", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 07:17:21,921", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 07:17:21,922", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Extracting page"}
+{"timestamp": "2026-07-25 07:17:21,937", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 07:17:21,938", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 07:17:21,938", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 07:17:21,939", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 07:17:21,940", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Extracting page"}
+{"timestamp": "2026-07-25 07:17:21,958", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 07:17:21,959", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 07:17:21,959", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "ba6405f3-0681-4bff-b23a-aad0931bc19a", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:04:54,372", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "012d8b97-ec15-43ce-bc53-60f7fc05bc45", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:07:35,782", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e95afc00-ed37-4c83-8788-dea04f55cdaa", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:07:35,813", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e95afc00-ed37-4c83-8788-dea04f55cdaa", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:07:35,836", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e95afc00-ed37-4c83-8788-dea04f55cdaa", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:07:35,836", "level": "ERROR", "logger": "src.ingest.pdf_native", "request_id": "e95afc00-ed37-4c83-8788-dea04f55cdaa", "message": "Native PDF ingestion failed", "exc_info": "Traceback (most recent call last):\n  File \"D:\\Delta_Chat\\src\\ingest\\pdf_native.py\", line 102, in parse\n    metadata = DocumentMetadata(\n               ^^^^^^^^^^^^^^^^^\n  File \"D:\\Delta_Chat\\.venv\\Lib\\site-packages\\pydantic\\main.py\", line 263, in __init__\n    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\npydantic_core._pydantic_core.ValidationError: 1 validation error for DocumentMetadata\ndocument_id\n  Field required [type=missing, input_value={'pid': 'Export Gas Compr...'pdf', 'revision': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"}
+{"timestamp": "2026-07-25 18:07:35,862", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "e95afc00-ed37-4c83-8788-dea04f55cdaa", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:14:18,172", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c4748f0e-ed97-48a2-970b-5dbc07e8ae52", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:14:18,173", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c4748f0e-ed97-48a2-970b-5dbc07e8ae52", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:14:18,188", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c4748f0e-ed97-48a2-970b-5dbc07e8ae52", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:14:18,189", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c4748f0e-ed97-48a2-970b-5dbc07e8ae52", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:14:18,190", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "c4748f0e-ed97-48a2-970b-5dbc07e8ae52", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:17:28,066", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:17:28,067", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:17:28,083", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:17:28,083", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:17:28,083", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:17:36,424", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:17:36,429", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:17:36,442", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:17:36,443", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:17:36,443", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "381fc8f3-9c38-48a1-9d56-97779e7e5c8b", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:26:45,696", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:26:45,697", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:26:45,714", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:26:45,714", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:26:45,715", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:26:53,891", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:26:53,892", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:26:53,904", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:26:53,905", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:26:53,905", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "48e71e94-7ebb-4ad6-a614-02cf83bedf9d", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:51:26,523", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:51:26,524", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:51:26,538", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:51:26,540", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:51:26,540", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:51:26,541", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:51:26,638", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:51:26,666", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:51:26,667", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:51:26,667", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "5d7e3abe-b0fb-4d0e-aa94-6d87ec5e03c4", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:56:34,982", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:56:35,006", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:56:35,030", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:56:35,030", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:56:35,033", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 18:56:35,033", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 18:56:35,034", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Extracting page"}
+{"timestamp": "2026-07-25 18:56:35,053", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 18:56:35,054", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 18:56:35,054", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1ffc5a1e-eb42-4128-ba0b-cb4ae1039547", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 19:00:22,473", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 19:00:22,493", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Extracting page"}
+{"timestamp": "2026-07-25 19:00:22,516", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 19:00:22,516", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 19:00:22,516", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 19:00:22,518", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 19:00:22,518", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Extracting page"}
+{"timestamp": "2026-07-25 19:00:22,537", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 19:00:22,537", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 19:00:22,538", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "1661fb8a-4e34-4fae-b237-a14f1479d99f", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 19:02:05,938", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 19:02:05,939", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Extracting page"}
+{"timestamp": "2026-07-25 19:02:05,958", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 19:02:05,959", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 19:02:05,959", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "PDF file closed"}
+{"timestamp": "2026-07-25 19:02:05,959", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Starting native PDF ingestion"}
+{"timestamp": "2026-07-25 19:02:05,960", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Extracting page"}
+{"timestamp": "2026-07-25 19:02:05,979", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Page extracted successfully"}
+{"timestamp": "2026-07-25 19:02:05,979", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "Native PDF ingestion completed"}
+{"timestamp": "2026-07-25 19:02:05,980", "level": "INFO", "logger": "src.ingest.pdf_native", "request_id": "de5aa99f-a8b8-4b6f-8ad9-22966a726e47", "message": "PDF file closed"}

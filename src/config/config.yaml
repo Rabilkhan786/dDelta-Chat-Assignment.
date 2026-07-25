@@ -1,0 +1,60 @@
+app:
+  name: "Delta Chat"
+  version: "1.0.0"
+
+# LLM Configuration
+
+llm:
+  provider: "openai"
+  model: "gpt-4.1-mini"
+  temperature: 0.0
+  max_tokens: 2048
+
+
+# Embedding Model
+
+embedding:
+  model: "sentence-transformers/all-MiniLM-L6-v2"
+  device: "cpu"
+
+# ChromaDB
+
+chroma:
+  collection_name: "delta_chat"
+  persist_directory: "data/chroma_db"
+
+# Retrieval
+
+retrieval:
+  top_k: 5
+  hybrid: true
+  use_bm25: true
+  use_semantic: true
+
+# Chunking
+
+chunking:
+  strategy: "block"
+
+#
+# Data Paths
+
+paths:
+  revision_a: "data/input/Export Gas Compressor-P&ID (1).pdf"
+  revision_b: "data/input/Lift Gas compressor-P&ID.pdf"
+
+  canonical_a: "data/output/revision_a.json"
+  canonical_b: "data/output/revision_b.json"
+
+  delta_json: "data/reports/delta_report.json"
+  delta_markdown: "data/reports/delta_report.md"
+
+  bm25_index: "data/bm25/bm25.pkl"
+  bm25_documents: "data/bm25/documents.pkl"
+
+# Align 
+align:
+  similarity_threshold:  80.0
+  max_bbox_distance: 75.0
+
+
