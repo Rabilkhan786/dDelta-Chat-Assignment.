@@ -19,9 +19,14 @@ class HybridRetriever:
             raise ValueError("Question must not be empty.")
         with stage(logger, "retrieval"):
             index, documents = self.indexer.load()
-            scores = index.get_scores(self.indexer._tokenize(query))
+            query_tokens = self.indexer._tokenize(query)
+            scores = index.get_scores(query_tokens)
             ranked = sorted(enumerate(scores), key=lambda item: (-item[1], documents[item[0]].element_id))
             limit = top_k or settings.retrieval.top_k
-            matches = [documents[position] for position, score in ranked if score > 0][:limit]
+            matches = [
+                documents[position]
+                for position, _ in ranked
+                if set(query_tokens) & set(self.indexer._tokenize(documents[position].text))
+            ][:limit]
         logger.info("retrieval_completed", extra={"hits": len(matches), "question_length": len(query)})
         return matches

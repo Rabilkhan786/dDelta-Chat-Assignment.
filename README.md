@@ -17,7 +17,7 @@ uv run python -m eval.run_eval
 
 `ingest/` adapters normalize each source into `canonical/CanonicalDocument`. `delta/align.py` deterministically matches same-page, same-type, nearby elements with RapidFuzz text similarity. `delta/engine.py` classifies matched and unmatched elements without an LLM. `delta/report.py` emits JSON and Markdown. `chat/` indexes PID A, PID B, and report entries as separate source-labelled excerpts, retrieves with BM25, then calls the configured provider only for grounded answer generation. `observability/` emits JSON logs with request IDs and stage durations.
 
-Native PDF is demonstrated by the supplied documents. `ScannedPDFAdapter` is complete behind the same interface but requires the optional `paddleocr` package; DWG remains an explicit stub. This is a deliberate scope cut because no scanned PDF, DWG, or a workflow-guide PDF was supplied.
+Native PDF is demonstrated by the supplied documents. `ScannedPDFAdapter` is complete behind the same interface but requires the optional `paddleocr` package; DWG remains an explicit stub. This is a deliberate scope cut because no scanned PDF or DWG sample was supplied. The Assignment Specification and Project Workflow Guide are external session references and are intentionally not copied into this repository.
 
 ## Sample-data provenance and limitations
 
