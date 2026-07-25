@@ -49,7 +49,3 @@ If the API key is absent, invalid, rate-limited, or out of quota, chat logs the 
 ## Production considerations
 
 For larger drawing sets, batch canonical ingestion and index per document version; constrain OCR concurrency; persist report/version metadata; add human review for low-confidence changes; and export trace metrics to an observability backend. Keep `.env` private and rotate provider keys. The current lexical retriever is predictable and inspectable, but a production system may add a separately evaluated semantic retriever.
-
-## Interview discussion
-
-Why deterministic delta? It makes structural changes reproducible, debuggable, and measurable. Why a canonical model? It decouples downstream comparison/retrieval from source formats. The principal limitation is matching moved/reflowed content and unlabelled sample data; the next step is a reviewer-labelled revision dataset and false-positive analysis.
