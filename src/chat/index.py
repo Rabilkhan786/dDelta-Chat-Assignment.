@@ -6,6 +6,7 @@ import pickle
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from rank_bm25 import BM25Okapi
 
@@ -29,12 +30,19 @@ class IndexedDocument:
 
 
 class DocumentIndexer:
-    """Build and persist a BM25 index while retaining PID A/B/report provenance."""
+    """Build lexical and semantic indexes while retaining PID A/B/report provenance."""
 
-    def __init__(self, index_path: Path | None = None, documents_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        index_path: Path | None = None,
+        documents_path: Path | None = None,
+        semantic_enabled: bool | None = None,
+    ) -> None:
         self.index_path = index_path or project_path(settings.paths.bm25_index)
         self.documents_path = documents_path or project_path(settings.paths.bm25_documents)
         self.index_path.parent.mkdir(parents=True, exist_ok=True)
+        self.semantic_enabled = settings.retrieval.use_semantic if semantic_enabled is None else semantic_enabled
+        self._vector_store: Any | None = None
 
     @staticmethod
     def _tokenize(text: str) -> list[str]:
@@ -62,7 +70,7 @@ class DocumentIndexer:
         ) for index, delta in enumerate(deltas, start=1)]
 
     def build(self, pid_a: CanonicalDocument, pid_b: CanonicalDocument, deltas: list[DeltaEntry]) -> int:
-        """Persist a reproducible index of PID A, PID B, and the delta report."""
+        """Persist BM25 and semantic indexes of PID A, PID B, and the delta report."""
         with stage(logger, "retrieval_index_build"):
             documents = (self.create_documents(pid_a, "pid_a") + self.create_documents(pid_b, "pid_b")
                          + self.create_delta_documents(deltas, pid_b.metadata.pid))
@@ -73,6 +81,8 @@ class DocumentIndexer:
                 pickle.dump(documents, stream)
             with self.index_path.open("wb") as stream:
                 pickle.dump(BM25Okapi(corpus), stream)
+            if self.semantic_enabled:
+                self._build_semantic_index(documents)
         logger.info("retrieval_index_built", extra={"documents": len(documents)})
         return len(documents)
 
@@ -85,3 +95,63 @@ class DocumentIndexer:
         with self.documents_path.open("rb") as stream:
             documents = pickle.load(stream)
         return index, documents
+
+    @staticmethod
+    def document_key(document: IndexedDocument) -> str:
+        """Return the stable identity used to join lexical and semantic results."""
+        return f"{document.source}:{document.pid}:{document.page_number}:{document.element_id}"
+
+    def semantic_search(self, query: str, limit: int) -> list[IndexedDocument]:
+        """Search the persisted vector store and restore canonical citation metadata."""
+        _, documents = self.load()
+        documents_by_key = {self.document_key(document): document for document in documents}
+        matches = self._semantic_store().similarity_search(query, k=limit)
+        results: list[IndexedDocument] = []
+        for match in matches:
+            document = documents_by_key.get(match.metadata.get("document_key", ""))
+            if document is not None:
+                results.append(document)
+        return results
+
+    def _semantic_store(self) -> Any:
+        """Create the configured persistent Chroma store only when semantic search is used."""
+        if self._vector_store is None:
+            try:
+                from langchain_chroma import Chroma
+                from langchain_huggingface import HuggingFaceEmbeddings
+            except ImportError as error:
+                raise RuntimeError(
+                    "Semantic retrieval requires langchain-chroma and langchain-huggingface. "
+                    "Run `uv sync --locked`."
+                ) from error
+            try:
+                embeddings = HuggingFaceEmbeddings(
+                    model_name=settings.embedding.model,
+                    model_kwargs={"device": settings.embedding.device},
+                    encode_kwargs={"normalize_embeddings": True},
+                )
+            except Exception as error:
+                raise RuntimeError(
+                    f"Unable to load semantic embedding model '{settings.embedding.model}'. "
+                    "Check model availability, network access, and available memory."
+                ) from error
+            self._vector_store = Chroma(
+                collection_name=settings.chroma.collection_name,
+                persist_directory=str(project_path(settings.chroma.persist_directory)),
+                embedding_function=embeddings,
+            )
+        return self._vector_store
+
+    def _build_semantic_index(self, documents: list[IndexedDocument]) -> None:
+        """Replace this project's semantic collection with the current canonical excerpts."""
+        store = self._semantic_store()
+        existing = store.get(include=[]).get("ids", [])
+        if existing:
+            store.delete(ids=existing)
+        store.add_texts(
+            texts=[document.text for document in documents],
+            ids=[self.document_key(document) for document in documents],
+            metadatas=[{"document_key": self.document_key(document)} for document in documents],
+        )
+        logger.info("semantic_index_built", extra={"documents": len(documents),
+            "embedding_model": settings.embedding.model})
