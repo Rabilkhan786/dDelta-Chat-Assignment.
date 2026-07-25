@@ -31,7 +31,7 @@ The evaluation harness derives predicted IDs from `data/reports/delta_report.jso
 
 ## Configuration, environment, and validation
 
-`src/config/config.yaml` centralizes document paths, alignment thresholds, automatic-detection threshold, OCR DPI, retrieval settings, model selection, and token pricing. Copy `.env.example` to `.env` and set `OPENAI_API_KEY` for live grounded-chat validation; Langfuse variables remain optional. The validation sequence is `uv run pytest -q`, `uv run python main.py run`, and then `uv run python main.py chat "What changed near the compressor?"`. Confirm the resulting JSON log includes the answer, citations, request ID, stage duration, token counts, and `estimated_cost_usd`.
+`src/config/config.yaml` centralizes document paths, alignment thresholds, automatic-detection threshold, OCR DPI, retrieval settings, model selection, and token pricing. Create a local `.env` and set `OPENAI_API_KEY` for live grounded-chat validation; Langfuse variables remain optional. The validation sequence is `uv run pytest -q`, `uv run python main.py run`, and then `uv run python main.py chat "What changed near the compressor?"`. Confirm the resulting JSON log includes the answer, citations, request ID, stage duration, token counts, and `estimated_cost_usd`.
 
 If the API key is absent, invalid, rate-limited, or out of quota, chat logs the provider failure and returns a clear validation message with the retrieved evidence citations; it does not fabricate an answer, token counts, or cost. Restore provider availability and rerun the command to validate live answer, token, and cost telemetry.
 

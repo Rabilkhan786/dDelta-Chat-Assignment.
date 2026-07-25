@@ -23,8 +23,7 @@ This walkthrough demonstrates the required pipeline with the supplied P&ID PDFs.
 4. Configure the LLM only for grounded chat.
 
    ```powershell
-   Copy-Item .env.example .env
-   # Set OPENAI_API_KEY in .env
+   # Create .env and set OPENAI_API_KEY
    uv run python main.py chat "What changed near the compressor?"
    ```
 
