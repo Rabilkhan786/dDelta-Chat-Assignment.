@@ -4,7 +4,7 @@ Delta Engine
 Converts AlignmentResult into structured DeltaEntry objects.
 """
 
-import logging
+from src.observability.logging import get_logger, stage
 
 from src.canonical.model import (
     Alignment,
@@ -14,7 +14,7 @@ from src.canonical.model import (
     Element,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class DeltaEngine:
@@ -30,7 +30,11 @@ class DeltaEngine:
         Compare two aligned documents and return detected changes.
         """
 
-        logger.info("Starting delta comparison")
+        with stage(logger, "delta_comparison"):
+            return self._compare(alignment_result)
+
+    def _compare(self, alignment_result: AlignmentResult) -> list[DeltaEntry]:
+        """Perform deterministic classification over an existing alignment."""
 
         deltas: list[DeltaEntry] = []
 
@@ -195,7 +199,7 @@ class DeltaEngine:
                 f"'{element.text}'"
             ),
             confidence=self._calculate_confidence(
-                similarity=1.0,
+                similarity=100.0,
                 old_element=element,
                 new_element=None,
             ),
@@ -216,7 +220,7 @@ class DeltaEngine:
                 f"'{element.text}'"
             ),
             confidence=self._calculate_confidence(
-                similarity=1.0,
+                similarity=100.0,
                 old_element=None,
                 new_element=element,
             ),
@@ -249,10 +253,11 @@ class DeltaEngine:
             source = old_element.source
             ocr_confidence = old_element.ocr_confidence
 
+        normalized_similarity = max(0.0, min(similarity / 100.0, 1.0))
         if source == "native" or ocr_confidence is None:
-            confidence = similarity
+            confidence = normalized_similarity
 
         else:
-            confidence = similarity * ocr_confidence
+            confidence = normalized_similarity * ocr_confidence
 
         return round(min(confidence, 1.0), 2)

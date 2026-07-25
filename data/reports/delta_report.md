@@ -25,7 +25,7 @@ New Document : Lift Gas compressor-P&ID.pdf
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '26-KA-902
 3RD STAGE HP GAS EXPORT COMPRESSOR' to '26-KA-901
 3RD STAGE HP GAS LIFT COMPRESSOR'
@@ -36,7 +36,7 @@ New Document : Lift Gas compressor-P&ID.pdf
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3467' to 'N4467'
 - Bounding Box : (712.20, 279.70) → (727.53, 285.43)
 
@@ -45,7 +45,7 @@ New Document : Lift Gas compressor-P&ID.pdf
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from '43BL9054
 43-900002-001
 TO LP FLARE' to '43BL9070
@@ -59,7 +59,7 @@ TO LP FLARE
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from '3"x6"' to '4"x6"'
 - Bounding Box : (532.58, 258.75) → (538.31, 271.64)
 
@@ -68,7 +68,7 @@ TO LP FLARE
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from '26-000003-001' to '26-000006-001'
 - Bounding Box : (1111.08, 234.70) → (1146.56, 240.43)
 
@@ -77,7 +77,7 @@ TO LP FLARE
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from 'TO 3RD STAGE HP GAS
 EXPORT COMPRESSOR
 AFTER COOLER' to 'TO 3RD STAGE HP
@@ -91,7 +91,7 @@ AFTER COOLER'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from 'NOTE 26' to 'SECONDARY
 LEAKAGE
 VENT
@@ -103,7 +103,7 @@ NOTE 24'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'SKID INCLUDING LO SYSTEM,
 SEAL GAS SYSTEM (HC GAS PRIMARY & N2
 SECONDARY) AND LEAKAGE SYSTEM.
@@ -118,7 +118,7 @@ SECONDARY) AND LEAKAGE SYSTEM.'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3205' to 'N4205'
 - Bounding Box : (415.44, 278.38) → (430.77, 284.11)
 
@@ -127,7 +127,7 @@ SECONDARY) AND LEAKAGE SYSTEM.'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26-CX-9021' to '26-CX-9011'
 - Bounding Box : (452.64, 158.38) → (479.62, 164.11)
 
@@ -145,7 +145,7 @@ SECONDARY) AND LEAKAGE SYSTEM.'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3228' to 'N4228'
 - Bounding Box : (434.40, 278.38) → (449.73, 284.11)
 
@@ -163,7 +163,7 @@ SECONDARY) AND LEAKAGE SYSTEM.'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from 'N3232
 N3606' to 'N4232
 N4606'
@@ -174,7 +174,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26BL9031' to '26'
 - Bounding Box : (803.88, 176.50) → (809.69, 182.23)
 
@@ -183,7 +183,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '26GT9132' to '26GT9173'
 - Bounding Box : (835.92, 153.70) → (859.77, 159.43)
 
@@ -192,7 +192,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26BL9032' to '26'
 - Bounding Box : (847.56, 68.74) → (853.37, 74.47)
 
@@ -201,7 +201,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '300#
 150#' to '150#'
 - Bounding Box : (898.82, 62.90) → (904.55, 74.48)
@@ -211,7 +211,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '/' to 'FB/ILO'
 - Bounding Box : (889.56, 135.34) → (905.01, 141.07)
 
@@ -220,7 +220,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '43GT9052' to '43GT9075'
 - Bounding Box : (970.56, 114.10) → (994.41, 119.83)
 
@@ -238,7 +238,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '1500#' to '150#'
 - Bounding Box : (992.78, 62.90) → (998.51, 74.48)
 
@@ -247,7 +247,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.84
 - Description : text changed from '300#
 150#' to '300#
 2500#'
@@ -258,7 +258,7 @@ N4606'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26
 43-900001-001
 TO HP FLARE' to '26
@@ -282,7 +282,7 @@ INTERLOCK'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from '4"-PV-26-9020-FC11S-38' to '4"-PV-26-9047-GC11S-38'
 - Bounding Box : (895.20, 210.70) → (953.77, 216.43)
 
@@ -291,7 +291,7 @@ INTERLOCK'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from '4"-PV-26-9021-FC11S-38' to '4"-PV-26-9048-GC11S-38'
 - Bounding Box : (895.44, 195.46) → (954.01, 201.19)
 
@@ -300,7 +300,7 @@ INTERLOCK'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from '2"-PV-26-9070-FC11S-38' to '2"-PV-26-9068-GC11S-38'
 - Bounding Box : (965.88, 220.06) → (1024.44, 225.79)
 
@@ -309,7 +309,7 @@ INTERLOCK'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from '2"-VF-43-9008-AS20S-00' to '2"-VF-43-9026-AS20S-00'
 - Bounding Box : (1074.98, 112.49) → (1080.71, 170.00)
 
@@ -327,7 +327,7 @@ INTERLOCK'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from 'PIT
 9016' to 'PDIT
 9056'
@@ -347,7 +347,7 @@ INTERLOCK'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from '9016
 PI
 26
@@ -375,7 +375,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from '26-000001-001' to '26-000006-001'
 - Bounding Box : (36.12, 132.82) → (71.60, 138.55)
 
@@ -384,7 +384,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from 'ASC/PIC3-GE' to 'ASC/PIC3-GL'
 - Bounding Box : (337.92, 67.54) → (367.29, 73.27)
 
@@ -411,7 +411,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from 'PIT
 9026' to '26'
 - Bounding Box : (740.88, 176.50) → (746.69, 182.23)
@@ -421,7 +421,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26' to '9063
 TI
 26
@@ -435,7 +435,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.94
 - Description : text changed from '9026
 PI
 26
@@ -463,7 +463,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '9025
 TI
 26
@@ -495,7 +495,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26' to '26BL9072'
 - Bounding Box : (854.88, 175.42) → (877.85, 181.15)
 
@@ -522,7 +522,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '*
 PIT
 9023' to '*
@@ -544,7 +544,7 @@ PIT
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from '9023
 PI
 26
@@ -567,7 +567,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'LL : 110' to 'LL: 120'
 - Bounding Box : (652.80, 159.34) → (669.17, 165.07)
 
@@ -585,7 +585,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from 'RS
 4"' to 'RS'
 - Bounding Box : (408.36, 265.66) → (414.10, 271.39)
@@ -595,7 +595,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'NOTE 13, 21' to 'NOTE 13,21'
 - Bounding Box : (360.12, 200.98) → (387.57, 206.71)
 
@@ -604,7 +604,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26
 *' to '26'
 - Bounding Box : (416.64, 205.66) → (422.45, 211.39)
@@ -614,7 +614,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from 'LL : 50' to 'LL :50'
 - Bounding Box : (301.56, 233.62) → (315.02, 239.35)
 
@@ -623,7 +623,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from 'NOTE 3' to 'NOTE 31'
 - Bounding Box : (303.96, 228.22) → (324.16, 233.95)
 
@@ -641,7 +641,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from 'PDIT
 9015' to 'PDIT
 9054'
@@ -661,7 +661,7 @@ D
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.94
 - Description : text changed from '9015
 PDI
 26
@@ -689,7 +689,7 @@ D'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from 'TO 3RD STAGE HP GAS EXPORT
 COMPRESSOR ANTI-SURGE 26-FV-9038' to 'TO 3RD STAGE HP GAS LIFT
 COMPRESSOR ANTI-SURGE
@@ -701,7 +701,7 @@ VALVE, 26-FV-9076'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from '63-900002-002
 INSTRUMENT AIR
 1"-AI-63-9000-AS20-00
@@ -713,7 +713,7 @@ N3202' to '1"-AI-63-9007-AS20-00'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from '63-900002-002
 INSTRUMENT AIR
 1"-AI-63-9001-AS20-00
@@ -725,7 +725,7 @@ N3608' to '1"-AI-63-9006-AS20-00'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from '64GT9002
 64CH9001' to '64GT9004
 64CH9003
@@ -748,7 +748,7 @@ LUBE OIL COOLERS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.93
 - Description : text changed from '40BL9003
 3"-WC-40-9000-AC21-00
 40-900003-001' to '40BL9020
@@ -761,7 +761,7 @@ LUBE OIL COOLERS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '2"-WC-40-9001-AC21-00' to '2"-WC-40-9013-AC21-00'
 - Bounding Box : (159.24, 492.34) → (216.82, 498.07)
 
@@ -788,7 +788,7 @@ LUBE OIL COOLERS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from '9017
 PDI
 26
@@ -825,7 +825,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from '1500#' to '300#
 2500#'
 - Bounding Box : (845.04, 96.46) → (859.52, 109.75)
@@ -835,7 +835,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from 'N3604
 NOTE 9' to 'NOTE 9'
 - Bounding Box : (626.52, 521.14) → (643.81, 526.87)
@@ -845,7 +845,7 @@ NOTE 9' to 'NOTE 9'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '2H3
 BLOCKED OUTLET' to 'BLOCKED OUTLET'
 - Bounding Box : (837.36, 48.34) → (878.60, 54.07)
@@ -855,7 +855,7 @@ BLOCKED OUTLET' to 'BLOCKED OUTLET'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from 'FC11S  AS20S' to 'GC11S  AS20S'
 - Bounding Box : (1037.28, 181.01) → (1066.18, 186.17)
 
@@ -864,7 +864,7 @@ BLOCKED OUTLET' to 'BLOCKED OUTLET'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26CB9121' to '26'
 - Bounding Box : (334.92, 201.10) → (340.73, 206.83)
 
@@ -873,7 +873,7 @@ BLOCKED OUTLET' to 'BLOCKED OUTLET'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26CB9122' to '26'
 - Bounding Box : (325.92, 217.30) → (331.73, 223.03)
 
@@ -882,7 +882,7 @@ BLOCKED OUTLET' to 'BLOCKED OUTLET'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '26CB9124' to '26CB9274'
 - Bounding Box : (361.44, 254.50) → (385.06, 260.23)
 
@@ -891,7 +891,7 @@ BLOCKED OUTLET' to 'BLOCKED OUTLET'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.87
 - Description : text changed from '1.
 26-PDI-9015 HH INITIATE PRESSURIZED COMPRESSOR STOP.
 2.
@@ -966,7 +966,7 @@ SCOPE.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'TAG NUMBER
 26-KA-902' to 'TAG NUMBER
 26-KA-901'
@@ -977,7 +977,7 @@ SCOPE.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from 'SERVICE
 3RD STAGE HP GAS EXPORT COMPRESSOR' to 'SERVICE
 3RD STAGE HP GAS LIFT COMPRESSOR'
@@ -988,7 +988,7 @@ SCOPE.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from 'DUTY                                                                               kW
 1835      NOTE 29' to 'DUTY                                                                         kW
 776             NOTE 28'
@@ -999,7 +999,7 @@ SCOPE.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from 'FLOW RATE                                                                    kg/h
 62809    NOTE 30' to 'FLOW RATE                                                              kg/h
 19057          NOTE 29'
@@ -1010,7 +1010,7 @@ SCOPE.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from 'DISCHARGE / SUCTION OP. PRESS. (MAX)                Barg
 199   /   108.5' to 'DISCHARGE / SUCTION OP. PRESS. (MAX)          Barg
 229 / 108.5'
@@ -1021,7 +1021,7 @@ SCOPE.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from 'DISCHARGE / SUCTION OP. TEMP.                            °C
 77 - 109   /   50' to 'DISCHARGE / SUCTION OP. TEMP.                       °C
 122 - 135 / 50'
@@ -1032,7 +1032,7 @@ SCOPE.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)        Barg
 FV / 286   /   FV / 286                                NOTE 22' to 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)    Barg
 FV / 286  / FV / 286   NOTE 22'
@@ -1043,7 +1043,7 @@ FV / 286  / FV / 286   NOTE 22'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from 'DISCHARGE / SUCTION DESIGN TEMP.                     °C
 -46 / 160   /   -46 / 160                             NOTE 22' to 'DISCHARGE / SUCTION DESIGN TEMP.                °C
 -46 / 160  / -46 / 160'
@@ -1074,7 +1074,7 @@ LTCS (1.7218)'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.97
 - Description : text changed from 'TYPE
 VARIABLE SPEED MOTOR  DRIVEN CENTRIFUGAL' to 'TYPE
 VARIABLE SPEED MOTOR DRIVEN
@@ -1086,7 +1086,7 @@ CENTRIFUGAL'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.97
 - Description : text changed from 'VESSEL TRIM
 TT-26-9711-AS20-00' to 'VESSEL TRIM
 TT-26-9712-AS20-00'
@@ -1107,7 +1107,7 @@ MAN ENERGY SOLUTIONS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '26GT9135' to '26GT9175'
 - Bounding Box : (1037.28, 148.42) → (1061.13, 154.15)
 
@@ -1116,7 +1116,7 @@ MAN ENERGY SOLUTIONS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '26BL9034' to '26BL9074'
 - Bounding Box : (983.04, 167.86) → (1006.01, 173.59)
 
@@ -1125,7 +1125,7 @@ MAN ENERGY SOLUTIONS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.97
 - Description : text changed from '(MOTOR PURGE SYSTEM ; EX-P TYPE MOTOR)' to '(MOTOR PURGE SYSTEM; EX-P TYPE MOTOR )'
 - Bounding Box : (88.44, 322.42) → (194.58, 328.15)
 
@@ -1134,7 +1134,7 @@ MAN ENERGY SOLUTIONS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from 'N3601
 NOTE 26' to 'NOTE 11'
 - Bounding Box : (351.48, 338.02) → (371.68, 343.75)
@@ -1144,7 +1144,7 @@ NOTE 26' to 'NOTE 11'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26' to '26CB9167'
 - Bounding Box : (368.40, 212.62) → (392.02, 218.35)
 
@@ -1163,7 +1163,7 @@ NOTE 26' to 'NOTE 11'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.94
 - Description : text changed from 'OMS MODULE
 N3229' to 'OMS MODULE
 N4229'
@@ -1174,7 +1174,7 @@ N4229'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3214' to 'N4214'
 - Bounding Box : (458.88, 180.70) → (474.21, 186.43)
 
@@ -1183,7 +1183,7 @@ N4229'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3201' to 'N4201'
 - Bounding Box : (447.24, 169.42) → (462.57, 175.15)
 
@@ -1201,7 +1201,7 @@ N4229'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3215' to 'N4215'
 - Bounding Box : (458.40, 198.70) → (473.73, 204.43)
 
@@ -1210,7 +1210,7 @@ N4229'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '63BL9020' to '63BL9023'
 - Bounding Box : (281.40, 351.10) → (304.37, 356.83)
 
@@ -1228,7 +1228,7 @@ N4229'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from '43-900002-001' to '40-900003-001'
 - Bounding Box : (1110.36, 460.90) → (1145.84, 466.63)
 
@@ -1237,7 +1237,7 @@ N4229'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from 'TO 3RD STAGE HP
 GAS EXPORT
 COMPRESSOR
@@ -1261,7 +1261,7 @@ SUCTION SCRUBBER'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.87
 - Description : text changed from 'FROM 3RD STAGE HP
 GAS EXPORT SUCTION
 SCRUBBER' to 'FROM 3RD STAGE
@@ -1276,7 +1276,7 @@ SCRUBBER'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from '6"-VF-43-9011-AC21S-00' to '4"-VF-43-9033-AC11S-00'
 - Bounding Box : (1108.68, 337.18) → (1166.61, 342.91)
 
@@ -1295,7 +1295,7 @@ SCRUBBER'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from '8"-PV-26-9007-FC11S-08' to '8"-PV-26-9035-FC11S-08
 26-000004-001'
 - Bounding Box : (36.84, 183.82) → (164.50, 193.87)
@@ -1315,7 +1315,7 @@ SCRUBBER'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from '26-000001-001' to '26-000006-001'
 - Bounding Box : (36.84, 57.10) → (72.32, 62.83)
 
@@ -1324,7 +1324,7 @@ SCRUBBER'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from 'FROM 26-PIT-9087 IN 3RD
 STAGE HP GAS EXPORT
 COMPRESSOR INLET HEADER' to 'FROM 26-PIT-9077 IN 3RD
@@ -1346,7 +1346,7 @@ COMPRESSOR DISCHARGE'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.98
 - Description : text changed from 'COOLING MEDIUM RETURN
 FROM MOTOR COOLING
 40GT9078' to 'COOLING MEDIUM RETURN
@@ -1368,7 +1368,7 @@ FROM MOTOR COOLING
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '2"-WC-40-9035-AC21-00' to '2"-WC-40-9036-AC21-00'
 - Bounding Box : (92.28, 384.70) → (149.86, 390.43)
 
@@ -1377,7 +1377,7 @@ FROM MOTOR COOLING
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '2"-WC-40-9034-AC21-00
 40GT9077
 COOLING MEDIUM
@@ -1392,7 +1392,7 @@ COOLING'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3461' to 'N4461'
 - Bounding Box : (311.40, 358.06) → (326.73, 363.79)
 
@@ -1401,7 +1401,7 @@ COOLING'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3460' to 'N4603'
 - Bounding Box : (308.64, 426.58) → (323.97, 432.31)
 
@@ -1419,7 +1419,7 @@ COOLING'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from '19.
 SUCTION STRAINER (COMMISSIONING PHASE ONLY) WITH STRAIGHT PIPE RUNS
 MIN. 5xD UPSTREAM AND 2xD DOWNSTREAM TO AVOID DAMAGE DUE TO
@@ -1468,7 +1468,7 @@ PRESSURE IS CONTROLLED WITH VSD.
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'PROVISION FOR
 OIL CONDITIONER
 -RETURN' to 'PROVISION
@@ -1482,7 +1482,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'PROVISION FOR
 OIL CONDITIONER
 -INLET' to 'PROVISION
@@ -1505,7 +1505,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.93
 - Description : text changed from '150# DSS  AC21S' to '#150 DSS  AC21S'
 - Bounding Box : (735.96, 254.81) → (771.12, 259.97)
 
@@ -1514,7 +1514,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from 'FC11S
 #2500' to 'GC11S
 #2500'
@@ -1525,7 +1525,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '2"-VA-26-9110-AS20S-00' to '2"-VA-26-9119-AS20S-00'
 - Bounding Box : (514.08, 208.54) → (572.28, 214.27)
 
@@ -1543,7 +1543,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.80
 - Description : text changed from 'N3466' to 'N4466'
 - Bounding Box : (486.72, 278.38) → (502.05, 284.11)
 
@@ -1561,7 +1561,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from 'NOTE 3,8,14
 26-CX-9222' to 'NOTE 3, 8,14'
 - Bounding Box : (468.48, 213.58) → (498.65, 219.31)
@@ -1580,7 +1580,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from '2"-VA-26-9111-AS20S-00' to '2"-VA-26-9120-AS20S-00'
 - Bounding Box : (514.08, 201.22) → (572.28, 206.95)
 
@@ -1589,7 +1589,7 @@ CONDITIONER
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from 'SECONDARY
 LEAKAGE
 VENT
@@ -1613,7 +1613,7 @@ VENT'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from '3/4"-VA-26-9114-AC21-00' to '3/4"-VA-26-9123-AC21-00'
 - Bounding Box : (457.70, 209.57) → (463.43, 270.68)
 
@@ -1622,7 +1622,7 @@ VENT'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '3"-VA-26-9112-AC21-00' to '3"-VA-26-9121-AC21-00'
 - Bounding Box : (446.18, 209.29) → (451.91, 265.28)
 
@@ -1631,7 +1631,7 @@ VENT'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '3"-VA-26-9113-AC21-00' to '3"-VA-26-9122-AC21-00'
 - Bounding Box : (466.20, 171.58) → (522.19, 177.31)
 
@@ -1640,7 +1640,7 @@ VENT'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '(BY MAN)' to '(BY
 MAN)'
 - Bounding Box : (477.84, 192.10) → (491.50, 204.19)
@@ -1650,7 +1650,7 @@ MAN)'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from 'DSS' to '2500#  GS20S
 DSS'
 - Bounding Box : (732.72, 500.45) → (761.31, 510.19)
@@ -1660,7 +1660,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '26-KZ-902' to '26-KZ-901'
 - Bounding Box : (572.16, 309.40) → (610.09, 318.57)
 
@@ -1687,7 +1687,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from 'SP= 225.4 bar (g)' to 'SP = 257 bar (g)'
 - Bounding Box : (1038.00, 68.86) → (1074.29, 74.59)
 
@@ -1705,7 +1705,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '63BL9022' to '63BL9021'
 - Bounding Box : (281.40, 328.06) → (304.37, 333.79)
 
@@ -1714,7 +1714,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.91
 - Description : text changed from '10"-VF-43-9007-AS20S-00' to '10"-VF-43-9025-AS20S-00'
 - Bounding Box : (996.24, 29.50) → (1056.66, 35.23)
 
@@ -1723,7 +1723,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '5D
 2D
 10D
@@ -1736,7 +1736,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from 'NOTE 31' to 'NOTE 35'
 - Bounding Box : (384.48, 184.30) → (404.68, 190.03)
 
@@ -1754,7 +1754,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.86
 - Description : text changed from 'NOTE 31' to 'NOTE 30'
 - Bounding Box : (158.64, 238.78) → (178.84, 244.51)
 
@@ -1763,7 +1763,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.83
 - Description : text changed from '26-000001-001' to '26-000006-001
 26-PY-9077A
 MEASUREMENT'
@@ -1802,7 +1802,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.92
 - Description : text changed from '26-KA-902-M01' to '26-KA-901-M01'
 - Bounding Box : (360.00, 376.66) → (396.81, 382.39)
 
@@ -1811,7 +1811,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.93
 - Description : text changed from '3"x2"
 3"-WC-40-9003-AC21-00' to '3"x2"
 3"-WC-40-9015-AC21-00'
@@ -1831,7 +1831,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from 'L: 125
 H: 209' to 'H: 145'
 - Bounding Box : (827.04, 142.54) → (842.16, 160.27)
@@ -1850,7 +1850,7 @@ H: 209' to 'H: 145'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '43-900001-001
 TO HP FLARE' to '43-900001-001'
 - Bounding Box : (1111.08, 33.82) → (1146.56, 39.55)
@@ -1860,7 +1860,7 @@ TO HP FLARE' to '43-900001-001'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'LUBE OIL
 RESERVOIR
 DRAIN
@@ -1874,7 +1874,7 @@ DRAIN'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'LUBE OIL
 RESERVOIR
 DRAIN
@@ -1897,7 +1897,7 @@ DRAIN'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.98
 - Description : text changed from 'O3207
 PURGE GAS
 CONNECTION
@@ -1912,7 +1912,7 @@ FOR LO RESERVOIR'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '40GT9306' to '40GT9310'
 - Bounding Box : (274.08, 450.10) → (297.93, 455.83)
 
@@ -1921,7 +1921,7 @@ FOR LO RESERVOIR'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '40GT9304' to '40GT9308'
 - Bounding Box : (225.48, 483.34) → (249.33, 489.07)
 
@@ -1930,7 +1930,7 @@ FOR LO RESERVOIR'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '40GT9303' to '40GT9309'
 - Bounding Box : (273.84, 472.06) → (297.69, 477.79)
 
@@ -1939,7 +1939,7 @@ FOR LO RESERVOIR'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.84
 - Description : text changed from '40GT9302
 40GT9301' to '40GT9307'
 - Bounding Box : (261.36, 511.30) → (285.21, 517.03)
@@ -1960,7 +1960,7 @@ DSS'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '26BL9854' to '26BL9754'
 - Bounding Box : (566.64, 507.94) → (589.61, 513.67)
 
@@ -1989,7 +1989,7 @@ FILLING'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '56-900001-006
 TO HAZ. OPEN DRAIN' to '56-900001-006
 HAZ. OPEN DRAIN'
@@ -2000,7 +2000,7 @@ HAZ. OPEN DRAIN'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '56-900001-006
 TO HAZ. OPEN DRAIN' to '56-900001-006'
 - Bounding Box : (1111.08, 619.06) → (1146.56, 624.79)
@@ -2028,7 +2028,7 @@ TO HAZ. OPEN DRAIN' to '56-900001-006'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'TO HAZ. OPEN DRAIN' to 'HAZ. OPEN DRAIN'
 - Bounding Box : (1104.72, 631.06) → (1146.70, 636.79)
 
@@ -2037,7 +2037,7 @@ TO HAZ. OPEN DRAIN' to '56-900001-006'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'TO HAZ. OPEN DRAIN' to 'HAZ. OPEN DRAIN'
 - Bounding Box : (1104.72, 651.46) → (1146.70, 657.19)
 
@@ -2136,7 +2136,7 @@ TO HAZ. OPEN DRAIN' to '56-900001-006'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '26CB9811' to '26CB9711'
 - Bounding Box : (454.34, 459.70) → (460.07, 483.32)
 
@@ -2145,7 +2145,7 @@ TO HAZ. OPEN DRAIN' to '56-900001-006'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from 'FB ILO
 FB ILO
 /' to 'FB ILO
@@ -2167,7 +2167,7 @@ FB/ILO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26CB9812
 CSC' to 'CSC'
 - Bounding Box : (514.10, 468.34) → (519.83, 477.08)
@@ -2177,7 +2177,7 @@ CSC' to 'CSC'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '26CB9130
 CSO' to 'CSO'
 - Bounding Box : (661.92, 213.58) → (671.40, 219.31)
@@ -2214,7 +2214,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '1"BLAS10R
 2"GTAC10R' to '2"GTAC10R'
 - Bounding Box : (168.48, 354.22) → (195.40, 359.95)
@@ -2224,7 +2224,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '3/4"GTAC00R
 2"GTAC10R' to '2"GTAC10R
 3/4"GTAC00R'
@@ -2263,7 +2263,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '2"GBAC10R
 2"GBAC10R
 3/4"GTAC00R' to '2"GBAC10R
@@ -2275,7 +2275,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '3/4"GTAC00R
 3/4"GTAC00R' to '2"BLAC00R
 3/4"GTAC00R
@@ -2296,7 +2296,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.83
 - Description : text changed from '3/4"CBFC21JX' to '1/2"CBFC21JX'
 - Bounding Box : (363.60, 217.66) → (396.41, 223.39)
 
@@ -2341,7 +2341,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '4"BLFC61J' to '4"BLGC61J'
 - Bounding Box : (853.20, 180.34) → (878.25, 186.07)
 
@@ -2350,7 +2350,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '4"BLFC61J' to '4"BLGC61J'
 - Bounding Box : (852.96, 137.26) → (878.01, 142.99)
 
@@ -2359,7 +2359,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from '3/4"GTFC01J
 3/4"GTAS00R' to '1"GTGC11J
 3/4"GTAS00R'
@@ -2380,7 +2380,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from '3/4"GTAS00R
 3/4"GTFC01J' to '3/4"GTAS00R
 1"GTGC11J'
@@ -2391,7 +2391,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '4"BLFC61J' to '4"BLGC61J'
 - Bounding Box : (981.36, 134.38) → (1006.41, 140.11)
 
@@ -2400,7 +2400,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '4"BLFC61J' to '4"BLGC61J'
 - Bounding Box : (981.60, 172.42) → (1006.65, 178.15)
 
@@ -2409,7 +2409,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '2"GBFC11J' to '2"GBGC11J'
 - Bounding Box : (1013.52, 194.14) → (1039.78, 199.87)
 
@@ -2418,7 +2418,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '2"BLFC61J' to '2"BLGC61J'
 - Bounding Box : (1034.64, 211.30) → (1059.69, 217.03)
 
@@ -2445,7 +2445,7 @@ CSO' to 'CSO'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.93
 - Description : text changed from '34.
 PROVISION FOR FUTURE HOT GAS BYPASS LINE.
 35.
@@ -2460,7 +2460,7 @@ THIS P&ID CONTAINS DCN-KP-0839-2/0970-1/1261-1.'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.82
 - Description : text changed from '26-9169
 26-9115
 1/2"-PL-26-9169-FC11S-00' to '26-9170 26-9117
@@ -2472,7 +2472,7 @@ THIS P&ID CONTAINS DCN-KP-0839-2/0970-1/1261-1.'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.85
 - Description : text changed from '43-9993
 43-9015
 1/2"-PL-43-9993-GS20S-00' to '1/2"-PL-43-9994-GS20S-00
@@ -2493,7 +2493,7 @@ THIS P&ID CONTAINS DCN-KP-0839-2/0970-1/1261-1.'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '9017
 FI
 26
@@ -2521,7 +2521,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.88
 - Description : text changed from '9018
 TI
 26
@@ -2540,7 +2540,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.96
 - Description : text changed from '12mm-PV-26-9116-FD70X-00' to '12mm-PV-26-9118-FD70X-00'
 - Bounding Box : (268.44, 247.66) → (336.60, 253.39)
 
@@ -2585,7 +2585,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '3"-DO-56-9000-AC21-00' to '3"-DO-56-9009-AC21-00'
 - Bounding Box : (1027.32, 594.34) → (1084.06, 600.07)
 
@@ -2594,7 +2594,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '3"-DO-56-9002-AC21-00' to '3"-DO-56-9011-AC21-00'
 - Bounding Box : (1026.96, 614.38) → (1083.70, 620.11)
 
@@ -2603,7 +2603,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '3"-DO-56-9004-AC21-00' to '3"-DO-56-9013-AC21-00'
 - Bounding Box : (1027.44, 633.70) → (1084.18, 639.43)
 
@@ -2612,7 +2612,7 @@ P'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.95
 - Description : text changed from '3"-DO-56-9051-AC21-00' to '3"-DO-56-9053-AC21-00'
 - Bounding Box : (1028.16, 655.78) → (1084.90, 661.51)
 
@@ -2631,7 +2631,7 @@ FD70X'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.89
 - Description : text changed from '26-CK-921' to '26-CK-911'
 - Bounding Box : (501.00, 182.44) → (539.53, 191.61)
 
@@ -2640,7 +2640,7 @@ FD70X'
 - Type : modified
 - Element : text
 - Page : 1
-- Confidence : 1.00
+- Confidence : 0.90
 - Description : text changed from '1"GTGS10J' to '43GT9985
 1"GTGS10J'
 - Bounding Box : (835.44, 537.34) → (860.95, 547.63)

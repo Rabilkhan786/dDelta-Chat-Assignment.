@@ -5,6 +5,9 @@ from collections import Counter
 from pathlib import Path
 
 from src.canonical.model import CanonicalDocument, DeltaEntry
+from src.observability.logging import get_logger, stage
+
+logger = get_logger(__name__)
 
 
 class DeltaReportGenerator:
@@ -38,14 +41,10 @@ class DeltaReportGenerator:
             This can be directly used for indexing.
         """
 
-        report = self._build_report(
-            old_doc,
-            new_doc,
-            deltas,
-        )
-
-        self._generate_markdown(report)
-        self._generate_json(report)
+        with stage(logger, "delta_report_generation"):
+            report = self._build_report(old_doc, new_doc, deltas)
+            self._generate_markdown(report)
+            self._generate_json(report)
 
         return report
 
@@ -174,4 +173,4 @@ class DeltaReportGenerator:
         report_path = self.output_dir / "delta_report.json"
 
         with open(report_path, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=4)
+            json.dump(report, f, indent=2, sort_keys=True)

@@ -1,138 +1,70 @@
+"""Native (text-layer) PDF adapter."""
+
+from hashlib import sha256
 from pathlib import Path
-import uuid
+
 import fitz
 
-from src.canonical.model import (
-    BoundingBox,
-    CanonicalDocument,
-    DocumentMetadata,
-    Element,
-    ElementType,
-    Page,
-)
+from src.canonical.model import BoundingBox, CanonicalDocument, DocumentMetadata, Element, ElementType, Page
 from src.ingest.base import FormatAdapter
-from src.observability.logging import setup_logger
+from src.observability.logging import get_logger, stage
 
-logger = setup_logger(__name__)
+logger = get_logger(__name__)
 
 
 class NativePDFAdapter(FormatAdapter):
-    """
-    Adapter for machine-readable PDF documents.
-    Converts a native PDF into the canonical representation.
-    """
+    """Convert a machine-readable PDF into the canonical representation."""
 
     SUPPORTED_SUFFIXES = {".pdf"}
 
     def supports(self, file_path: Path) -> bool:
         return file_path.suffix.lower() in self.SUPPORTED_SUFFIXES
 
-    def parse(self, file_path: Path) -> CanonicalDocument:
-
-        logger.info(
-            "Starting native PDF ingestion",
-            extra={"file": str(file_path)}
-        )
-
+    def extracted_text_characters(self, file_path: Path) -> int:
+        """Count selectable, non-whitespace text for automatic PDF routing."""
+        file_path = Path(file_path)
         if not self.supports(file_path):
-            logger.error(
-                "Unsupported file type",
-                extra={"file": str(file_path)}
-            )
-            raise ValueError(f"Unsupported file type: {file_path.suffix}")
-
-        pdf = fitz.open(file_path)
-
+            return 0
+        if not file_path.is_file():
+            raise FileNotFoundError(f"PDF does not exist: {file_path}")
         try:
+            with fitz.open(file_path) as pdf:
+                return sum(len(page.get_text("text").strip()) for page in pdf)
+        except fitz.FileDataError as error:
+            raise ValueError(f"Unable to open PDF '{file_path.name}'.") from error
 
-            pages = []
+    def parse(self, file_path: Path) -> CanonicalDocument:
+        file_path = Path(file_path)
+        if not self.supports(file_path):
+            raise ValueError(f"NativePDFAdapter does not support '{file_path.suffix}'.")
+        if not file_path.is_file():
+            raise FileNotFoundError(f"PDF does not exist: {file_path}")
 
-            for page_index, pdf_page in enumerate(pdf):
+        with stage(logger, "native_pdf_ingestion"):
+            try:
+                with fitz.open(file_path) as pdf:
+                    pages = [self._parse_page(pdf_page, page_number) for page_number, pdf_page in enumerate(pdf, start=1)]
+            except fitz.FileDataError as error:
+                raise ValueError(f"Unable to open PDF '{file_path.name}'.") from error
 
-                logger.info(
-                    "Extracting page",
-                    extra={"page": page_index + 1}
-                )
-
-                elements = []
-
-                blocks = pdf_page.get_text("blocks")
-
-                for block_index, block in enumerate(blocks):
-
-                    x0, y0, x1, y1, text, *_ = block
-
-                    text = text.strip()
-
-                    if not text:
-                        continue
-
-                    elements.append(
-                        Element(
-                            id=f"p{page_index + 1}_b{block_index + 1}",
-                            page_number=page_index + 1,
-                            type=ElementType.TEXT,
-                            text=text,
-                            bbox=BoundingBox(
-                                x0=x0,
-                                y0=y0,
-                                x1=x1,
-                                y1=y1,
-                            )
-                        )
-                    )
-
-                pages.append(
-                    Page(
-                        page_number=page_index + 1,
-                        width=pdf_page.rect.width,
-                        height=pdf_page.rect.height,
-                        elements=elements,
-                    )
-                )
-
-                logger.info(
-                    "Page extracted successfully",
-                    extra={
-                        "page": page_index + 1,
-                        "elements": len(elements),
-                    },
-                )
-
-            metadata = DocumentMetadata(
-                document_id=str(uuid.uuid4()),
+        return CanonicalDocument(
+            metadata=DocumentMetadata(
+                document_id=sha256(file_path.read_bytes()).hexdigest(),
                 pid=file_path.stem,
                 file_name=file_path.name,
                 file_type="pdf",
-                revision=None,
-            )
+            ),
+            pages=pages,
+        )
 
-            document = CanonicalDocument(
-                metadata=metadata,
-                pages=pages,
-            )
-
-            logger.info(
-                "Native PDF ingestion completed",
-                extra={
-                    "pages": len(pages),
-                    "file": file_path.name,
-                },
-            )
-
-            return document
-
-        except Exception:
-
-            logger.exception(
-                "Native PDF ingestion failed",
-                extra={"file": str(file_path)},
-            )
-            raise
-
-        finally:
-            pdf.close()
-            logger.info(
-                "PDF file closed",
-                extra={"file": str(file_path)}
-            )
+    @staticmethod
+    def _parse_page(pdf_page: fitz.Page, page_number: int) -> Page:
+        elements: list[Element] = []
+        for block_index, block in enumerate(pdf_page.get_text("blocks"), start=1):
+            x0, y0, x1, y1, text, *_ = block
+            text = text.strip()
+            if text:
+                elements.append(Element(id=f"p{page_number}_b{block_index}", page_number=page_number,
+                    type=ElementType.TEXT, text=text, bbox=BoundingBox(x0=x0, y0=y0, x1=x1, y1=y1)))
+        logger.info("page_extracted", extra={"page": page_number, "elements": len(elements)})
+        return Page(page_number=page_number, width=pdf_page.rect.width, height=pdf_page.rect.height, elements=elements)

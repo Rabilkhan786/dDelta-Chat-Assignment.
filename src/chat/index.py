@@ -1,226 +1,87 @@
+"""Deterministic local retrieval index for both revisions and the delta report."""
+
 from __future__ import annotations
 
-import logging
 import pickle
 import re
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
-from langchain_chroma import Chroma
-from langchain_core.documents import Document
-from langchain_huggingface import HuggingFaceEmbeddings
 from rank_bm25 import BM25Okapi
-from src.canonical.model import DeltaEntry , CanonicalDocument
-from src.config.settings import settings
 
-logger = logging.getLogger(__name__)
+from src.canonical.model import CanonicalDocument, DeltaEntry
+from src.config.settings import project_path, settings
+from src.observability.logging import get_logger, stage
+
+logger = get_logger(__name__)
+
+
+@dataclass(frozen=True)
+class IndexedDocument:
+    """A retrievable excerpt with stable metadata for answer citations."""
+
+    text: str
+    source: str
+    pid: str
+    page_number: int
+    element_id: str
+    bounding_box: dict[str, float] | None
 
 
 class DocumentIndexer:
-    """
-    Handles indexing of:
+    """Build and persist a BM25 index while retaining PID A/B/report provenance."""
 
-    - Old Revision PDF
-    - New Revision PDF
-    - Delta Report JSON
+    def __init__(self, index_path: Path | None = None, documents_path: Path | None = None) -> None:
+        self.index_path = index_path or project_path(settings.paths.bm25_index)
+        self.documents_path = documents_path or project_path(settings.paths.bm25_documents)
+        self.index_path.parent.mkdir(parents=True, exist_ok=True)
 
-    into:
+    @staticmethod
+    def _tokenize(text: str) -> list[str]:
+        return re.findall(r"[a-z0-9][a-z0-9_-]*", text.lower())
 
-    - Chroma Vector Database (Dense Retrieval)
-    - BM25 Index (Sparse Retrieval)
-    """
-
-    def __init__(self) -> None:
-        """
-        Initialize embedding model, vector store,
-        and BM25 storage.
-        """
-
-        logger.info("Initializing Document Indexer...")
-
-        
-        # Embedding Model
-
-        self.embedding_model = HuggingFaceEmbeddings(
-            model_name=settings.embedding.model,
-            model_kwargs={
-                "device": settings.embedding.device,
-            },
-            encode_kwargs={
-                "normalize_embeddings": True,
-            },
-        )
-
-        logger.info(
-            "Loaded embedding model: %s",
-            settings.embedding.model,
-        )
-
-     
-        # Chroma Vector Database
-       
-
-        self.vector_store = Chroma(
-            collection_name=settings.chroma.collection_name,
-            persist_directory=settings.chroma.persist_directory,
-            embedding_function=self.embedding_model,
-        )
-
-        logger.info(
-            "Connected to Chroma collection: %s",
-            settings.chroma.collection_name,
-        )
-
-      
-        # BM25 Storage Paths
-       
-
-        self.bm25_index_path = Path(
-            settings.paths.bm25_index
-        )
-
-        self.documents_path = Path(
-            settings.paths.bm25_documents
-        )
-
-        # Create directory if it doesn't exist
-        self.bm25_index_path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        # BM25 Runtime Objects
-        
-
-        self.bm25_index: BM25Okapi | None = None
-        self.documents: List[Document] = []
-
-        logger.info("Document Indexer initialized successfully.")
-        
-
-
-    def create_documents(
-        self,
-        document: CanonicalDocument,
-    ) -> List[Document]:
-        """
-        Convert a CanonicalDocument into LangChain Documents.
-
-        Parameters
-        ----------
-        document
-            Canonical representation of one document revision.
-
-        Returns
-        -------
-        List[Document]
-            List of LangChain documents.
-        """
-
-        logger.info(
-            "Creating LangChain documents for '%s'",
-            document.metadata.file_name,
-        )
-
-        documents: List[Document] = []
-
+    def create_documents(self, document: CanonicalDocument, source: str) -> list[IndexedDocument]:
+        """Convert one canonical revision into citation-ready retrieval excerpts."""
+        result: list[IndexedDocument] = []
         for page in document.pages:
-
-            logger.debug(
-                "Processing page %d",
-                page.page_number,
-            )
-
             for element in page.elements:
-
-                text = element.text.strip()
-
-                if not text:
+                if not element.text.strip():
                     continue
+                bbox = element.bbox.model_dump() if element.bbox else None
+                result.append(IndexedDocument(element.text.strip(), source, document.metadata.pid,
+                    page.page_number, element.id, bbox))
+        return result
 
-                if len(text) == 1 and text.isalpha():
-                    continue
+    def create_delta_documents(self, deltas: list[DeltaEntry], pid: str) -> list[IndexedDocument]:
+        """Convert the deterministic delta output into its own retrieval source."""
+        return [IndexedDocument(
+            text=f"{delta.change_type.value} {delta.element_type.value}: {delta.description}",
+            source="delta_report", pid=pid, page_number=delta.page_number,
+            element_id=f"delta-{index}",
+            bounding_box=delta.region.model_dump() if delta.region else None,
+        ) for index, delta in enumerate(deltas, start=1)]
 
-                langchain_document = Document(
-                    page_content=text,
-                    metadata={
-                        "document_id": document.metadata.document_id,
-                        "pid": document.metadata.pid,
-                        "file_name": document.metadata.file_name,
-                        "revision": document.metadata.revision,
-                        "page_number": element.page_number,
-                        "element_id": element.id,
-                        "element_type": element.type.value,
-                        "source": getattr(element, "source", "native"),
-                        "ocr_confidence": getattr(
-                            element,
-                            "ocr_confidence",
-                            None,
-                        ),
-                        "bbox": {
-                            "x0": element.bbox.x0,
-                            "y0": element.bbox.y0,
-                            "x1": element.bbox.x1,
-                            "y1": element.bbox.y1,
-                        }
-                        if element.bbox
-                        else None,
-                    },
-                )
+    def build(self, pid_a: CanonicalDocument, pid_b: CanonicalDocument, deltas: list[DeltaEntry]) -> int:
+        """Persist a reproducible index of PID A, PID B, and the delta report."""
+        with stage(logger, "retrieval_index_build"):
+            documents = (self.create_documents(pid_a, "pid_a") + self.create_documents(pid_b, "pid_b")
+                         + self.create_delta_documents(deltas, pid_b.metadata.pid))
+            if not documents:
+                raise ValueError("Cannot build retrieval index from empty canonical documents.")
+            corpus = [self._tokenize(document.text) for document in documents]
+            with self.documents_path.open("wb") as stream:
+                pickle.dump(documents, stream)
+            with self.index_path.open("wb") as stream:
+                pickle.dump(BM25Okapi(corpus), stream)
+        logger.info("retrieval_index_built", extra={"documents": len(documents)})
+        return len(documents)
 
-                documents.append(langchain_document)
-
-        logger.info(
-            "Created %d LangChain documents",
-            len(documents),
-        )
-
-        return documents
-    
-    def create_delta_documents(
-        self,
-        deltas: list[DeltaEntry],
-    ) -> List[Document]:
-        """
-        Convert DeltaEntry objects into LangChain Documents.
-        """
-
-        logger.info(
-            "Creating LangChain documents from '%d' delta entries.",
-            len(deltas),
-        )
-
-        documents: List[Document] = []
-
-        for delta in deltas:
-
-            documents.append(
-                Document(
-                    page_content=(
-                        f"Change Type: {delta.change_type.value}\n"
-                        f"Element Type: {delta.element_type.value}\n"
-                        f"Page Number: {delta.page_number}\n"
-                        f"Description: {delta.description}\n"
-                        f"Confidence: {delta.confidence:.2f}"
-                    ),
-                    metadata={
-                        "source": "delta_report",
-                        "change_type": delta.change_type.value,
-                        "element_type": delta.element_type.value,
-                        "page_number": delta.page_number,
-                        "confidence": delta.confidence,
-                        "bbox": (
-                            delta.region.model_dump()
-                            if delta.region is not None
-                            else None
-                        ),
-                    },
-                )
-            )
-
-        logger.info(
-            "Created %d LangChain delta documents.",
-            len(documents),
-        )
-
-        return documents
+    def load(self) -> tuple[BM25Okapi, list[IndexedDocument]]:
+        """Load an existing index or raise an actionable setup error."""
+        if not self.index_path.exists() or not self.documents_path.exists():
+            raise FileNotFoundError("Retrieval index is missing. Run `python main.py run` first.")
+        with self.index_path.open("rb") as stream:
+            index = pickle.load(stream)
+        with self.documents_path.open("rb") as stream:
+            documents = pickle.load(stream)
+        return index, documents
