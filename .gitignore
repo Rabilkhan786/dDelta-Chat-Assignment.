@@ -77,6 +77,9 @@ chroma/
 models/
 checkpoints/
 
+.env
+.env.*
+!.env.example
 
 # OCR
 
@@ -103,7 +106,7 @@ data/output/
 data/bm25/
 eval/datasets/predicted_change_ids.json
 
-
+.env
 
 
 # Secrets
