@@ -36,6 +36,7 @@ class RetrievalConfig(BaseModel):
     hybrid: bool = True
     use_bm25: bool = True
     use_semantic: bool = True
+    rrf_k: int = Field(gt=0)
 
 
 class ChunkingConfig(BaseModel):
