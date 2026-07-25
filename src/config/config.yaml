@@ -32,6 +32,7 @@ retrieval:
   hybrid: true
   use_bm25: true
   use_semantic: true
+  rrf_k: 60
 
 # Chunking
 

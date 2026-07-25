@@ -14,7 +14,7 @@ This walkthrough demonstrates the required pipeline with the supplied P&ID PDFs.
    uv run python main.py run
    ```
 
-   The router counts selectable text. It selects `NativePDFAdapter` for meaningful text and `ScannedPDFAdapter` for an image-only PDF, logging the selected adapter. Both paths return the same `CanonicalDocument` schema. The structured JSON logs show one request ID spanning detection, ingestion, document alignment, deterministic delta comparison, delta-report generation, and retrieval-index building. The report artifacts are `data/reports/delta_report.md` and `data/reports/delta_report.json`.
+   The router counts selectable text. It selects `NativePDFAdapter` for meaningful text and `ScannedPDFAdapter` for an image-only PDF, logging the selected adapter. Both paths return the same `CanonicalDocument` schema. The structured JSON logs show one request ID spanning detection, ingestion, document alignment, deterministic delta comparison, delta-report generation, and hybrid retrieval-index building. This builds independent BM25 and Chroma semantic rankings for PID A, PID B, and delta-report excerpts. The report artifacts are `data/reports/delta_report.md` and `data/reports/delta_report.json`.
 
    To use OCR after supplying a scanned PDF, install `paddleocr` and `paddlepaddle` with `uv add paddleocr paddlepaddle`, run `uv sync`, and pass the scanned PDF with `--revision-a` or `--revision-b`. If PaddleOCR is unavailable, the OCR adapter returns an actionable installation error and does not generate output.
 
@@ -23,12 +23,11 @@ This walkthrough demonstrates the required pipeline with the supplied P&ID PDFs.
 4. Configure the LLM only for grounded chat.
 
    ```powershell
-   Copy-Item .env.example .env
-   # Set OPENAI_API_KEY in .env
+   # Create .env and set OPENAI_API_KEY
    uv run python main.py chat "What changed near the compressor?"
    ```
 
-   The chat service retrieves source-labelled excerpts from PID A, PID B, and the delta report before invoking the provider. The prompt requires a citation for every factual statement. Inspect the JSON logs for the request ID, `grounded_chat` and `llm_completion` durations, input/output tokens, and `estimated_cost_usd`.
+   The chat service retrieves source-labelled excerpts from PID A, PID B, and the delta report using BM25 and semantic search independently, then fuses their ranked lists with Reciprocal Rank Fusion (RRF, default rank constant `60`) before invoking the provider. The first semantic run downloads `sentence-transformers/all-MiniLM-L6-v2`; retain network access and adequate memory. The prompt requires a citation for every factual statement. Inspect the JSON logs for the request ID, `grounded_chat` and `llm_completion` durations, input/output tokens, and `estimated_cost_usd`.
 
 5. Run the regression tests and evaluation harness.
 
