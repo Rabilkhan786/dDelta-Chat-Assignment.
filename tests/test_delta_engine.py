@@ -1,5 +1,6 @@
 from src.canonical.model import Alignment, AlignmentResult, BoundingBox, Element, ElementType
 from src.delta.engine import DeltaEngine
+from src.chat.llm import OpenAIChatProvider
 
 
 def test_modified_native_elements_have_normalized_confidence() -> None:
@@ -9,3 +10,8 @@ def test_modified_native_elements_have_normalized_confidence() -> None:
     delta = DeltaEngine().compare(AlignmentResult(matches=[Alignment(left=old, right=new, similarity=90, bbox_distance=0)]))[0]
     assert delta.change_type.value == "modified"
     assert delta.confidence == 0.9
+
+
+def test_llm_cost_estimate_uses_configured_token_rates() -> None:
+    """Cost telemetry must be deterministic without making a provider call."""
+    assert OpenAIChatProvider._estimate_cost(1_000_000, 1_000_000) == 2.0

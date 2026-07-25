@@ -17,6 +17,8 @@ class LLMConfig(BaseModel):
     model: str
     temperature: float = Field(ge=0.0, le=2.0)
     max_tokens: int = Field(gt=0)
+    input_cost_per_million_tokens_usd: float = Field(ge=0.0)
+    output_cost_per_million_tokens_usd: float = Field(ge=0.0)
 
 
 class EmbeddingConfig(BaseModel):
@@ -38,6 +40,11 @@ class RetrievalConfig(BaseModel):
 
 class ChunkingConfig(BaseModel):
     strategy: str
+
+
+class IngestConfig(BaseModel):
+    native_text_threshold: int = Field(ge=1)
+    ocr_dpi: int = Field(ge=72)
 
 
 class PathsConfig(BaseModel):
@@ -63,6 +70,7 @@ class Settings(BaseModel):
     chroma: ChromaConfig
     retrieval: RetrievalConfig
     chunking: ChunkingConfig
+    ingest: IngestConfig
     paths: PathsConfig
     align: AlignConfig
 

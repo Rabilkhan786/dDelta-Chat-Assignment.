@@ -1,23 +1,51 @@
-"""Adapter selection at the ingestion boundary."""
+"""Automatic PDF type detection and adapter routing at the ingestion boundary."""
 
 from pathlib import Path
-from typing import Iterable
 
 from src.canonical.model import CanonicalDocument
+from src.config.settings import settings
 from src.ingest.base import FormatAdapter
+from src.ingest.pdf_native import NativePDFAdapter
+from src.ingest.pdf_scanned import ScannedPDFAdapter
+from src.observability.logging import get_logger, stage
+
+logger = get_logger(__name__)
 
 
-class AdapterRegistry:
-    """Select exactly one registered adapter for a source document."""
+class AutomaticPDFAdapter(FormatAdapter):
+    """Detect selectable text, then route a PDF to Native or OCR ingestion."""
 
-    def __init__(self, adapters: Iterable[FormatAdapter]) -> None:
-        self._adapters = list(adapters)
+    def __init__(
+        self,
+        native_adapter: NativePDFAdapter | None = None,
+        ocr_adapter: ScannedPDFAdapter | None = None,
+        text_threshold: int | None = None,
+    ) -> None:
+        self.native_adapter = native_adapter or NativePDFAdapter()
+        self.ocr_adapter = ocr_adapter or ScannedPDFAdapter()
+        self.text_threshold = text_threshold or settings.ingest.native_text_threshold
+
+    def supports(self, file_path: Path) -> bool:
+        """Accept PDFs; individual format choice is decided during parsing."""
+        return Path(file_path).suffix.lower() == ".pdf"
+
+    def select_adapter(self, file_path: Path) -> FormatAdapter:
+        """Choose Native when selectable text is meaningful, otherwise OCR."""
+        file_path = Path(file_path)
+        if not self.supports(file_path):
+            raise ValueError(f"AutomaticPDFAdapter does not support '{file_path.suffix}'.")
+        text_characters = self.native_adapter.extracted_text_characters(file_path)
+        adapter: FormatAdapter = self.native_adapter if text_characters >= self.text_threshold else self.ocr_adapter
+        logger.info("pdf_adapter_selected", extra={"adapter": type(adapter).__name__,
+            "selectable_text_characters": text_characters, "text_threshold": self.text_threshold,
+            "file": file_path.name})
+        return adapter
 
     def parse(self, file_path: Path) -> CanonicalDocument:
-        """Parse through the selected adapter, never leaking format downstream."""
-        matches = [adapter for adapter in self._adapters if adapter.supports(file_path)]
-        if not matches:
-            raise ValueError(f"No ingestion adapter supports '{file_path.suffix}'.")
-        if len(matches) > 1:
-            raise ValueError("More than one adapter supports this source; select the intended adapter explicitly.")
-        return matches[0].parse(file_path)
+        """Route a PDF through exactly one adapter into the canonical seam."""
+        with stage(logger, "pdf_type_detection"):
+            return self.select_adapter(file_path).parse(Path(file_path))
+
+
+# Assignment terminology alias; both names expose the existing OCR adapter.
+OCRPDFAdapter = ScannedPDFAdapter

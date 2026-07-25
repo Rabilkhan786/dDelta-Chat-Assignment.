@@ -20,6 +20,19 @@ class NativePDFAdapter(FormatAdapter):
     def supports(self, file_path: Path) -> bool:
         return file_path.suffix.lower() in self.SUPPORTED_SUFFIXES
 
+    def extracted_text_characters(self, file_path: Path) -> int:
+        """Count selectable, non-whitespace text for automatic PDF routing."""
+        file_path = Path(file_path)
+        if not self.supports(file_path):
+            return 0
+        if not file_path.is_file():
+            raise FileNotFoundError(f"PDF does not exist: {file_path}")
+        try:
+            with fitz.open(file_path) as pdf:
+                return sum(len(page.get_text("text").strip()) for page in pdf)
+        except fitz.FileDataError as error:
+            raise ValueError(f"Unable to open PDF '{file_path.name}'.") from error
+
     def parse(self, file_path: Path) -> CanonicalDocument:
         file_path = Path(file_path)
         if not self.supports(file_path):

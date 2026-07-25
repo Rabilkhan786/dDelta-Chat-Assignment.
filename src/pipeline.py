@@ -16,6 +16,7 @@ from src.delta.report import DeltaReportGenerator
 from src.ingest.base import FormatAdapter
 from src.ingest.pdf_native import NativePDFAdapter
 from src.ingest.pdf_scanned import ScannedPDFAdapter
+from src.ingest.registry import AutomaticPDFAdapter
 from src.observability.logging import get_logger, request_context, stage
 
 
@@ -55,9 +56,9 @@ class DeltaPipeline:
 
 
 def adapter_for(name: str) -> FormatAdapter:
-    """Select an explicit ingestion adapter; both still share FormatAdapter."""
-    adapters = {"native": NativePDFAdapter, "scanned": ScannedPDFAdapter}
+    """Resolve automatic routing by default while retaining legacy explicit modes."""
+    adapters = {"auto": AutomaticPDFAdapter, "native": NativePDFAdapter, "scanned": ScannedPDFAdapter}
     try:
         return adapters[name.lower()]()
     except KeyError as error:
-        raise ValueError("Adapter must be 'native' or 'scanned'.") from error
+        raise ValueError("Adapter must be 'auto', 'native', or 'scanned'.") from error

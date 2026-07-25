@@ -7,6 +7,7 @@ from typing import Any
 import fitz
 
 from src.canonical.model import BoundingBox, CanonicalDocument, DocumentMetadata, Element, ElementType, Page
+from src.config.settings import settings
 from src.ingest.base import FormatAdapter
 from src.observability.logging import get_logger, stage
 
@@ -16,9 +17,9 @@ logger = get_logger(__name__)
 class ScannedPDFAdapter(FormatAdapter):
     """Render PDF pages and extract OCR text into a CanonicalDocument."""
 
-    def __init__(self, ocr_engine: Any | None = None, dpi: int = 200) -> None:
+    def __init__(self, ocr_engine: Any | None = None, dpi: int | None = None) -> None:
         self._ocr_engine = ocr_engine
-        self.dpi = dpi
+        self.dpi = dpi or settings.ingest.ocr_dpi
 
     def supports(self, file_path: Path) -> bool:
         return Path(file_path).suffix.lower() == ".pdf"
@@ -30,7 +31,10 @@ class ScannedPDFAdapter(FormatAdapter):
             try:
                 from paddleocr import PaddleOCR
             except ImportError as error:
-                raise RuntimeError("Scanned PDF ingestion requires the optional 'paddleocr' dependency.") from error
+                raise RuntimeError(
+                    "Scanned PDF ingestion requires PaddleOCR. Install it with "
+                    "`uv add paddleocr paddlepaddle`, then run `uv sync`."
+                ) from error
             self._ocr_engine = PaddleOCR(use_angle_cls=True, lang="en")
         return self._ocr_engine
 

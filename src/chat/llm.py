@@ -47,11 +47,24 @@ class OpenAIChatProvider:
                 messages=[{"role": "user", "content": prompt}],
             )
         usage = response.usage
+        input_tokens = usage.prompt_tokens if usage else None
+        output_tokens = usage.completion_tokens if usage else None
+        estimated_cost_usd = self._estimate_cost(input_tokens, output_tokens)
         logger.info("llm_completed", extra={"model": settings.llm.model,
-            "input_tokens": usage.prompt_tokens if usage else None,
-            "output_tokens": usage.completion_tokens if usage else None, "estimated_cost_usd": None})
-        return LLMResponse(response.choices[0].message.content or "", usage.prompt_tokens if usage else None,
-            usage.completion_tokens if usage else None, None)
+            "input_tokens": input_tokens, "output_tokens": output_tokens,
+            "estimated_cost_usd": estimated_cost_usd})
+        return LLMResponse(response.choices[0].message.content or "", input_tokens, output_tokens, estimated_cost_usd)
+
+    @staticmethod
+    def _estimate_cost(input_tokens: int | None, output_tokens: int | None) -> float | None:
+        """Estimate pay-as-you-go text-token cost from centralized model pricing."""
+        if input_tokens is None or output_tokens is None:
+            return None
+        return round(
+            input_tokens * settings.llm.input_cost_per_million_tokens_usd / 1_000_000
+            + output_tokens * settings.llm.output_cost_per_million_tokens_usd / 1_000_000,
+            8,
+        )
 
 
 def configured_provider() -> ChatProvider:

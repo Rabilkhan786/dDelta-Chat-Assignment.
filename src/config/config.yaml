@@ -9,6 +9,8 @@ llm:
   model: "gpt-4.1-mini"
   temperature: 0.0
   max_tokens: 2048
+  input_cost_per_million_tokens_usd: 0.40
+  output_cost_per_million_tokens_usd: 1.60
 
 
 # Embedding Model
@@ -35,6 +37,12 @@ retrieval:
 
 chunking:
   strategy: "block"
+
+# Ingestion assumptions: a PDF with at least this many selectable characters
+# uses the native adapter; otherwise it is routed to OCR.
+ingest:
+  native_text_threshold: 30
+  ocr_dpi: 200
 
 #
 # Data Paths

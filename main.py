@@ -33,7 +33,8 @@ def parser() -> argparse.ArgumentParser:
     run = commands.add_parser("run", help="ingest, compare, report, and index a document pair")
     run.add_argument("--revision-a", default=str(project_path(settings.paths.revision_a)))
     run.add_argument("--revision-b", default=str(project_path(settings.paths.revision_b)))
-    run.add_argument("--adapter", choices=("native", "scanned"), default="native")
+    run.add_argument("--adapter", choices=("auto", "native", "scanned"), default="auto",
+        help="automatic PDF detection is the default; explicit modes are retained for diagnostics")
     run.set_defaults(func=run_command)
     chat = commands.add_parser("chat", help="ask a cited question over PID A, PID B, and the delta report")
     chat.add_argument("question")
