@@ -45,11 +45,4 @@ If the API key is absent, invalid, rate-limited, or out of quota, chat logs the 
 | Observability | Implemented; external provider telemetry awaits live validation | JSON request IDs, stage timing, token and estimated-cost fields. |
 | Evaluation harness | Implemented; quality score awaits human labels | `eval/` derives predictions and requires reviewer labels. |
 | Technical requirements: 2-3 document pairs and two formats demonstrated | Awaiting external samples | Only one native pair is supplied; no scanned PDF or DWG sample is available. |
-
-## Production considerations
-
-For larger drawing sets, batch canonical ingestion and index per document version; constrain OCR concurrency; persist report/version metadata; add human review for low-confidence changes; and export trace metrics to an observability backend. Keep `.env` private and rotate provider keys. Hybrid retrieval is local and inspectable, but semantic relevance should be separately evaluated against reviewer-labelled questions before production use.
-
-## Interview discussion
-
-Why deterministic delta? It makes structural changes reproducible, debuggable, and measurable. Why a canonical model? It decouples downstream comparison/retrieval from source formats. The principal limitation is matching moved/reflowed content and unlabelled sample data; the next step is a reviewer-labelled revision dataset and false-positive analysis.
+ is matching moved/reflowed content and unlabelled sample data; the next step is a reviewer-labelled revision dataset and false-p
