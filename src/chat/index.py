@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from nltk.corpus import stopwords
 
 from rank_bm25 import BM25Okapi
 
@@ -30,6 +31,7 @@ class IndexedDocument:
 
 
 class DocumentIndexer:
+    
     """Build lexical and semantic indexes while retaining PID A/B/report provenance."""
 
     def __init__(
@@ -46,10 +48,17 @@ class DocumentIndexer:
 
     @staticmethod
     def _tokenize(text: str) -> list[str]:
-        return re.findall(r"[a-z0-9][a-z0-9_-]*", text.lower())
+        
+        """the text is preprocessed , remove stopword and return tokens"""
+        
+        STOP_WORDS = set(stopwords.words("english"))
+        tokens = re.findall(r"[a-z0-9][a-z0-9_-]*", text.lower())
+        return [token for token in tokens if token not in STOP_WORDS]
 
     def create_documents(self, document: CanonicalDocument, source: str) -> list[IndexedDocument]:
+        
         """Convert one canonical revision into citation-ready retrieval excerpts."""
+        
         result: list[IndexedDocument] = []
         for page in document.pages:
             for element in page.elements:
@@ -59,9 +68,13 @@ class DocumentIndexer:
                 result.append(IndexedDocument(element.text.strip(), source, document.metadata.pid,
                     page.page_number, element.id, bbox))
         return result
+    
+    
 
     def create_delta_documents(self, deltas: list[DeltaEntry], pid: str) -> list[IndexedDocument]:
+        
         """Convert the deterministic delta output into its own retrieval source."""
+        
         return [IndexedDocument(
             text=f"{delta.change_type.value} {delta.element_type.value}: {delta.description}",
             source="delta_report", pid=pid, page_number=delta.page_number,
@@ -70,7 +83,9 @@ class DocumentIndexer:
         ) for index, delta in enumerate(deltas, start=1)]
 
     def build(self, pid_a: CanonicalDocument, pid_b: CanonicalDocument, deltas: list[DeltaEntry]) -> int:
+        
         """Persist BM25 and semantic indexes of PID A, PID B, and the delta report."""
+        
         with stage(logger, "retrieval_index_build"):
             documents = (self.create_documents(pid_a, "pid_a") + self.create_documents(pid_b, "pid_b")
                          + self.create_delta_documents(deltas, pid_b.metadata.pid))
@@ -87,7 +102,9 @@ class DocumentIndexer:
         return len(documents)
 
     def load(self) -> tuple[BM25Okapi, list[IndexedDocument]]:
+        
         """Load an existing index or raise an actionable setup error."""
+        
         if not self.index_path.exists() or not self.documents_path.exists():
             raise FileNotFoundError("Retrieval index is missing. Run `python main.py run` first.")
         with self.index_path.open("rb") as stream:
@@ -98,7 +115,9 @@ class DocumentIndexer:
 
     @staticmethod
     def document_key(document: IndexedDocument) -> str:
+        
         """Return the stable identity used to join lexical and semantic results."""
+        
         return f"{document.source}:{document.pid}:{document.page_number}:{document.element_id}"
 
     def semantic_search(self, query: str, limit: int) -> list[IndexedDocument]:
@@ -114,7 +133,9 @@ class DocumentIndexer:
         return results
 
     def _semantic_store(self) -> Any:
+        
         """Create the configured persistent Chroma store only when semantic search is used."""
+        
         if self._vector_store is None:
             try:
                 from langchain_chroma import Chroma
@@ -143,7 +164,9 @@ class DocumentIndexer:
         return self._vector_store
 
     def _build_semantic_index(self, documents: list[IndexedDocument]) -> None:
+        
         """Replace this project's semantic collection with the current canonical excerpts."""
+        
         store = self._semantic_store()
         existing = store.get(include=[]).get("ids", [])
         if existing:

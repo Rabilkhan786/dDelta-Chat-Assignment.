@@ -72,6 +72,8 @@ chroma_db/
 chroma/
 *.sqlite3
 
+.python-version
+
 # Model Files
 
 models/
