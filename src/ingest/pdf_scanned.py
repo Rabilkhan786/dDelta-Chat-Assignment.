@@ -3,7 +3,6 @@
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
-
 import fitz
 
 from src.canonical.model import BoundingBox, CanonicalDocument, DocumentMetadata, Element, ElementType, Page
@@ -26,19 +25,20 @@ class ScannedPDFAdapter(FormatAdapter):
 
     @property
     def ocr_engine(self) -> Any:
+        
         """Lazily initialise PaddleOCR so native-PDF use has no OCR dependency cost."""
+        
         if self._ocr_engine is None:
             try:
                 from paddleocr import PaddleOCR
             except ImportError as error:
                 raise RuntimeError(
-                    "Scanned PDF ingestion requires PaddleOCR. Install it with "
-                    "`uv add paddleocr paddlepaddle`, then run `uv sync`."
                 ) from error
             self._ocr_engine = PaddleOCR(use_angle_cls=True, lang="en")
         return self._ocr_engine
 
     def parse(self, file_path: Path) -> CanonicalDocument:
+        
         file_path = Path(file_path)
         if not self.supports(file_path):
             raise ValueError(f"ScannedPDFAdapter does not support '{file_path.suffix}'.")
@@ -51,6 +51,7 @@ class ScannedPDFAdapter(FormatAdapter):
             pid=file_path.stem, file_name=file_path.name, file_type="pdf"), pages=pages)
 
     def _parse_page(self, pdf_page: fitz.Page, page_number: int) -> Page:
+        
         scale = self.dpi / 72
         pixmap = pdf_page.get_pixmap(matrix=fitz.Matrix(scale, scale), alpha=False)
         results = self.ocr_engine.ocr(pixmap.tobytes("png"), cls=True) or []

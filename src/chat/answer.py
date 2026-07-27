@@ -40,7 +40,7 @@ class GroundedChatService:
                 logger.exception("grounded_chat_provider_failed", extra={"evidence_count": len(evidence)})
                 return GroundedAnswer(
                     "I retrieved supporting evidence, but the configured LLM provider could not complete the request. "
-                    "Check OPENAI_API_KEY, billing, and provider availability before retrying.",
+                    "Check Groq_API_KEY, billing, and provider availability before retrying.",
                     citations,
                 )
         return GroundedAnswer(response.text, citations)

@@ -1,3 +1,4 @@
+
 """Command line entry point for the Delta Chat assignment."""
 
 from __future__ import annotations
