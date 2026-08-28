@@ -1,6 +1,6 @@
 from src.canonical.model import Alignment, AlignmentResult, BoundingBox, Element, ElementType
+from src.chat.llm import GroqChatProvider
 from src.delta.engine import DeltaEngine
-from src.chat.llm import OpenAIChatProvider
 
 
 def test_modified_native_elements_have_normalized_confidence() -> None:
@@ -12,6 +12,15 @@ def test_modified_native_elements_have_normalized_confidence() -> None:
     assert delta.confidence == 0.9
 
 
+def test_ocr_confidence_discounts_similarity() -> None:
+    """An OCR match should be less confident than an identical native-text match."""
+    old = Element(id="a", page_number=1, type=ElementType.TEXT, text="valve", source="ocr", ocr_confidence=0.5)
+    new = Element(id="b", page_number=1, type=ElementType.TEXT, text="valve", source="ocr", ocr_confidence=0.5)
+    delta = DeltaEngine().compare(AlignmentResult(matches=[Alignment(left=old, right=new, similarity=100, bbox_distance=0)]))[0]
+    assert delta.change_type.value == "unchanged"
+    assert delta.confidence == 0.5
+
+
 def test_llm_cost_estimate_uses_configured_token_rates() -> None:
     """Cost telemetry must be deterministic without making a provider call."""
-    assert OpenAIChatProvider._estimate_cost(1_000_000, 1_000_000) == 2.0
+    assert GroqChatProvider._estimate_cost(1_000_000, 1_000_000) == 0.13

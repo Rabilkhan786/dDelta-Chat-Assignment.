@@ -1,18 +1,18 @@
 """Prompt construction isolated from retrieval and provider code."""
 
-from src.chat.index import IndexedDocument
+from src.chat.index import Excerpt
 
 
-def citation(document: IndexedDocument) -> str:
+def citation(excerpt: Excerpt) -> str:
     """Create a stable citation describing a PID/source and page location."""
-    return f"[{document.source} | PID {document.pid} | page {document.page_number} | {document.element_id}]"
+    return f"[{excerpt.source} | PID {excerpt.pid} | page {excerpt.page_number} | {excerpt.element_id}]"
 
 
-def build_grounded_prompt(question: str, context: list[IndexedDocument]) -> str:
-    """Require a concise answer supported exclusively by supplied context."""
-    evidence = "\n\n".join(f"{citation(item)}\n{item.text}" for item in context)
+def build_grounded_prompt(question: str, evidence: list[Excerpt]) -> str:
+    """Require a concise answer supported exclusively by the retrieved evidence."""
+    context = "\n\n".join(f"{citation(item)}\n{item.text}" for item in evidence)
     return (
         "Answer only from the evidence below. If it does not support an answer, say so. "
         "Cite every factual statement using the supplied bracketed citation exactly.\n\n"
-        f"Question: {question}\n\nEvidence:\n{evidence}"
+        f"Question: {question}\n\nEvidence:\n{context}"
     )

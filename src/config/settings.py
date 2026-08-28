@@ -13,7 +13,7 @@ class AppConfig(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    provider: str = "openai"
+    provider: str = "groq"
     model: str
     temperature: float = Field(ge=0.0, le=2.0)
     max_tokens: int = Field(gt=0)
@@ -33,14 +33,6 @@ class ChromaConfig(BaseModel):
 
 class RetrievalConfig(BaseModel):
     top_k: int = Field(gt=0)
-    hybrid: bool = True
-    use_bm25: bool = True
-    use_semantic: bool = True
-    rrf_k: int = Field(gt=0)
-
-
-class ChunkingConfig(BaseModel):
-    strategy: str
 
 
 class IngestConfig(BaseModel):
@@ -55,8 +47,6 @@ class PathsConfig(BaseModel):
     canonical_b: str
     delta_json: str
     delta_markdown: str
-    bm25_index: str
-    bm25_documents: str
 
 
 class AlignConfig(BaseModel):
@@ -70,7 +60,6 @@ class Settings(BaseModel):
     embedding: EmbeddingConfig
     chroma: ChromaConfig
     retrieval: RetrievalConfig
-    chunking: ChunkingConfig
     ingest: IngestConfig
     paths: PathsConfig
     align: AlignConfig

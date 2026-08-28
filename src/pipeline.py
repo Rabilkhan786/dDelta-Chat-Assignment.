@@ -8,7 +8,7 @@ from pathlib import Path
 
 from src.canonical.model import CanonicalDocument, DeltaEntry
 from src.canonical.serialization import write_canonical_document
-from src.chat.index import DocumentIndexer
+from src.chat.index import build_index
 from src.config.settings import project_path, settings
 from src.delta.align import Aligner
 from src.delta.engine import DeltaEngine
@@ -50,7 +50,7 @@ class DeltaPipeline:
             alignment = Aligner().align(pid_a, pid_b)
             deltas = DeltaEngine().compare(alignment)
             report = DeltaReportGenerator(project_path(settings.paths.delta_json).parent).generate(pid_a, pid_b, deltas)
-            indexed_documents = DocumentIndexer().build(pid_a, pid_b, deltas)
+            indexed_documents = build_index(pid_a, pid_b, deltas)
         self.logger.info("pipeline_completed", extra={"deltas": len(deltas), "indexed_documents": indexed_documents})
         return PipelineResult(pid_a, pid_b, deltas, report, indexed_documents)
 

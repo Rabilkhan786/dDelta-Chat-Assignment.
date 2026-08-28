@@ -1,7 +1,16 @@
 {
-  "expected_change_ids": [],
-  "qa_cases": [],
+  "_comment": "Copy this file to ground_truth.json and fill it in by hand after reviewing a real run.",
+  "expected_change_ids": [
+    "_comment: run `uv run python -m eval.run_eval --write-candidates`, review eval/datasets/predicted_change_ids.json against the delta report, then paste the IDs you confirm are real changes here"
+  ],
+  "qa_cases": [
+    {
+      "question": "What changed near the compressor?",
+      "expected_answer_keywords": ["compressor"],
+      "expected_citations": ["pid_b | page 1"]
+    }
+  ],
   "known_failure_cases": [
-    "The supplied PDFs are different compressor systems rather than confirmed revisions; they are unsuitable as unlabeled revision ground truth."
+    "Describe here where the system is known to fall short, e.g. moved content that alignment fails to match."
   ]
 }

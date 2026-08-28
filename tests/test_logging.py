@@ -1,12 +1,54 @@
-from pathlib import Path
+import logging
 
-from src.ingest.pdf_native import NativePDFAdapter
+import pytest
+
+from src.observability.logging import get_logger, request_context, stage
 
 
-def test_native_adapter_preserves_pdf_page_and_element_locations() -> None:
-    """The supplied native sample should enter the canonical seam with locations."""
-    sample = Path("data/input/Lift Gas compressor-P&ID.pdf")
-    document = NativePDFAdapter().parse(sample)
-    assert len(document.pages) == 1
-    assert document.pages[0].elements
-    assert all(element.bbox is not None for element in document.pages[0].elements)
+class _RecordCollector(logging.Handler):
+    """Collects emitted log records so a test can inspect their structured fields."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.records: list[logging.LogRecord] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.records.append(record)
+
+
+def _logger_with_collector(name: str) -> tuple[logging.LoggerAdapter, _RecordCollector]:
+    logger = get_logger(name, request_id="test-request")
+    collector = _RecordCollector()
+    logger.logger.addHandler(collector)
+    return logger, collector
+
+
+def test_stage_logs_start_and_completion_with_duration() -> None:
+    """Every pipeline stage must log its start, its end, and how long it took."""
+    logger, collector = _logger_with_collector("tests.stage_logging")
+    with stage(logger, "unit_test_stage"):
+        pass
+    messages = {record.message: record for record in collector.records}
+    assert "stage_started" in messages
+    assert "stage_completed" in messages
+    assert messages["stage_completed"].stage == "unit_test_stage"
+    assert messages["stage_completed"].duration_ms >= 0
+
+
+def test_stage_logs_failure_and_still_reraises() -> None:
+    """A failing stage must be visible in the logs, not swallowed."""
+    logger, collector = _logger_with_collector("tests.stage_logging_failure")
+    with pytest.raises(ValueError):
+        with stage(logger, "failing_stage"):
+            raise ValueError("boom")
+    messages = {record.message: record for record in collector.records}
+    assert "stage_failed" in messages
+
+
+def test_request_context_binds_request_id_for_nested_logs() -> None:
+    """A request ID set once must appear on every log emitted inside that context."""
+    logger, collector = _logger_with_collector("tests.request_context")
+    with request_context("req-xyz"):
+        logger.info("nested_event")
+    event = next(record for record in collector.records if record.message == "nested_event")
+    assert event.request_id == "req-xyz"

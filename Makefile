@@ -1,5 +1,5 @@
 run:
-	uv run python main.py run --adapter native
+	uv run python main.py run
 
 chat:
 	uv run python main.py chat "What changed?"

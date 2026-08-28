@@ -1,48 +1,198 @@
 # Delta Chat
 
-Delta Chat compares two engineering-document revisions, writes a deterministic delta report, and supports cited retrieval-grounded chat.
+Compares two revisions of an engineering document (native PDF or scanned PDF),
+computes a structured delta between them, writes a delta report, and answers
+questions about either revision or the delta with cited, grounded chat.
 
-## Run
+## How to run
 
-```powershell
-uv sync --locked
+```bash
+uv sync
 uv run python main.py run
 uv run python main.py chat "What changed near the compressor?"
 uv run python -m eval.run_eval
 ```
 
-`run` automatically inspects each PDF for meaningful selectable text. PDFs with at least the configured `ingest.native_text_threshold` characters use `NativePDFAdapter`; otherwise `AutomaticPDFAdapter` routes to `ScannedPDFAdapter`. The command writes canonical JSON to `data/output/`, Markdown and JSON reports to `data/reports/`, a local BM25 index in `data/bm25/`, and a persistent Chroma semantic index in `data/chroma_db/`. `chat` requires `OPENAI_API_KEY` in `.env`; it returns only retrieved, cited evidence.
+Requirements: Python 3.11+, [`uv`](https://docs.astral.sh/uv/), and the
+`tesseract-ocr` system package (`sudo apt-get install tesseract-ocr` on
+Debian/Ubuntu, `brew install tesseract` on macOS) for scanned-PDF support.
+Chat needs a free [Groq](https://console.groq.com) API key — copy
+`.env.example` to `.env` and set `GROQ_API_KEY`.
+
+`run` ingests the two configured PDFs, writes their canonical JSON to
+`data/output/`, writes the delta report to `data/reports/`, and builds a
+Chroma retrieval index in `data/chroma_db/` (downloads a small embedding
+model the first time it runs, so it needs network access once).
 
 ## Architecture
 
-`ingest/` adapters normalize each source into `canonical/CanonicalDocument`. `delta/align.py` deterministically matches same-page, same-type, nearby elements with RapidFuzz text similarity. `delta/engine.py` classifies matched and unmatched elements without an LLM. `delta/report.py` emits JSON and Markdown. `chat/` indexes PID A, PID B, and report entries as separate source-labelled excerpts. It independently ranks BM25 lexical and Chroma semantic results, then combines them with Reciprocal Rank Fusion (RRF) before calling the configured provider only for grounded answer generation. `observability/` emits JSON logs with request IDs and stage durations.
+```
+PDF (native or scanned) -> ingest adapter -> CanonicalDocument
+                                                   |
+                                    align elements (RapidFuzz + page/type/position)
+                                                   |
+                                  classify added / removed / modified + confidence
+                                                   |
+                                  delta report (Markdown + JSON)  -----.
+                                                   |                   |
+                        canonical text + delta report  --------> Chroma index
+                                                                        |
+                                              question -> retrieve top-k -> LLM -> cited answer
+```
 
-Native PDF is demonstrated by the supplied documents. Scanned PDFs are automatically detected when selectable text is below the configured threshold and are routed to `ScannedPDFAdapter` (also exposed as `OCRPDFAdapter`). OCR preserves page numbers and approximate bounding boxes in the same `CanonicalDocument` schema as native parsing. Install the optional dependency with `uv add paddleocr paddlepaddle` and then `uv sync`. If it is unavailable, ingestion fails with that actionable command and never fabricates OCR output. DWG remains an explicit stub. No scanned PDF or DWG sample was supplied, so real OCR end-to-end coverage is a documented skipped test until a scanned sample is available. The Assignment Specification and Project Workflow Guide are external session references and are intentionally not copied into this repository.
+- **`src/ingest/`** — one `FormatAdapter` interface, two working implementations.
+  `pdf_native.py` reads the text/vector layer directly with PyMuPDF.
+  `pdf_scanned.py` renders each page to an image and runs **Tesseract OCR**
+  (`pytesseract`), keeping per-word bounding boxes and confidence.
+  `registry.py` picks between them automatically by counting selectable
+  characters. `dwg.py` is a real stub behind the same interface (raises a
+  clear "not implemented" error) so a real DWG parser can be added later
+  without touching anything downstream.
+- **`src/canonical/model.py`** — the format-agnostic model
+  (`CanonicalDocument` → `Page` → `Element`) everything else works against.
+  This is the seam that makes ingestion pluggable.
+- **`src/delta/`** — `align.py` matches elements between revisions by page,
+  type, nearby position, and RapidFuzz text similarity (matching is the hard
+  part, not diffing). `engine.py` turns matches/non-matches into
+  `added`/`removed`/`modified` entries with a confidence score (OCR matches
+  are discounted by OCR confidence). No LLM in this path — it's deterministic
+  and reproducible. `report.py` renders Markdown and JSON.
+- **`src/chat/`** — `index.py` embeds PID A, PID B, and every delta entry as
+  separate, source-labelled excerpts into a Chroma vector store
+  (`langchain-chroma` + a local `sentence-transformers` embedding model).
+  `answer.py` retrieves the top-k excerpts for a question, builds a prompt
+  that requires a citation for every claim, and calls the configured LLM
+  (`llm.py`, currently Groq). If retrieval finds nothing, chat says so
+  instead of guessing; if the LLM call fails, the retrieved citations are
+  still returned.
+- **`src/observability/logging.py`** — JSON logs with a shared request ID and
+  a `stage()` context manager that times and logs the start/end/failure of
+  every pipeline stage (ingest, alignment, delta, report, retrieval, LLM
+  call). See below for why this over a dedicated tracing SDK.
 
-## Sample-data provenance and limitations
+## Design decisions & trade-offs
 
-`data/input/Export Gas Compressor-P&ID (1).pdf` and `data/input/Lift Gas compressor-P&ID.pdf` are the supplied sample documents. They depict different compressor systems rather than confirmed revisions, so the generated report is an objective structural comparison, not claimed revision ground truth. The provided sources do not specify human-labelled expected deltas or Q&A; `eval/datasets/ground_truth.template.json` is the schema a reviewer should fill before using precision/recall/F1 as a quality claim.
+- **Deterministic delta, LLM only for chat.** The delta engine is plain
+  RapidFuzz + geometry — no LLM. That makes it reproducible and cheap to run
+  in eval, and keeps the one non-deterministic part of the system (the LLM)
+  isolated to the final answer-generation call.
+- **One retriever, not a hybrid.** The chat index is a single Chroma
+  similarity search. An earlier version of this project combined BM25 and
+  semantic search with Reciprocal Rank Fusion — it worked, but it was a lot
+  of bespoke code (a hand-rolled tokenizer, RRF math, two indexes to keep in
+  sync) to maintain for a two-document assignment. LangChain + Chroma cover
+  semantic retrieval in a few lines; see "what's next" for when hybrid would
+  earn its complexity back.
+- **Tesseract over a heavier OCR stack.** PaddleOCR/EasyOCR give slightly
+  better accuracy but pull in large ML dependencies. Tesseract is a single
+  system package, has a stable Python wrapper (`pytesseract`), and its `TSV`
+  output already gives per-word bounding boxes and confidence — exactly what
+  the canonical model needs.
+- **Groq for the LLM.** Fast, has a free tier, and `llama-3.1-8b-instant` is
+  plenty for "answer from this evidence, cite it." Swapping providers means
+  implementing the two-method `ChatProvider` protocol in `src/chat/llm.py`.
 
-## Observability and evaluation
+## What I cut, and why
 
-Each pipeline stage emits structured JSON with a shared request ID, duration, failures, delta counts, and retrieval-hit count. The LLM provider logs model, token counts, and an estimated cost calculated from the input/output token prices in `src/config/config.yaml`. For the configured `gpt-4.1-mini`, the default $0.40 input and $1.60 output prices per million tokens follow the [official model page](https://developers.openai.com/api/docs/models/gpt-4.1-mini). Update configuration if the provider/model or pricing changes.
+- **DWG** is a real stub (`src/ingest/dwg.py`) behind the same
+  `FormatAdapter` interface as the PDF adapters, but does not parse DWG
+  files. Native PDF + scanned PDF (via Tesseract) are the two formats
+  demonstrated end-to-end, which satisfies "at least two of three" with room
+  to add a real DWG parser (e.g. `ezdxf`) later without touching delta/chat.
+- **Delta markup (bonus)** is not implemented — `src/markup/` is an empty
+  seam. Given the time budget, a genuinely useful delta engine, grounded
+  chat, observability, and eval mattered more than a visual overlay.
+- **Hybrid BM25 + semantic retrieval** was cut in favor of plain semantic
+  search (see above) — less code, easier to reason about, and precision
+  wasn't a bottleneck at this scale (two documents, ~500 excerpts).
+- **Langfuse-based tracing** was cut in favor of the homegrown JSON `stage()`
+  logger. Langfuse is a fine choice, but wiring in a second observability
+  tool on top of structured JSON logs would have been redundant for a system
+  this size — see "Observability" below.
 
-The evaluation harness derives predicted IDs from `data/reports/delta_report.json` and compares them only with human-labelled `expected_change_ids`. Generate candidate IDs with `uv run python -m eval.run_eval --write-candidates`, review them, copy approved labels into `eval/datasets/ground_truth.json`, then run `uv run python -m eval.run_eval`. It does not fabricate precision, recall, F1, chat correctness, or citation-accuracy results.
+## Observability
 
-## Configuration, environment, and validation
+Every pipeline stage (ingest, alignment, delta classification, report
+generation, retrieval, LLM call) is wrapped in
+`src/observability/logging.py`'s `stage()` context manager, which logs a
+`stage_started` and `stage_completed`/`stage_failed` JSON record with a
+duration in milliseconds. All logs in one `run` or `chat` invocation share a
+`request_id` (bound via `request_context()`), so `grep`-ing one ID in
+`logs/project.log` gives the full trace of that request. The LLM call
+additionally logs the model name, input/output token counts, and an
+estimated cost computed from the per-token prices in `config.yaml`. Failures
+(a corrupt PDF, a missing Tesseract binary, a failed LLM call) are logged
+with `stage_failed`/`llm` exception details and never silently swallowed —
+`GroundedChatService` still returns the retrieved citations if the LLM call
+itself fails.
 
-`src/config/config.yaml` centralizes document paths, alignment thresholds, automatic-detection threshold, OCR DPI, retrieval settings, model selection, and token pricing. Hybrid retrieval is enabled by default: `use_bm25`, `use_semantic`, and `hybrid` control the two retrievers and RRF; `rrf_k` is the RRF rank constant (default `60`). The first run downloads the configured `sentence-transformers/all-MiniLM-L6-v2` embedding model, so it needs network access and sufficient memory. Create a local `.env` and set `OPENAI_API_KEY` for live grounded-chat validation; Langfuse variables remain optional. The validation sequence is `uv run pytest -q`, `uv run python main.py run`, and then `uv run python main.py chat "What changed near the compressor?"`. Confirm the resulting JSON log includes the answer, citations, request ID, stage duration, token counts, and `estimated_cost_usd`.
+This is a homegrown tracer rather than OpenTelemetry/Langfuse because the
+system is small enough that one JSON-lines log file with a request ID
+already answers "what did this request do and how long did each step take,"
+and it adds zero new services to run. The trade-off: no built-in UI for
+browsing traces — `logs/project.log` is `jq`-able but not a dashboard. See
+"what's next."
 
-If the API key is absent, invalid, rate-limited, or out of quota, chat logs the provider failure and returns a clear validation message with the retrieved evidence citations; it does not fabricate an answer, token counts, or cost. Restore provider availability and rerun the command to validate live answer, token, and cost telemetry.
+## Evaluation
 
-## Assignment mapping
+```bash
+uv run python -m eval.run_eval
+```
 
-| Assignment section | Status | Implementation |
-| --- | --- | --- |
-| What you'll build A: format-agnostic ingestion | Complete for Native; OCR adapter/routing implemented | `src/ingest/` adapters return `CanonicalDocument`; automatic selection is logged. |
-| What you'll build B-C: deterministic delta and reports | Complete | `src/delta/` and generated Markdown/JSON reports. |
-| What you'll build D: grounded chat with citations | Implemented; live provider validation depends on API access | `src/chat/` retrieves PID A, PID B, and report excerpts before one provider call. |
-| Observability | Implemented; external provider telemetry awaits live validation | JSON request IDs, stage timing, token and estimated-cost fields. |
-| Evaluation harness | Implemented; quality score awaits human labels | `eval/` derives predictions and requires reviewer labels. |
-| Technical requirements: 2-3 document pairs and two formats demonstrated | Awaiting external samples | Only one native pair is supplied; no scanned PDF or DWG sample is available. |
- is matching moved/reflowed content and unlabelled sample data; the next step is a reviewer-labelled revision dataset and false-p
+- **Delta metrics.** `eval/run_eval.py` derives a stable ID for every
+  non-`unchanged` delta entry from the generated `delta_report.json` and
+  compares it against `eval/datasets/ground_truth.json`'s
+  `expected_change_ids` (precision/recall/F1). Run with
+  `--write-candidates` first to generate candidate IDs, review them against
+  the report, and paste approved ones into `ground_truth.json` — the
+  harness never fabricates labels.
+- **Chat metrics.** For each `qa_cases` entry (question + expected keywords
+  + expected citation fragments like `"pid_b | page 1"`), the harness runs
+  real grounded chat and scores answer correctness (are the expected
+  keywords in the answer?) and citation accuracy (do the citations mention
+  the expected source/page?).
+- **On the default sample pair** (`data/samples/synthetic_revision/`, see
+  provenance below), the engine finds exactly the 3 edits that were made —
+  1 modified (a renamed PSV tag), 1 added (a new note), 1 removed (a deleted
+  callout) — against 494 unchanged elements. `eval/datasets/ground_truth.json`
+  is filled in with those 3 IDs and one QA case.
+- **Known failure case**, documented honestly in `ground_truth.json`: if
+  content moves further than `align.max_bbox_distance` (75pt) between
+  revisions, alignment reports it as a remove + add instead of a modify. A
+  larger search radius or a second matching pass keyed on text similarity
+  alone (ignoring position) would catch this, at the cost of more false
+  positive matches.
+
+## Sample data
+
+Three pairs, generated/documented in `data/samples/` (see each folder's
+`PROVENANCE.md`):
+
+1. **`synthetic_revision/`** — the supplied `Lift Gas compressor-P&ID.pdf` as
+   Revision A, plus a Revision B with 3 concrete edits applied by
+   `data/samples/make_samples.py` (regenerate with
+   `uv run python data/samples/make_samples.py`). This is the default pair
+   and the one eval is scored against, since it's a genuine revision pair.
+2. **`different_systems/`** — the two originally supplied P&IDs, which
+   turned out to be two *different* compressor systems, not two revisions of
+   one document. Kept as an honest edge-case: the delta on this pair is
+   large and not meaningful, which is the correct behavior for unrelated
+   inputs.
+3. **`scanned/`** — page 1 of Revision A rasterized with no text layer, to
+   exercise `ScannedPDFAdapter` end-to-end with real Tesseract OCR.
+
+No key or PII is committed; `.env.example` lists the one required variable.
+
+## What's next
+
+- **DWG support** via `ezdxf`, mapping entities/blocks/text to the same
+  `CanonicalDocument` model.
+- **Delta markup** — draw the delta's bounding boxes back onto the PDF with
+  PyMuPDF annotations.
+- **Hybrid retrieval** if a larger document set shows semantic-only search
+  missing exact tag/number lookups (BM25 is strong for that).
+- **LLM-as-judge** for answer correctness, validated against a small
+  human-labeled subset, to reduce how much of chat quality depends on exact
+  keyword matches in eval.
+- **A metrics dashboard** (or a served `/metrics` endpoint) instead of
+  reading `logs/project.log` by hand.

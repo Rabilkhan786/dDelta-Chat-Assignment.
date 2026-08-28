@@ -1,3 +1,10 @@
+"""Stub adapter for DWG files.
+
+Kept behind the same FormatAdapter seam as the PDF adapters so a real DWG parser
+(e.g. ezdxf, ODA, or an Autodesk conversion API) can be dropped in later without
+touching the delta engine, report, or chat layers.
+"""
+
 from pathlib import Path
 
 from src.canonical.model import CanonicalDocument
@@ -8,35 +15,15 @@ logger = get_logger(__name__)
 
 
 class DWGStubAdapter(FormatAdapter):
-    """
-    Stub adapter for DWG files.
+    """Recognizes .dwg files but does not parse them yet."""
 
-    This adapter exists to satisfy the project architecture until
-    a real DWG parser (ezdxf, ODA, Autodesk APIs, etc.) is added.
-    """
+    def supports(self, file_path: Path) -> bool:
+        return Path(file_path).suffix.lower() == ".dwg"
 
-    SUPPORTED_EXTENSIONS = {".dwg"}
-
-    @classmethod
-    def supports(cls, file_path: str | Path) -> bool:
-        """
-        Returns True if the file has a .dwg extension.
-        """
-        return Path(file_path).suffix.lower() in cls.SUPPORTED_EXTENSIONS
-
-    def parse(self, file_path: str | Path) -> CanonicalDocument:
-        """
-        Stub implementation.
-        """
+    def parse(self, file_path: Path) -> CanonicalDocument:
         file_path = Path(file_path)
-
-        logger.warning(
-            "DWG ingestion requested for '%s', but this adapter is currently a stub.",
-            file_path.name,
-        )
-
+        logger.warning("dwg_ingestion_not_implemented", extra={"file": file_path.name})
         raise NotImplementedError(
-            "DWG ingestion is not implemented yet. "
-            "This project currently supports Native PDF. "
-            "Scanned PDF support will be added separately."
+            f"DWG ingestion for '{file_path.name}' is not implemented. "
+            "This project supports native PDF and OCR'd scanned PDF end-to-end."
         )

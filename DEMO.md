@@ -1,39 +1,81 @@
 # Demo walkthrough
 
-This walkthrough demonstrates the required pipeline with the supplied P&ID PDFs. It is designed for a short screen recording or terminal walkthrough.
+1. **Install.**
 
-1. Install the locked environment.
-
-   ```powershell
-   uv sync --locked
+   ```bash
+   uv sync
+   sudo apt-get install tesseract-ocr   # or: brew install tesseract
    ```
 
-2. Run the automatic PDF-detection pipeline.
+2. **Run the pipeline** on the default sample pair (a genuine revision pair —
+   see `data/samples/synthetic_revision/PROVENANCE.md`).
 
-   ```powershell
+   ```bash
    uv run python main.py run
    ```
 
-   The router counts selectable text. It selects `NativePDFAdapter` for meaningful text and `ScannedPDFAdapter` for an image-only PDF, logging the selected adapter. Both paths return the same `CanonicalDocument` schema. The structured JSON logs show one request ID spanning detection, ingestion, document alignment, deterministic delta comparison, delta-report generation, and hybrid retrieval-index building. This builds independent BM25 and Chroma semantic rankings for PID A, PID B, and delta-report excerpts. The report artifacts are `data/reports/delta_report.md` and `data/reports/delta_report.json`.
+   The JSON logs show one request ID spanning native-PDF ingestion for both
+   revisions, alignment, delta classification, report generation, and
+   retrieval-index building, each with a stage duration. On this pair, the
+   delta engine finds exactly the 3 edits that were actually made, against
+   494 unchanged elements:
 
-   To use OCR after supplying a scanned PDF, install `paddleocr` and `paddlepaddle` with `uv add paddleocr paddlepaddle`, run `uv sync`, and pass the scanned PDF with `--revision-a` or `--revision-b`. If PaddleOCR is unavailable, the OCR adapter returns an actionable installation error and does not generate output.
+   ```
+   summary: {"total_entries": 497, "actual_changes": 3, "unchanged": 494,
+             "modified": 1, "added": 1, "removed": 1}
 
-3. Inspect the report. For the supplied drawings, the result is an objective comparison, not a revision-quality claim: 226 additions, 159 modifications, and 101 removals were detected. The documents represent different compressor systems, so the large delta is expected.
-
-4. Configure the LLM only for grounded chat.
-
-   ```powershell
-   # Create .env and set OPENAI_API_KEY
-   uv run python main.py chat "What changed near the compressor?"
+   modified | text | page 1 | confidence 0.89 | 'PSV 9066A' -> 'PSV 9066C'
+   removed  | text | page 1 | confidence 1.00 | 'MECHANICAL INTERLOCK'
+   added    | text | page 1 | confidence 1.00 | 'NOTE 24: NEW BLOWDOWN VALVE ADDED PER REV B.'
    ```
 
-   The chat service retrieves source-labelled excerpts from PID A, PID B, and the delta report using BM25 and semantic search independently, then fuses their ranked lists with Reciprocal Rank Fusion (RRF, default rank constant `60`) before invoking the provider. The first semantic run downloads `sentence-transformers/all-MiniLM-L6-v2`; retain network access and adequate memory. The prompt requires a citation for every factual statement. Inspect the JSON logs for the request ID, `grounded_chat` and `llm_completion` durations, input/output tokens, and `estimated_cost_usd`.
+   Full reports: `data/reports/delta_report.md` and `.json`.
 
-5. Run the regression tests and evaluation harness.
+3. **Try the scanned-PDF adapter** (Tesseract OCR, no text layer in the
+   input):
 
-   ```powershell
+   ```bash
+   uv run python main.py run \
+     --revision-a data/samples/scanned/lift_gas_scanned.pdf \
+     --revision-b data/samples/synthetic_revision/revision_a.pdf \
+     --adapter auto
+   ```
+
+   The router logs `pdf_adapter_selected` with 0 selectable characters for
+   the scanned file, routes it to `ScannedPDFAdapter`, and OCR recovers text,
+   per-word bounding boxes, and confidence into the same canonical schema
+   native PDFs use.
+
+4. **Grounded chat.**
+
+   ```bash
+   cp .env.example .env   # set GROQ_API_KEY
+   uv run python main.py chat "What changed on the PSV valve?"
+   ```
+
+   Retrieval embeds PID A, PID B, and the delta report into Chroma
+   (downloads a small embedding model the first time), retrieves the top-k
+   matches for the question, and requires the LLM to cite one of them for
+   every claim. If nothing relevant is retrieved, chat says so instead of
+   guessing; if the LLM call itself fails, the retrieved citations are
+   still returned. Inspect `logs/project.log` for the request ID, retrieval
+   hit count, model name, token counts, and `estimated_cost_usd`.
+
+5. **Tests and eval.**
+
+   ```bash
    uv run pytest -q
    uv run python -m eval.run_eval
    ```
 
-   First run `uv run python -m eval.run_eval --write-candidates` to generate deterministic candidate IDs from the report. A human reviewer places approved expected IDs in `eval/datasets/ground_truth.json` using the provided template, then reruns the scorecard. The harness deliberately reports that labels are required until then; it does not fabricate delta or citation quality scores.
+   `eval/datasets/ground_truth.json` is filled in with the 3 real change IDs
+   from step 2 and one chat QA case. A real run prints:
+
+   ```
+   delta_scorecard: precision=1.0 recall=1.0 f1=1.0 predicted=3 expected=3
+   ```
+
+   followed by the chat scorecard (answer correctness + citation accuracy),
+   which needs `GROQ_API_KEY` and network access — the harness logs a clear
+   `chat_evaluation_failed` and still exits 0 rather than fabricating a
+   score if either is unavailable.

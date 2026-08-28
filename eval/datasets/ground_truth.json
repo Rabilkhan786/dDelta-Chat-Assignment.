@@ -1,0 +1,18 @@
+{
+  "expected_change_ids": [
+    "35ee3966cf9a5c06",
+    "63352184a89828ca",
+    "f2404d410afc93d3"
+  ],
+  "qa_cases": [
+    {
+      "question": "What changed on the PSV valve?",
+      "expected_answer_keywords": ["9066"],
+      "expected_citations": ["delta_report | PID revision_b | page 1"]
+    }
+  ],
+  "known_failure_cases": [
+    "Content that moves further than align.max_bbox_distance (75pt) between revisions is reported as a remove + add instead of a modify, since alignment requires page + type + nearby position before comparing text.",
+    "The different_systems sample pair (two unrelated compressor drawings) produces a large, not-meaningful delta; it is kept as an honest edge case, not scored here."
+  ]
+}

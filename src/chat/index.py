@@ -1,15 +1,16 @@
-"""Deterministic local retrieval index for both revisions and the delta report."""
+"""Retrieval index over PID A, PID B, and the delta report, backed by Chroma.
+
+Every canonical text element and every delta entry becomes one embedded excerpt.
+Each excerpt keeps its source PID, page number, and element id as metadata so a
+retrieved match can always be turned into a citation.
+"""
 
 from __future__ import annotations
 
-import pickle
-import re
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
-from nltk.corpus import stopwords
 
-from rank_bm25 import BM25Okapi
+from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from src.canonical.model import CanonicalDocument, DeltaEntry
 from src.config.settings import project_path, settings
@@ -19,162 +20,72 @@ logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
-class IndexedDocument:
-    """A retrievable excerpt with stable metadata for answer citations."""
+class Excerpt:
+    """One retrievable, citable piece of evidence."""
 
     text: str
-    source: str
+    source: str  # "pid_a", "pid_b", or "delta_report"
     pid: str
     page_number: int
     element_id: str
-    bounding_box: dict[str, float] | None
 
 
-class DocumentIndexer:
-    
-    """Build lexical and semantic indexes while retaining PID A/B/report provenance."""
+def _excerpt_id(excerpt: Excerpt) -> str:
+    return f"{excerpt.source}:{excerpt.pid}:{excerpt.page_number}:{excerpt.element_id}"
 
-    def __init__(
-        self,
-        index_path: Path | None = None,
-        documents_path: Path | None = None,
-        semantic_enabled: bool | None = None,
-    ) -> None:
-        self.index_path = index_path or project_path(settings.paths.bm25_index)
-        self.documents_path = documents_path or project_path(settings.paths.bm25_documents)
-        self.index_path.parent.mkdir(parents=True, exist_ok=True)
-        self.semantic_enabled = settings.retrieval.use_semantic if semantic_enabled is None else semantic_enabled
-        self._vector_store: Any | None = None
 
-    @staticmethod
-    def _tokenize(text: str) -> list[str]:
-        
-        """the text is preprocessed , remove stopword and return tokens"""
-        
-        STOP_WORDS = set(stopwords.words("english"))
-        tokens = re.findall(r"[a-z0-9][a-z0-9_-]*", text.lower())
-        return [token for token in tokens if token not in STOP_WORDS]
+def _vector_store() -> Chroma:
+    embeddings = HuggingFaceEmbeddings(model_name=settings.embedding.model, model_kwargs={"device": settings.embedding.device})
+    return Chroma(
+        collection_name=settings.chroma.collection_name,
+        persist_directory=str(project_path(settings.chroma.persist_directory)),
+        embedding_function=embeddings,
+    )
 
-    def create_documents(self, document: CanonicalDocument, source: str) -> list[IndexedDocument]:
-        
-        """Convert one canonical revision into citation-ready retrieval excerpts."""
-        
-        result: list[IndexedDocument] = []
-        for page in document.pages:
-            for element in page.elements:
-                if not element.text.strip():
-                    continue
-                bbox = element.bbox.model_dump() if element.bbox else None
-                result.append(IndexedDocument(element.text.strip(), source, document.metadata.pid,
-                    page.page_number, element.id, bbox))
-        return result
-    
-    
 
-    def create_delta_documents(self, deltas: list[DeltaEntry], pid: str) -> list[IndexedDocument]:
-        
-        """Convert the deterministic delta output into its own retrieval source."""
-        
-        return [IndexedDocument(
-            text=f"{delta.change_type.value} {delta.element_type.value}: {delta.description}",
-            source="delta_report", pid=pid, page_number=delta.page_number,
-            element_id=f"delta-{index}",
-            bounding_box=delta.region.model_dump() if delta.region else None,
-        ) for index, delta in enumerate(deltas, start=1)]
+def _document_excerpts(document: CanonicalDocument, source: str) -> list[Excerpt]:
+    return [
+        Excerpt(element.text.strip(), source, document.metadata.pid, page.page_number, element.id)
+        for page in document.pages for element in page.elements if element.text.strip()
+    ]
 
-    def build(self, pid_a: CanonicalDocument, pid_b: CanonicalDocument, deltas: list[DeltaEntry]) -> int:
-        
-        """Persist BM25 and semantic indexes of PID A, PID B, and the delta report."""
-        
-        with stage(logger, "retrieval_index_build"):
-            documents = (self.create_documents(pid_a, "pid_a") + self.create_documents(pid_b, "pid_b")
-                         + self.create_delta_documents(deltas, pid_b.metadata.pid))
-            if not documents:
-                raise ValueError("Cannot build retrieval index from empty canonical documents.")
-            corpus = [self._tokenize(document.text) for document in documents]
-            with self.documents_path.open("wb") as stream:
-                pickle.dump(documents, stream)
-            with self.index_path.open("wb") as stream:
-                pickle.dump(BM25Okapi(corpus), stream)
-            if self.semantic_enabled:
-                self._build_semantic_index(documents)
-        logger.info("retrieval_index_built", extra={"documents": len(documents)})
-        return len(documents)
 
-    def load(self) -> tuple[BM25Okapi, list[IndexedDocument]]:
-        
-        """Load an existing index or raise an actionable setup error."""
-        
-        if not self.index_path.exists() or not self.documents_path.exists():
-            raise FileNotFoundError("Retrieval index is missing. Run `python main.py run` first.")
-        with self.index_path.open("rb") as stream:
-            index = pickle.load(stream)
-        with self.documents_path.open("rb") as stream:
-            documents = pickle.load(stream)
-        return index, documents
+def _delta_excerpts(deltas: list[DeltaEntry], pid: str) -> list[Excerpt]:
+    return [
+        Excerpt(f"{delta.change_type.value} {delta.element_type.value}: {delta.description}",
+            "delta_report", pid, delta.page_number, f"delta-{index}")
+        for index, delta in enumerate(deltas, start=1)
+    ]
 
-    @staticmethod
-    def document_key(document: IndexedDocument) -> str:
-        
-        """Return the stable identity used to join lexical and semantic results."""
-        
-        return f"{document.source}:{document.pid}:{document.page_number}:{document.element_id}"
 
-    def semantic_search(self, query: str, limit: int) -> list[IndexedDocument]:
-        """Search the persisted vector store and restore canonical citation metadata."""
-        _, documents = self.load()
-        documents_by_key = {self.document_key(document): document for document in documents}
-        matches = self._semantic_store().similarity_search(query, k=limit)
-        results: list[IndexedDocument] = []
-        for match in matches:
-            document = documents_by_key.get(match.metadata.get("document_key", ""))
-            if document is not None:
-                results.append(document)
-        return results
+def build_index(pid_a: CanonicalDocument, pid_b: CanonicalDocument, deltas: list[DeltaEntry]) -> int:
+    """Embed PID A, PID B, and the delta report into a fresh Chroma collection."""
+    excerpts = _document_excerpts(pid_a, "pid_a") + _document_excerpts(pid_b, "pid_b") + _delta_excerpts(deltas, pid_b.metadata.pid)
+    if not excerpts:
+        raise ValueError("Cannot build a retrieval index from empty canonical documents.")
 
-    def _semantic_store(self) -> Any:
-        
-        """Create the configured persistent Chroma store only when semantic search is used."""
-        
-        if self._vector_store is None:
-            try:
-                from langchain_chroma import Chroma
-                from langchain_huggingface import HuggingFaceEmbeddings
-            except ImportError as error:
-                raise RuntimeError(
-                    "Semantic retrieval requires langchain-chroma and langchain-huggingface. "
-                    "Run `uv sync --locked`."
-                ) from error
-            try:
-                embeddings = HuggingFaceEmbeddings(
-                    model_name=settings.embedding.model,
-                    model_kwargs={"device": settings.embedding.device},
-                    encode_kwargs={"normalize_embeddings": True},
-                )
-            except Exception as error:
-                raise RuntimeError(
-                    f"Unable to load semantic embedding model '{settings.embedding.model}'. "
-                    "Check model availability, network access, and available memory."
-                ) from error
-            self._vector_store = Chroma(
-                collection_name=settings.chroma.collection_name,
-                persist_directory=str(project_path(settings.chroma.persist_directory)),
-                embedding_function=embeddings,
-            )
-        return self._vector_store
-
-    def _build_semantic_index(self, documents: list[IndexedDocument]) -> None:
-        
-        """Replace this project's semantic collection with the current canonical excerpts."""
-        
-        store = self._semantic_store()
-        existing = store.get(include=[]).get("ids", [])
-        if existing:
-            store.delete(ids=existing)
+    with stage(logger, "retrieval_index_build"):
+        store = _vector_store()
+        existing_ids = store.get(include=[]).get("ids", [])
+        if existing_ids:
+            store.delete(ids=existing_ids)
         store.add_texts(
-            texts=[document.text for document in documents],
-            ids=[self.document_key(document) for document in documents],
-            metadatas=[{"document_key": self.document_key(document)} for document in documents],
+            texts=[excerpt.text for excerpt in excerpts],
+            ids=[_excerpt_id(excerpt) for excerpt in excerpts],
+            metadatas=[{"source": excerpt.source, "pid": excerpt.pid, "page_number": excerpt.page_number,
+                "element_id": excerpt.element_id} for excerpt in excerpts],
         )
-        logger.info("semantic_index_built", extra={"documents": len(documents),
-            "embedding_model": settings.embedding.model})
+    logger.info("retrieval_index_built", extra={"excerpts": len(excerpts)})
+    return len(excerpts)
+
+
+def search(query: str, top_k: int | None = None) -> list[Excerpt]:
+    """Return the top matching excerpts for a question, ranked by semantic similarity."""
+    if not query.strip():
+        raise ValueError("Question must not be empty.")
+    with stage(logger, "retrieval"):
+        matches = _vector_store().similarity_search(query, k=top_k or settings.retrieval.top_k)
+    results = [Excerpt(match.page_content, match.metadata["source"], match.metadata["pid"],
+        match.metadata["page_number"], match.metadata["element_id"]) for match in matches]
+    logger.info("retrieval_completed", extra={"hits": len(results), "question_length": len(query)})
+    return results

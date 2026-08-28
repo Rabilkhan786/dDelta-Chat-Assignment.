@@ -8,7 +8,7 @@ from contextvars import ContextVar
 from pathlib import Path
 from typing import Iterator
 
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 from src.config.settings import PROJECT_ROOT
 
@@ -37,7 +37,7 @@ def setup_logger(
     logger = logging.getLogger(name)
     if not logger.handlers:
         logger.setLevel(level)
-        formatter = jsonlogger.JsonFormatter(
+        formatter = JsonFormatter(
             "%(asctime)s %(levelname)s %(name)s %(request_id)s %(message)s",
             rename_fields={"asctime": "timestamp", "levelname": "level", "name": "logger"},
         )
