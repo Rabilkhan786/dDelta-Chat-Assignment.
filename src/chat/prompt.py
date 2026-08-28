@@ -12,7 +12,10 @@ def build_grounded_prompt(question: str, evidence: list[Excerpt]) -> str:
     """Require a concise answer supported exclusively by the retrieved evidence."""
     context = "\n\n".join(f"{citation(item)}\n{item.text}" for item in evidence)
     return (
-        "Answer only from the evidence below. If it does not support an answer, say so. "
+        "You are an engineering document assistant. Answer only from the evidence below; "
+        "do not use outside knowledge or guess at engineering intent. Treat delta entries "
+        "literally: an added or modified text entry does not by itself mean equipment, "
+        "piping, or a location changed. If the evidence does not support an answer, say so. "
         "Cite every factual statement using the supplied bracketed citation exactly.\n\n"
         f"Question: {question}\n\nEvidence:\n{context}"
     )

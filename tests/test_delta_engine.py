@@ -12,6 +12,14 @@ def test_modified_native_elements_have_normalized_confidence() -> None:
     assert delta.confidence == 0.9
 
 
+def test_rewrapped_whitespace_is_not_reported_as_modified() -> None:
+    """Re-flowed line breaks/spacing alone shouldn't count as a real content change."""
+    old = Element(id="a", page_number=1, type=ElementType.TEXT, text="pressure  10\nbar", bbox=BoundingBox(x0=0, y0=0, x1=1, y1=1))
+    new = Element(id="b", page_number=1, type=ElementType.TEXT, text="pressure 10 bar", bbox=BoundingBox(x0=0, y0=0, x1=1, y1=1))
+    delta = DeltaEngine().compare(AlignmentResult(matches=[Alignment(left=old, right=new, similarity=100, bbox_distance=0)]))[0]
+    assert delta.change_type.value == "unchanged"
+
+
 def test_ocr_confidence_discounts_similarity() -> None:
     """An OCR match should be less confident than an identical native-text match."""
     old = Element(id="a", page_number=1, type=ElementType.TEXT, text="valve", source="ocr", ocr_confidence=0.5)

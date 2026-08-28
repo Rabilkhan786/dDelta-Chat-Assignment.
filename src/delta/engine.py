@@ -1,5 +1,7 @@
 """Turn an AlignmentResult into structured, confidence-scored DeltaEntry objects."""
 
+import re
+
 from src.canonical.model import Alignment, AlignmentResult, DeltaEntry, DeltaType, Element
 from src.observability.logging import get_logger, stage
 
@@ -17,7 +19,7 @@ class DeltaEngine:
         deltas: list[DeltaEntry] = []
 
         for match in alignment_result.matches:
-            if match.left.text.strip() != match.right.text.strip():
+            if self._normalize(match.left.text) != self._normalize(match.right.text):
                 deltas.append(self._modified(match))
             else:
                 deltas.append(self._unchanged(match))
@@ -48,6 +50,11 @@ class DeltaEngine:
         return DeltaEntry(change_type=DeltaType.ADDED, element_type=element.type, page_number=element.page_number,
             region=element.bbox, description=f"Added {element.type.value}: '{element.text}'",
             confidence=self._confidence(100.0, element))
+
+    @staticmethod
+    def _normalize(text: str) -> str:
+        """Collapse whitespace so re-wrapped or re-flowed text isn't reported as modified."""
+        return re.sub(r"\s+", " ", text.strip())
 
     @staticmethod
     def _confidence(similarity: float, element: Element) -> float:
