@@ -9,10 +9,10 @@ New Document : Lift Gas compressor-P&ID.pdf
 ## Summary
 
 - Total Entries  : 597
-- Actual Changes : 486
+- Actual Changes : 480
 
-- Unchanged : 111
-- Modified  : 159
+- Unchanged : 117
+- Modified  : 153
 - Added     : 226
 - Removed   : 101
 
@@ -1029,12 +1029,11 @@ SCOPE.
 
 ### Entry 89
 
-- Type : modified
+- Type : unchanged
 - Element : text
 - Page : 1
 - Confidence : 0.95
-- Description : text changed from 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)        Barg
-FV / 286   /   FV / 286                                NOTE 22' to 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)    Barg
+- Description : Unchanged text: 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)    Barg
 FV / 286  / FV / 286   NOTE 22'
 - Bounding Box : (26.76, 595.90) → (221.70, 601.63)
 
@@ -1071,12 +1070,11 @@ LTCS (1.7218)'
 
 ### Entry 93
 
-- Type : modified
+- Type : unchanged
 - Element : text
 - Page : 1
 - Confidence : 0.97
-- Description : text changed from 'TYPE
-VARIABLE SPEED MOTOR  DRIVEN CENTRIFUGAL' to 'TYPE
+- Description : Unchanged text: 'TYPE
 VARIABLE SPEED MOTOR DRIVEN
 CENTRIFUGAL'
 - Bounding Box : (27.24, 632.62) → (230.41, 644.47)
@@ -1122,11 +1120,11 @@ MAN ENERGY SOLUTIONS'
 
 ### Entry 98
 
-- Type : modified
+- Type : unchanged
 - Element : text
 - Page : 1
 - Confidence : 0.97
-- Description : text changed from '(MOTOR PURGE SYSTEM ; EX-P TYPE MOTOR)' to '(MOTOR PURGE SYSTEM; EX-P TYPE MOTOR )'
+- Description : Unchanged text: '(MOTOR PURGE SYSTEM; EX-P TYPE MOTOR )'
 - Bounding Box : (88.44, 322.42) → (194.58, 328.15)
 
 ### Entry 99
@@ -1465,13 +1463,11 @@ PRESSURE IS CONTROLLED WITH VSD.
 
 ### Entry 128
 
-- Type : modified
+- Type : unchanged
 - Element : text
 - Page : 1
 - Confidence : 0.95
-- Description : text changed from 'PROVISION FOR
-OIL CONDITIONER
--RETURN' to 'PROVISION
+- Description : Unchanged text: 'PROVISION
 FOR OIL
 CONDITIONER
 -RETURN'
@@ -1479,13 +1475,11 @@ CONDITIONER
 
 ### Entry 129
 
-- Type : modified
+- Type : unchanged
 - Element : text
 - Page : 1
 - Confidence : 0.95
-- Description : text changed from 'PROVISION FOR
-OIL CONDITIONER
--INLET' to 'PROVISION
+- Description : Unchanged text: 'PROVISION
 FOR OIL
 CONDITIONER
 -INLET'
@@ -1637,11 +1631,11 @@ VENT'
 
 ### Entry 145
 
-- Type : modified
+- Type : unchanged
 - Element : text
 - Page : 1
 - Confidence : 0.95
-- Description : text changed from '(BY MAN)' to '(BY
+- Description : Unchanged text: '(BY
 MAN)'
 - Bounding Box : (477.84, 192.10) → (491.50, 204.19)
 

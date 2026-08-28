@@ -5,7 +5,7 @@ Converts AlignmentResult into structured DeltaEntry objects.
 """
 
 from src.observability.logging import get_logger, stage
-
+import re
 from src.canonical.model import (
     Alignment,
     AlignmentResult,
@@ -20,8 +20,34 @@ logger = get_logger(__name__)
 class DeltaEngine:
     """
     Rule-based delta detection engine.
-    """
 
+    """
+    
+    
+    @staticmethod
+    def _normalize(text: str) -> str:
+        """
+        Normalize text by ignoring cosmetic whitespace changes.
+        """
+
+        # Remove leading/trailing whitespace
+        text = text.strip()
+
+        # Replace multiple spaces/newlines/tabs with a single space
+        text = re.sub(r"\s+", " ", text)
+
+        # Remove spaces before punctuation
+        text = re.sub(r"\s+([,;:.!?])", r"\1", text)
+
+        # Remove spaces after opening brackets
+        text = re.sub(r"([(\[{])\s+", r"\1", text)
+
+        # Remove spaces before closing brackets
+        text = re.sub(r"\s+([)\]}])", r"\1", text)
+
+        return text
+    
+   
     def compare(
         self,
         alignment_result: AlignmentResult,
@@ -129,17 +155,17 @@ class DeltaEngine:
 
         return deltas
 
-    @staticmethod
-    def _is_modified(match: Alignment) -> bool:
+    @classmethod
+    def _is_modified(cls, match: Alignment) -> bool:
         """
-        Returns True if two aligned elements differ.
+        Returns True if two aligned elements differ after
+        ignoring whitespace differences.
         """
+        left = cls._normalize(match.left.text)
+        right = cls._normalize(match.right.text)
 
-        return (
-            match.left.text.strip()
-            !=
-            match.right.text.strip()
-        )
+        return left != right
+    
 
     def _create_unchanged_delta(
         self,

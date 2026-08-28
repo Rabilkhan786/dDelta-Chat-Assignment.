@@ -9,10 +9,21 @@ def citation(document: IndexedDocument) -> str:
 
 
 def build_grounded_prompt(question: str, context: list[IndexedDocument]) -> str:
-    """Require a concise answer supported exclusively by supplied context."""
-    evidence = "\n\n".join(f"{citation(item)}\n{item.text}" for item in context)
+    
+    evidence = "\n\n".join(
+        f"{citation(item)}\n{item.text}" for item in context
+    )
+
     return (
-        "Answer only from the evidence below. If it does not support an answer, say so. "
-        "Cite every factual statement using the supplied bracketed citation exactly.\n\n"
-        f"Question: {question}\n\nEvidence:\n{evidence}"
+        "You are an engineering document assistant.\n\n"
+        "Answer ONLY from the supplied evidence.\n"
+        "Do NOT use external knowledge.\n"
+        "Do NOT guess or infer engineering intent.\n"
+        "Treat delta entries literally.\n"
+        "An ADDED text entry does NOT necessarily mean an equipment, pipeline, or location was added.\n"
+        "A MODIFIED text entry does NOT necessarily indicate an engineering change beyond the text shown.\n"
+        "If the evidence is insufficient, clearly state that.\n"
+        "Cite every factual statement using the supplied bracketed citations exactly.\n\n"
+        f"Question: {question}\n\n"
+        f"Evidence:\n{evidence}"
     )

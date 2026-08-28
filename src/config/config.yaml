@@ -27,7 +27,7 @@ chroma:
 # Retrieval
 
 retrieval:
-  top_k: 5
+  top_k: 10
   hybrid: true
   use_bm25: true
   use_semantic: true

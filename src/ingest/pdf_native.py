@@ -60,11 +60,63 @@ class NativePDFAdapter(FormatAdapter):
     @staticmethod
     def _parse_page(pdf_page: fitz.Page, page_number: int) -> Page:
         elements: list[Element] = []
-        for block_index, block in enumerate(pdf_page.get_text("blocks"), start=1):
-            x0, y0, x1, y1, text, *_ = block
-            text = text.strip()
-            if text:
-                elements.append(Element(id=f"p{page_number}_b{block_index}", page_number=page_number,
-                    type=ElementType.TEXT, text=text, bbox=BoundingBox(x0=x0, y0=y0, x1=x1, y1=y1)))
-        logger.info("page_extracted", extra={"page": page_number, "elements": len(elements)})
-        return Page(page_number=page_number, width=pdf_page.rect.width, height=pdf_page.rect.height, elements=elements)
+
+        text_dict = pdf_page.get_text("dict")
+
+        for block_index, block in enumerate(text_dict["blocks"], start=1):
+
+            # Skip non-text blocks (images, drawings, etc.)
+            if block.get("type") != 0:
+                continue
+
+            for line_index, line in enumerate(block.get("lines", []), start=1):
+
+                spans = line.get("spans", [])
+
+                if not spans:
+                    continue
+
+               # Merge all spans in the line into one text string
+                text = "".join(span["text"] for span in spans).strip()
+                text = " ".join(text.split())
+
+            
+
+                if not text:
+                    continue
+
+                # Compute bounding box for the entire line
+                x0 = min(span["bbox"][0] for span in spans)
+                y0 = min(span["bbox"][1] for span in spans)
+                x1 = max(span["bbox"][2] for span in spans)
+                y1 = max(span["bbox"][3] for span in spans)
+
+                elements.append(
+                    Element(
+                        id=f"p{page_number}_b{block_index}_l{line_index}",
+                        page_number=page_number,
+                        type=ElementType.TEXT,
+                        text=text,
+                        bbox=BoundingBox(
+                            x0=x0,
+                            y0=y0,
+                            x1=x1,
+                            y1=y1,
+                        ),
+                    )
+                )
+
+        logger.info(
+            "page_extracted",
+            extra={
+                "page": page_number,
+                "elements": len(elements),
+            },
+        )
+
+        return Page(
+            page_number=page_number,
+            width=pdf_page.rect.width,
+            height=pdf_page.rect.height,
+            elements=elements,
+        )

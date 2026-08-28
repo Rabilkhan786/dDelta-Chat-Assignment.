@@ -1158,9 +1158,9 @@
         "y0": 595.9000854492188,
         "y1": 601.63330078125
       },
-      "change_type": "modified",
+      "change_type": "unchanged",
       "confidence": 0.95,
-      "description": "text changed from 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)        Barg\nFV / 286   /   FV / 286                                NOTE 22' to 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)    Barg\nFV / 286  / FV / 286   NOTE 22'",
+      "description": "Unchanged text: 'DISCHARGE / SUCTION DESIGN PRESS. (MAX)    Barg\nFV / 286  / FV / 286   NOTE 22'",
       "element_type": "text",
       "page_number": 1
     },
@@ -1210,9 +1210,9 @@
         "y0": 632.6200561523438,
         "y1": 644.4733276367188
       },
-      "change_type": "modified",
+      "change_type": "unchanged",
       "confidence": 0.97,
-      "description": "text changed from 'TYPE\nVARIABLE SPEED MOTOR  DRIVEN CENTRIFUGAL' to 'TYPE\nVARIABLE SPEED MOTOR DRIVEN\nCENTRIFUGAL'",
+      "description": "Unchanged text: 'TYPE\nVARIABLE SPEED MOTOR DRIVEN\nCENTRIFUGAL'",
       "element_type": "text",
       "page_number": 1
     },
@@ -1275,9 +1275,9 @@
         "y0": 322.42010498046875,
         "y1": 328.1533508300781
       },
-      "change_type": "modified",
+      "change_type": "unchanged",
       "confidence": 0.97,
-      "description": "text changed from '(MOTOR PURGE SYSTEM ; EX-P TYPE MOTOR)' to '(MOTOR PURGE SYSTEM; EX-P TYPE MOTOR )'",
+      "description": "Unchanged text: '(MOTOR PURGE SYSTEM; EX-P TYPE MOTOR )'",
       "element_type": "text",
       "page_number": 1
     },
@@ -1665,9 +1665,9 @@
         "y0": 543.580078125,
         "y1": 567.5532836914062
       },
-      "change_type": "modified",
+      "change_type": "unchanged",
       "confidence": 0.95,
-      "description": "text changed from 'PROVISION FOR\nOIL CONDITIONER\n-RETURN' to 'PROVISION\nFOR OIL\nCONDITIONER\n-RETURN'",
+      "description": "Unchanged text: 'PROVISION\nFOR OIL\nCONDITIONER\n-RETURN'",
       "element_type": "text",
       "page_number": 1
     },
@@ -1678,9 +1678,9 @@
         "y0": 543.580078125,
         "y1": 567.5532836914062
       },
-      "change_type": "modified",
+      "change_type": "unchanged",
       "confidence": 0.95,
-      "description": "text changed from 'PROVISION FOR\nOIL CONDITIONER\n-INLET' to 'PROVISION\nFOR OIL\nCONDITIONER\n-INLET'",
+      "description": "Unchanged text: 'PROVISION\nFOR OIL\nCONDITIONER\n-INLET'",
       "element_type": "text",
       "page_number": 1
     },
@@ -1886,9 +1886,9 @@
         "y0": 192.10009765625,
         "y1": 204.1933135986328
       },
-      "change_type": "modified",
+      "change_type": "unchanged",
       "confidence": 0.95,
-      "description": "text changed from '(BY MAN)' to '(BY\nMAN)'",
+      "description": "Unchanged text: '(BY\nMAN)'",
       "element_type": "text",
       "page_number": 1
     },
@@ -7770,11 +7770,11 @@
     }
   ],
   "summary": {
-    "actual_changes": 486,
+    "actual_changes": 480,
     "added": 226,
-    "modified": 159,
+    "modified": 153,
     "removed": 101,
     "total_entries": 597,
-    "unchanged": 111
+    "unchanged": 117
   }
 }
