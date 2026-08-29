@@ -6,6 +6,8 @@ questions about either revision or the delta with cited, grounded chat.
 
 ## How to run
 
+### CLI
+
 ```bash
 uv sync
 uv run python main.py run
@@ -23,6 +25,47 @@ Chat needs a free [Groq](https://console.groq.com) API key — copy
 `data/output/`, writes the delta report to `data/reports/`, and builds a
 Chroma retrieval index in `data/chroma_db/` (downloads a small embedding
 model the first time it runs, so it needs network access once).
+
+### Web UI (FastAPI + Streamlit)
+
+The same pipeline is also exposed as a small web app: upload any two PDF
+revisions (native text or scanned/OCR — auto-detected, same as the CLI's
+`--adapter auto`) through the browser instead of editing `config.yaml`.
+
+```bash
+uv sync
+uv run uvicorn src.api.main:app --reload --port 8000   # terminal 1: backend
+uv run streamlit run streamlit_app.py                   # terminal 2: frontend
+```
+
+or with `make`:
+
+```bash
+make api   # terminal 1
+make ui    # terminal 2
+```
+
+Open the Streamlit URL it prints (defaults to `http://localhost:8501`),
+upload Revision A and Revision B as PDFs, and click **Process documents**.
+That calls `POST /api/upload` on the FastAPI backend, which runs the exact
+same `DeltaPipeline` as `main.py run` (ingest → align → delta → report →
+Chroma index) on the uploaded files, so both a native PID and a scanned/OCR
+PID work. Once processing finishes, the delta summary and changed entries
+are shown, and the chat panel below is ready — each question goes through
+`POST /api/chat`, which runs `GroundedChatService` and returns a cited
+answer exactly like `main.py chat`.
+
+Backend endpoints:
+
+- `GET /api/health` — `{"status": "ok", "ready": bool}`.
+- `POST /api/upload` — multipart form with `revision_a` and `revision_b` PDF
+  files; returns the delta summary, entries, and indexed excerpt count.
+- `GET /api/report` — the last generated delta report (JSON).
+- `POST /api/chat` — `{"question": "..."}` → `{"answer": "...", "citations": [...]}`.
+
+The Streamlit app reads the backend URL from `DELTA_CHAT_API_URL` (defaults
+to `http://localhost:8000`), so the two processes can be deployed separately
+(e.g. FastAPI on one host, Streamlit on another) by setting that env var.
 
 ## Architecture
 
@@ -69,6 +112,13 @@ PDF (native or scanned) -> ingest adapter -> CanonicalDocument
   a `stage()` context manager that times and logs the start/end/failure of
   every pipeline stage (ingest, alignment, delta, report, retrieval, LLM
   call). See below for why this over a dedicated tracing SDK.
+- **`src/api/main.py`** — a thin FastAPI wrapper (`/api/upload`, `/api/report`,
+  `/api/chat`, `/api/health`) around `DeltaPipeline` and `GroundedChatService`
+  so the identical pipeline runs on uploaded files instead of the paths in
+  `config.yaml`. No pipeline logic lives here.
+- **`streamlit_app.py`** — the browser UI: upload two PDFs, call the API to
+  process them, show the delta summary/table, then a chat panel over the
+  result.
 
 ## Design decisions & trade-offs
 

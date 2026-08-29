@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "chromadb>=1.5.9",
+    "fastapi>=0.121.0",
     "groq>=1.6.0",
     "langchain-chroma>=1.1.0",
     "langchain-huggingface>=1.2.2",
@@ -15,9 +16,13 @@ dependencies = [
     "pytesseract>=0.3.13",
     "python-dotenv>=1.2.2",
     "python-json-logger>=4.1.0",
+    "python-multipart>=0.0.20",
     "pyyaml>=6.0.2",
     "rapidfuzz>=3.14.5",
+    "requests>=2.32.5",
     "sentence-transformers>=5.6.1",
+    "streamlit>=1.51.0",
+    "uvicorn[standard]>=0.38.0",
 ]
 
 [dependency-groups]

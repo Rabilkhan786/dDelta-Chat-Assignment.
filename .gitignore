@@ -19,6 +19,7 @@ __pycache__/
 logs/
 data/output/
 data/chroma_db/
+data/input/uploads/
 eval/datasets/predicted_change_ids.json
 
 # OS
