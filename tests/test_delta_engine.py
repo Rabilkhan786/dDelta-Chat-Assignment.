@@ -73,7 +73,7 @@ def test_ocr_confidence_discounts_similarity() -> None:
 
 def test_llm_cost_estimate_uses_configured_token_rates() -> None:
     """Cost telemetry must be deterministic without making a provider call."""
-    assert GroqChatProvider._estimate_cost(1_000_000, 1_000_000) == 0.13
+    assert GroqChatProvider._estimate_cost(1_000_000, 1_000_000) == 0.375
 
 
 def test_low_ocr_confidence_in_revision_a_is_not_lost_when_b_is_native():
