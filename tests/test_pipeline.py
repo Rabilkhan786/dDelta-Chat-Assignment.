@@ -37,9 +37,9 @@ def test_scanned_and_native_revisions_use_the_same_delta_pipeline(tmp_path, monk
     # verifies ingestion through report/markup and the canonical indexing seam.
     indexed = []
 
-    def capture_index(old, new, deltas):
-        indexed.append((old, new, deltas))
-        return len(deltas)
+    def capture_index(old, new, report):
+        indexed.append((old, new, report))
+        return len(report["entries"])
 
     monkeypatch.setattr("src.pipeline.build_index", capture_index)
     result = DeltaPipeline(adapter_for("auto")).run(scanned_a, native_b)
