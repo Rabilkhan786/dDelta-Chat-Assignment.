@@ -203,22 +203,26 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
             lexical_scores,
             semantic_scores,
         )
+        preferred_source = route_question(query)
+        broad_change = is_broad_change_question(query)
+        candidates = _balanced_candidate_pool(
+            all_items,
+            fused_candidates,
+            lexical_scores,
+            semantic_scores,
+            candidate_count,
+            preferred_source if broad_change else None,
+        )
         if settings.reranker.enabled:
             from src.chat.rerank import rerank
 
-            candidates = _balanced_candidate_pool(
-                all_items,
-                fused_candidates,
-                lexical_scores,
-                semantic_scores,
-                candidate_count,
-            )
             candidates = rerank(query, candidates)
-        else:
-            candidates = fused_candidates[:candidate_count]
 
-        preferred_source = route_question(query)
-        candidates = prefer_source(candidates, preferred_source)
+        candidates = prefer_source(
+            candidates,
+            preferred_source,
+            only_preferred=preferred_source == "delta_report",
+        )
         results = candidates[:result_count]
         logger.info(
             "retrieval_completed",
@@ -230,6 +234,7 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
                 "fused_candidates": len(fused_candidates),
                 "reranked_candidates": len(candidates),
                 "preferred_source": preferred_source or "all",
+                "broad_change": broad_change,
                 "reranker_enabled": settings.reranker.enabled,
             },
         )
@@ -306,13 +311,19 @@ def _balanced_candidate_pool(
     lexical: dict[str, float],
     semantic: dict[str, float],
     count: int,
+    preferred_source: str | None = None,
 ) -> list[Excerpt]:
-    """Reserve reranker candidates from fusion and from each retriever."""
+    """Reserve candidates from fusion, each retriever, and a small routed source."""
     item_by_id = {_excerpt_id(item): item for item in items}
     fused_ids = [_excerpt_id(item) for item in fused[:count]]
     lexical_ids = sorted(lexical, key=lambda key: (-lexical[key], key))[:count]
     semantic_ids = sorted(semantic, key=lambda key: (-semantic[key], key))[:count]
-    selected_ids = list(dict.fromkeys(fused_ids + lexical_ids + semantic_ids))
+    preferred_ids = [_excerpt_id(item) for item in items if item.source == preferred_source]
+    # The delta report is small, so keep it complete for change questions. Do
+    # not add an arbitrary slice from large PID sources.
+    if len(preferred_ids) > count:
+        preferred_ids = []
+    selected_ids = list(dict.fromkeys(fused_ids + lexical_ids + semantic_ids + preferred_ids))
     return [item_by_id[item_id] for item_id in selected_ids]
 
 
@@ -334,10 +345,37 @@ def route_question(query: str) -> str | None:
     return None
 
 
-def prefer_source(candidates: list[Excerpt], preferred_source: str | None) -> list[Excerpt]:
-    """Put preferred evidence first without discarding any candidate."""
+def is_broad_change_question(query: str) -> bool:
+    """Return true when a change question has no specific technical subject."""
+    if route_question(query) != "delta_report":
+        return False
+    generic_words = {
+        "all",
+        "change",
+        "changed",
+        "changes",
+        "difference",
+        "differences",
+        "modified",
+        "new",
+        "removed",
+        "summarize",
+        "summary",
+    }
+    return not (set(keyword_tokens(query)) - generic_words)
+
+
+def prefer_source(
+    candidates: list[Excerpt],
+    preferred_source: str | None,
+    only_preferred: bool = False,
+) -> list[Excerpt]:
+    """Put preferred evidence first, optionally routing only to that source."""
     if preferred_source is None:
         return candidates
+    preferred = [item for item in candidates if item.source == preferred_source]
+    if only_preferred and preferred:
+        return preferred
     return sorted(candidates, key=lambda item: item.source != preferred_source)
 
 

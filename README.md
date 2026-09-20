@@ -154,11 +154,12 @@ can contribute to the reranker.
 ### Query handling: no rewriting, one small source preference
 
 Every question searches the same evidence collection: PID A, PID B, and the
-generated delta report. A deterministic preference puts delta-report evidence
-first for change questions and the requested PID first for explicit revision-A
-or revision-B questions. Comparison questions keep the cross-encoder order.
-This preference never filters evidence. There is no query rewriting, query
-expansion, source filtering, multi-query agent, or conversation-memory step.
+generated delta report. Deterministic routing uses delta-report evidence for
+change questions and puts the requested PID first for explicit revision-A or
+revision-B questions. A broad change question reserves the complete small delta
+report; a specific change question keeps only its retrieved delta entries.
+Comparison questions keep the cross-encoder order. There is no query rewriting,
+query expansion, multi-query agent, or conversation-memory step.
 
 BM25 tokenization handles common technical identifier formatting without
 changing the query itself. For example, compact, spaced, and hyphenated forms

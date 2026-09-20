@@ -245,6 +245,28 @@ def test_reranker_pool_reserves_candidates_from_each_retriever() -> None:
     assert {item.element_id for item in pool} == {"lexical", "semantic", "fused"}
 
 
+def test_candidate_pool_keeps_a_small_preferred_source_complete() -> None:
+    summary = Excerpt("3 changes", "delta_report", "B", 1, "delta-summary")
+    modified = Excerpt("modified", "delta_report", "B", 1, "delta-1")
+    removed = Excerpt("removed", "delta_report", "B", 1, "delta-2")
+    pid = Excerpt("other evidence", "pid_b", "B", 1, "pid")
+
+    pool = index._balanced_candidate_pool(
+        [summary, modified, removed, pid],
+        [summary],
+        {},
+        {},
+        count=3,
+        preferred_source="delta_report",
+    )
+
+    assert {item.element_id for item in pool} == {
+        "delta-summary",
+        "delta-1",
+        "delta-2",
+    }
+
+
 @pytest.mark.parametrize(
     ("query", "expected"),
     [
@@ -264,3 +286,25 @@ def test_source_preference_reorders_without_filtering() -> None:
     delta = Excerpt("delta evidence", "delta_report", "B", 1, "delta")
     reordered = index.prefer_source([pid, delta], "delta_report")
     assert reordered == [delta, pid]
+
+
+def test_delta_route_can_remove_pid_noise_without_emptying_results() -> None:
+    pid = Excerpt("PID evidence", "pid_b", "B", 1, "pid")
+    delta = Excerpt("delta evidence", "delta_report", "B", 1, "delta")
+
+    assert index.prefer_source([pid, delta], "delta_report", only_preferred=True) == [delta]
+    assert index.prefer_source([pid], "delta_report", only_preferred=True) == [pid]
+
+
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        ("What changed?", True),
+        ("Summarize all changes in revision B", True),
+        ("What changed on PSV-9066?", False),
+        ("What callout was removed?", False),
+        ("Compare revision A and revision B", False),
+    ],
+)
+def test_broad_change_question_detection(query, expected) -> None:
+    assert index.is_broad_change_question(query) is expected

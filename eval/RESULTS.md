@@ -40,10 +40,9 @@ On the supplied primary pair and the small checked-in labels, the run produced:
 
 - Delta precision/recall/F1: `1.0 / 1.0 / 1.0` over three labelled changes.
 - Retrieval Recall@5: `1.0` over six questions.
-- Retrieval MRR: `0.9167` over six questions.
+- Retrieval MRR: `1.0` over six questions.
 - Answer keyword correctness: `1.0` over six generated answers.
-- Citation accuracy: `0.7639`; broad answers sometimes included additional,
-  valid retrieved citations beyond the expected fragments.
+- Citation accuracy: `1.0` over six generated answers.
 - Citation coverage: `1.0` over six generated answers.
 
 All six generation cases completed with status `answered`. Token counts and

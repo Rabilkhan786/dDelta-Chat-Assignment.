@@ -183,3 +183,33 @@ def test_chat_still_rejects_unknown_pipe_separated_citation(monkeypatch):
     result = GroundedChatService(UnknownCitationProvider()).answer("note?")
 
     assert result.status == "unsupported"
+
+
+def test_chat_expands_unique_retrieved_element_citation(monkeypatch):
+    class ShortCitationProvider:
+        def complete(self, prompt):
+            return LLMResponse("The callout was removed [delta-2]", 1, 1, 0.0)
+
+    evidence = Excerpt("removed callout", "delta_report", "B", 1, "delta-2")
+    _stub_search(monkeypatch, [evidence])
+    result = GroundedChatService(ShortCitationProvider()).answer("What was removed?")
+
+    assert result.status == "answered"
+    assert result.text.endswith("[delta_report | PID B | page 1 | delta-2]")
+
+
+def test_chat_rejects_unknown_element_citation(monkeypatch):
+    class UnknownElementProvider:
+        def complete(self, prompt):
+            return LLMResponse(
+                "Claim [delta_report | PID B | page 1 | delta-2] [delta-99]",
+                1,
+                1,
+                0.0,
+            )
+
+    evidence = Excerpt("removed callout", "delta_report", "B", 1, "delta-2")
+    _stub_search(monkeypatch, [evidence])
+    result = GroundedChatService(UnknownElementProvider()).answer("What was removed?")
+
+    assert result.status == "unsupported"

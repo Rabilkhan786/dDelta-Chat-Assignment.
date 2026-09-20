@@ -21,6 +21,7 @@ CITATION_BRACKETS = str.maketrans(
     }
 )
 BRACKET_PATTERN = re.compile(r"\[[^\[\]\n]+\]")
+ELEMENT_ID_PATTERN = re.compile(r"(?:delta-(?:summary|\d+)|p\d+_l\d+)", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -87,14 +88,22 @@ def _normalize_citations(text: str, allowed: list[str]) -> tuple[str, list[str],
     """Normalize citation typography while preserving exact source identity."""
     text = text.translate(CITATION_BRACKETS)
     allowed_by_key = {_citation_key(item): item for item in allowed}
+    allowed_by_element = _unique_element_citations(allowed)
     used: list[str] = []
     unknown: list[str] = []
 
     def replace(match: re.Match) -> str:
         candidate = match.group(0)
-        # Bracketed prose is not a citation. Citations have pipe-separated
-        # source, PID, page, and element fields.
+        # Expand a provider's shortened element citation only when that ID is
+        # unique in the retrieved evidence. Ordinary bracketed prose is kept.
         if "|" not in candidate:
+            element_id = candidate[1:-1].strip()
+            canonical = allowed_by_element.get(element_id.casefold())
+            if canonical is not None:
+                used.append(canonical)
+                return canonical
+            if ELEMENT_ID_PATTERN.fullmatch(element_id):
+                unknown.append(candidate)
             return candidate
         canonical = allowed_by_key.get(_citation_key(candidate))
         if canonical is None:
@@ -110,3 +119,15 @@ def _normalize_citations(text: str, allowed: list[str]) -> tuple[str, list[str],
 def _citation_key(citation: str) -> str:
     """Treat Unicode spaces as formatting, never as a different source."""
     return " ".join(unicodedata.normalize("NFKC", citation).split())
+
+
+def _unique_element_citations(allowed: list[str]) -> dict[str, str]:
+    """Map unambiguous retrieved element IDs to their complete citations."""
+    grouped: dict[str, list[str]] = {}
+    for citation_text in allowed:
+        parts = citation_text.strip("[]").split("|")
+        if len(parts) < 4:
+            continue
+        element_id = parts[-1].strip().casefold()
+        grouped.setdefault(element_id, []).append(citation_text)
+    return {key: values[0] for key, values in grouped.items() if len(values) == 1}

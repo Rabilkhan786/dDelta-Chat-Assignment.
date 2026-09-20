@@ -28,8 +28,8 @@ uses native PDF + scanned PDF/OCR; DWG remains an explicit adapter stub.
 - Keep ingestion, canonical models, delta, chat, logging, and evaluation separate.
   Do not add service layers, agent frameworks, or a second UI.
 - Use the user's question directly for retrieval and reranking. There is no
-  query rewriting or expansion. A small deterministic preference puts change
-  evidence or an explicitly requested revision first without filtering sources.
+  query rewriting or expansion. A small deterministic route uses delta evidence
+  for change questions and prefers an explicitly requested revision.
 - Keep keyword search for identifiers and vector search for natural-language
   similarity; search all indexed sources uniformly and rerank a short candidate
   list with the existing cross-encoder.
