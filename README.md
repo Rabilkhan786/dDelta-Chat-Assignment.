@@ -21,7 +21,7 @@ Prerequisites: Python 3.11+, [uv](https://docs.astral.sh/uv/), and Tesseract
 available on your `PATH`. On Windows, install Tesseract and restart the shell.
 
 ```bash
-uv sync
+uv sync --locked
 uv run python main.py run --question "What changed on PSV-9066?"
 ```
 
@@ -104,22 +104,26 @@ The configured threshold is 0.60: the supplied unrelated pair scores 0.465,
 whereas the default revision pair scores 0.989. Those two observations are
 smoke checks, not calibration; heavy OCR errors can trigger false warnings.
 
-The report is written to:
+Each run regenerates these runtime artifacts:
 
 - `data/reports/delta_report.json`
 - `data/reports/delta_report.md`
 - `data/reports/revision_b_markup.pdf` (a simple bounding-box overlay)
 
-Entries include type, page, bounding box, confidence, current/previous element
-IDs, and location-change metadata. The JSON report is the authoritative
-machine-readable artifact.
+The report summary keeps counts for compared and unchanged elements, but its
+entry list contains only meaningful changes. Each change has a stable
+`delta-N` ID, type, revision location, page, bounding box, confidence, and
+current/previous element IDs. The JSON report is the authoritative
+machine-readable artifact. Runtime report files are ignored by Git so stale
+generated output is not committed.
 Matched-element confidence uses the weaker confidence of the two revisions,
 so low-confidence OCR in A is not hidden by a clean native PDF in B.
 
 ## Grounded chat and hybrid retrieval
 
-The index contains one excerpt for every element in Revision A, Revision B,
-and the delta report. Its metadata includes source, PID, revision, page,
+The index contains one excerpt for every text element in Revision A and
+Revision B, plus one excerpt for each meaningful delta-report change. Unchanged
+delta entries are not indexed. Metadata includes source, PID, revision, page,
 element ID, element type, change type, bounding box, and confidence.
 
 Retrieval is intentionally small and local:
@@ -195,16 +199,17 @@ has no authentication, upload isolation, or per-user storage.
 
 ## Observability
 
-`src/observability/logging.py` writes JSON lines to `logs/project.log`. Each
-pipeline or chat request receives a request ID. Stages emit start, completed,
-or failed events with duration milliseconds. Groq calls record the model,
-prompt, response, input/output tokens, and an estimated configured cost.
-Errors such as bad PDFs, OCR failures, missing API credentials, and provider
-errors remain visible in the same trace instead of being swallowed.
+`src/observability/logging.py` writes JSON lines to `logs/project.log` and
+also writes one inspectable trace per request to
+`logs/traces/<request_id>.jsonl`. Stages emit start, completed, or failed
+events with duration milliseconds. Retrieval records keyword, semantic, fused,
+and final hit counts. Groq calls record the model, prompt, response,
+input/output tokens, and estimated configured cost. Errors such as bad PDFs,
+OCR failures, missing API credentials, and provider errors remain visible
+instead of being swallowed.
 
-The implementation uses JSON logs rather than a hosted tracing service so the
-demo needs no extra account or process. The trade-off is that traces are read
-from a file rather than a dashboard.
+The implementation deliberately uses local JSONL traces rather than a hosted
+observability service so the demo needs no extra account or process.
 
 ## Evaluation
 
@@ -222,9 +227,10 @@ The scorecard separates:
 - generated-answer keyword correctness;
 - citation precision and coverage against expected citation fragments.
 
-The current file has only three expected changes and one QA case. Existing labels
-are preserved, but their historical human-review status has not been independently
-verified in this cleanup. Keyword coverage is not semantic answer correctness;
+The current file has three expected changes and five QA cases covering PID A,
+PID B, and each delta-report change. Existing change labels are preserved, but
+their historical human-review status has not been independently verified in
+this cleanup. Keyword coverage is not semantic answer correctness;
 source-fragment matching is not factual entailment. This is a regression smoke
 test, not proof of general accuracy. See [eval/README.md](eval/README.md) for metric
 definitions, review steps, and remaining gaps.
@@ -249,15 +255,16 @@ src/
   observability/   structured JSON request traces
   api.py           optional FastAPI wrapper
 eval/              label-driven metrics and scorecard
-tests/             routing, normalization, delta, retrieval, chat, logging tests
+tests/             ingestion, delta, retrieval, chat, logging, API tests
 data/samples/      sample pairs and provenance notes
 ```
 
 ## Scope cuts and next steps
 
 This is deliberately not a CAD system. DWG parsing, table structure, image
-symbols, and cross-page alignment are not implemented. The included PDF markup
-only boxes the reliable text regions already found by the delta engine; it is
+symbols, and cross-page alignment are not implemented. The included PDF markup boxes changed regions located in Revision B. Removed
+content remains report-only because its bounding box belongs to Revision A; the
+project does not draw that old coordinate onto the new document. The markup is
 not a visual-diff or geometry-detection system. The next practical improvements
 would be a reviewed DWG adapter, page matching for inserted cover sheets, and
 better OCR/layout for dense drawings.
