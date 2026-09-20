@@ -13,7 +13,6 @@ logger = get_logger(__name__)
 
 COLORS = {
     DeltaType.ADDED: (0, 0.6, 0),
-    DeltaType.REMOVED: (0.9, 0, 0),
     DeltaType.MODIFIED: (1, 0.55, 0),
     DeltaType.MOVED: (0.3, 0.2, 0.9),
 }
