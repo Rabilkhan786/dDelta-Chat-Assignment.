@@ -4,7 +4,6 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.canonical.model import DeltaEntry, DeltaType, ElementType
 from src.chat import index
 from src.chat.index import Excerpt, reciprocal_rank_fusion, route_question
 
@@ -95,25 +94,21 @@ def test_empty_index_and_invalid_limits(monkeypatch):
         index.search("   ")
 
 
-def test_delta_index_contains_only_meaningful_changes() -> None:
-    deltas = [
-        DeltaEntry(
-            change_type=DeltaType.UNCHANGED,
-            element_type=ElementType.TEXT,
-            page_number=1,
-            description="Unchanged text: 'old'",
-            confidence=1,
-        ),
-        DeltaEntry(
-            change_type=DeltaType.ADDED,
-            element_type=ElementType.NOTE,
-            page_number=1,
-            description="Added note: 'new'",
-            confidence=1,
-        ),
-    ]
+def test_delta_index_reads_generated_report_entries() -> None:
+    report = {
+        "entries": [
+            {
+                "delta_id": "delta-1",
+                "change_type": "added",
+                "element_type": "note",
+                "page_number": 1,
+                "confidence": 1.0,
+                "description": "Added note: 'new'",
+            }
+        ]
+    }
 
-    excerpts = index._delta_excerpts(deltas, "B", "B")
+    excerpts = index._delta_excerpts(report, "B", "B")
 
     assert len(excerpts) == 1
     assert excerpts[0].element_id == "delta-1"
