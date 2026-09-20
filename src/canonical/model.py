@@ -1,12 +1,11 @@
 """The format-agnostic representation every ingestion adapter normalizes into."""
 
-from enum import Enum
-from typing import List, Optional
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class ElementType(str, Enum):
+class ElementType(StrEnum):
     """Types of elements extracted from a document."""
 
     TEXT = "text"
@@ -31,21 +30,21 @@ class Element(BaseModel):
     """One line of text or a supported technical tag in a document."""
 
     id: str
-    page_number: int
+    page_number: int = Field(ge=1)
     type: ElementType
     text: str
-    bbox: Optional[BoundingBox] = None
+    bbox: BoundingBox | None = None
     source: str = "native"  # "native" or "ocr"
-    ocr_confidence: Optional[float] = None  # None for native PDFs
+    ocr_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class Page(BaseModel):
     """One page of a document."""
 
-    page_number: int
-    width: float
-    height: float
-    elements: List[Element] = Field(default_factory=list)
+    page_number: int = Field(ge=1)
+    width: float = Field(gt=0.0)
+    height: float = Field(gt=0.0)
+    elements: list[Element] = Field(default_factory=list)
 
 
 class DocumentMetadata(BaseModel):
@@ -55,14 +54,14 @@ class DocumentMetadata(BaseModel):
     pid: str
     file_name: str
     file_type: str
-    revision: Optional[str] = None
+    revision: str | None = None
 
 
 class CanonicalDocument(BaseModel):
     """Standard representation used by the whole pipeline."""
 
     metadata: DocumentMetadata
-    pages: List[Page] = Field(default_factory=list)
+    pages: list[Page] = Field(default_factory=list)
 
 
 class Alignment(BaseModel):
@@ -70,20 +69,20 @@ class Alignment(BaseModel):
 
     left: Element
     right: Element
-    similarity: float
-    bbox_distance: float
+    similarity: float = Field(ge=0.0, le=100.0)
+    bbox_distance: float = Field(ge=0.0)
     matched_after_move: bool = False
 
 
 class AlignmentResult(BaseModel):
     """Output of the alignment stage."""
 
-    matches: List[Alignment] = Field(default_factory=list)
-    unmatched_left: List[Element] = Field(default_factory=list)
-    unmatched_right: List[Element] = Field(default_factory=list)
+    matches: list[Alignment] = Field(default_factory=list)
+    unmatched_left: list[Element] = Field(default_factory=list)
+    unmatched_right: list[Element] = Field(default_factory=list)
 
 
-class DeltaType(str, Enum):
+class DeltaType(StrEnum):
     """Type of change detected between document revisions."""
 
     ADDED = "added"
@@ -98,10 +97,10 @@ class DeltaEntry(BaseModel):
 
     change_type: DeltaType
     element_type: ElementType
-    page_number: int
+    page_number: int = Field(ge=1)
     region: BoundingBox | None = None
     description: str
-    confidence: float
+    confidence: float = Field(ge=0.0, le=1.0)
     element_id: str | None = None
     previous_element_id: str | None = None
     location_changed: bool = False

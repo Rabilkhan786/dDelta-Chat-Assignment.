@@ -17,15 +17,6 @@ def test_rrf_rewards_an_identifier_found_by_both_retrievers() -> None:
     assert scores["PSV-9066"] > scores["P-101"]
 
 
-def test_keyword_tokens_match_compact_spaced_and_hyphenated_tags() -> None:
-    compact = set(index.keyword_tokens("PSV9066A"))
-    spaced = set(index.keyword_tokens("PSV 9066A"))
-    hyphenated = set(index.keyword_tokens("PSV-9066A"))
-
-    assert {"psv", "9066a"} <= compact & spaced & hyphenated
-    assert "1.5" in index.keyword_tokens("1.5 bar")
-
-
 def test_indexed_pid_text_has_no_retrieval_scaffolding() -> None:
     document = CanonicalDocument(
         metadata=DocumentMetadata(
@@ -99,6 +90,56 @@ class FakeStore:
             )
             for item in self.items[:k]
         ]
+
+
+class FakeBuildStore:
+    def __init__(self):
+        self.deleted = []
+        self.added = None
+
+    def get(self, include):
+        return {"ids": ["old-id"]}
+
+    def delete(self, ids):
+        self.deleted.extend(ids)
+
+    def add_texts(self, **values):
+        self.added = values
+
+
+def test_build_index_replaces_the_previous_snapshot(monkeypatch) -> None:
+    document = CanonicalDocument(
+        metadata=DocumentMetadata(
+            document_id="id",
+            pid="PID",
+            file_name="drawing.pdf",
+            file_type="pdf",
+            revision="A",
+        ),
+        pages=[
+            Page(
+                page_number=1,
+                width=100,
+                height=100,
+                elements=[
+                    Element(
+                        id="p1_l1",
+                        page_number=1,
+                        type=ElementType.TEXT,
+                        text="PSV-9066",
+                    )
+                ],
+            )
+        ],
+    )
+    store = FakeBuildStore()
+    monkeypatch.setattr(index, "_vector_store", lambda: store)
+
+    count = index.build_index(document, document, {"entries": []})
+
+    assert count == 2
+    assert store.deleted == ["old-id"]
+    assert store.added["texts"] == ["PSV-9066", "PSV-9066"]
 
 
 def test_exact_tag_survives_poor_vectors_and_small_corpus(monkeypatch):
@@ -267,20 +308,6 @@ def test_candidate_pool_keeps_a_small_preferred_source_complete() -> None:
     }
 
 
-@pytest.mark.parametrize(
-    ("query", "expected"),
-    [
-        ("What changed in revision B?", "delta_report"),
-        ("What does revision A say?", "pid_a"),
-        ("Show revision B", "pid_b"),
-        ("Compare revision A and revision B", None),
-        ("Show the heat exchanger", None),
-    ],
-)
-def test_query_routing_is_a_small_source_preference(query, expected) -> None:
-    assert index.route_question(query) == expected
-
-
 def test_source_preference_reorders_without_filtering() -> None:
     pid = Excerpt("PID evidence", "pid_b", "B", 1, "pid")
     delta = Excerpt("delta evidence", "delta_report", "B", 1, "delta")
@@ -294,17 +321,3 @@ def test_delta_route_can_remove_pid_noise_without_emptying_results() -> None:
 
     assert index.prefer_source([pid, delta], "delta_report", only_preferred=True) == [delta]
     assert index.prefer_source([pid], "delta_report", only_preferred=True) == [pid]
-
-
-@pytest.mark.parametrize(
-    ("query", "expected"),
-    [
-        ("What changed?", True),
-        ("Summarize all changes in revision B", True),
-        ("What changed on PSV-9066?", False),
-        ("What callout was removed?", False),
-        ("Compare revision A and revision B", False),
-    ],
-)
-def test_broad_change_question_detection(query, expected) -> None:
-    assert index.is_broad_change_question(query) is expected

@@ -35,6 +35,18 @@ def test_plain_run_does_not_require_a_question():
     assert main.parser().parse_args(["run"]).question is None
 
 
+def test_chat_command_prints_the_answer(monkeypatch, capsys):
+    answer = GroundedAnswer("Grounded answer", ["[source]"], "request")
+    monkeypatch.setattr(main.GroundedChatService, "answer", lambda self, question: answer)
+
+    arguments = main.parser().parse_args(["chat", "question"])
+    arguments.func(arguments)
+
+    output = capsys.readouterr().out
+    assert "Grounded answer" in output
+    assert "[source]" in output
+
+
 def test_console_uses_utf8_for_model_punctuation(monkeypatch):
     output = _ConsoleStream()
     errors = _ConsoleStream()

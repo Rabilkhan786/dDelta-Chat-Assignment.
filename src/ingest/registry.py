@@ -23,7 +23,11 @@ class AutomaticPDFAdapter(FormatAdapter):
     ) -> None:
         self.native_adapter = native_adapter or NativePDFAdapter()
         self.ocr_adapter = ocr_adapter or ScannedPDFAdapter()
-        self.text_threshold = text_threshold or settings.ingest.native_text_threshold
+        self.text_threshold = (
+            settings.ingest.native_text_threshold if text_threshold is None else text_threshold
+        )
+        if self.text_threshold < 1:
+            raise ValueError("text_threshold must be positive.")
 
     def supports(self, file_path: Path) -> bool:
         return Path(file_path).suffix.lower() == ".pdf"

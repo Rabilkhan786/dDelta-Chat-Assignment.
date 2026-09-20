@@ -32,7 +32,7 @@ def rerank(query: str, candidates: list[Excerpt]) -> list[Excerpt]:
         scores = _model().predict([(query, item.text) for item in candidates])
 
     ordered = sorted(
-        zip(candidates, scores),
+        zip(candidates, scores, strict=True),
         key=lambda item: float(item[1]),
         reverse=True,
     )

@@ -41,6 +41,7 @@ make run       # native/OCR routing → canonical JSON → report → index
 make demo      # same pipeline, then a cited question under one request ID
 make chat      # one grounded question
 make test      # unit and integration tests
+make coverage  # tests plus a readable coverage report (minimum 85%)
 make check     # lint, unused imports, and formatting checks
 make format    # apply import ordering and consistent formatting
 make eval      # labelled delta, retrieval, and chat scorecard
@@ -262,13 +263,13 @@ src/
   canonical/       shared Pydantic representation and JSON writer
   ingest/          native PDF, scanned OCR, routing, DWG seam, line/classifier helpers
   delta/           compatibility check, alignment, deterministic delta, reports
-  chat/            hybrid retrieval, reranking, provider, grounded answers
+  chat/            query routing, hybrid retrieval, reranking, provider, grounded answers
   config/          YAML defaults and typed settings
   markup/          optional PDF bounding-box overlay
   observability/   structured JSON request traces
   api.py           optional FastAPI wrapper
 eval/              label-driven metrics and scorecard
-tests/             ingestion, delta, retrieval, chat, logging, API tests
+tests/             flat, module-named unit and integration tests
 data/samples/      sample pairs and provenance notes
 ```
 

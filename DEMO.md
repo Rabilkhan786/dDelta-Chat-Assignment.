@@ -91,6 +91,7 @@ and failures.
 
 ```bash
 make test
+make coverage
 make check
 make eval
 ```

@@ -1,4 +1,5 @@
 import pymupdf
+import pytest
 
 from src.config.settings import project_path, settings
 from src.ingest.pdf_native import NativePDFAdapter
@@ -17,3 +18,14 @@ def test_native_pdf_normalizes_text_into_lines() -> None:
                 if "".join(span["text"] for span in line.get("spans", [])).strip()
             ]
             assert len(document.pages[page_index].elements) == len(expected)
+
+
+def test_native_adapter_reports_unsupported_and_missing_files(tmp_path) -> None:
+    adapter = NativePDFAdapter()
+    assert adapter.extracted_text_characters(tmp_path / "drawing.txt") == 0
+    with pytest.raises(ValueError, match="does not support"):
+        adapter.parse(tmp_path / "drawing.txt")
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        adapter.parse(tmp_path / "missing.pdf")
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        adapter.extracted_text_characters(tmp_path / "missing.pdf")

@@ -22,11 +22,24 @@ class Aligner:
     """Deterministically pair up elements from an old and a new revision."""
 
     def __init__(
-        self, similarity_threshold: float | None = None, max_bbox_distance: float | None = None
+        self,
+        similarity_threshold: float | None = None,
+        max_bbox_distance: float | None = None,
+        moved_similarity_threshold: float | None = None,
     ) -> None:
-        self.similarity_threshold = similarity_threshold or settings.align.similarity_threshold
-        self.max_bbox_distance = max_bbox_distance or settings.align.max_bbox_distance
-        self.moved_similarity_threshold = settings.align.moved_similarity_threshold
+        self.similarity_threshold = (
+            settings.align.similarity_threshold
+            if similarity_threshold is None
+            else similarity_threshold
+        )
+        self.max_bbox_distance = (
+            settings.align.max_bbox_distance if max_bbox_distance is None else max_bbox_distance
+        )
+        self.moved_similarity_threshold = (
+            settings.align.moved_similarity_threshold
+            if moved_similarity_threshold is None
+            else moved_similarity_threshold
+        )
 
     def align(
         self, old_document: CanonicalDocument, new_document: CanonicalDocument
@@ -121,7 +134,9 @@ class Aligner:
     def _bbox_distance(left: BoundingBox | None, right: BoundingBox | None) -> float:
         """Euclidean distance between bounding-box centers."""
         if left is None or right is None:
-            return float("inf")
+            # Missing coordinates mean "unknown", not "moved". Text and type
+            # can still align through the normal first pass.
+            return 0.0
         left_x, left_y = (left.x0 + left.x1) / 2, (left.y0 + left.y1) / 2
         right_x, right_y = (right.x0 + right.x1) / 2, (right.y0 + right.y1) / 2
         return sqrt((left_x - right_x) ** 2 + (left_y - right_y) ** 2)

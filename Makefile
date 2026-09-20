@@ -16,6 +16,9 @@ serve:
 test:
 	uv run pytest -q
 
+coverage:
+	uv run pytest -q --cov --cov-report=term-missing --cov-fail-under=85
+
 check:
 	uv run ruff check src tests eval main.py data/samples/make_samples.py
 	uv run ruff format --check src tests eval main.py data/samples/make_samples.py

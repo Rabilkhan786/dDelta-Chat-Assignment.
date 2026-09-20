@@ -34,3 +34,12 @@ def test_reranker_orders_candidates_without_dropping_negative_scores(monkeypatch
 
     assert len(results) == 8
     assert results[-1].element_id == "0"
+
+
+def test_reranker_returns_empty_input_without_loading_a_model(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rerank,
+        "_model",
+        lambda: (_ for _ in ()).throw(AssertionError("model should not load")),
+    )
+    assert rerank.rerank("question", []) == []

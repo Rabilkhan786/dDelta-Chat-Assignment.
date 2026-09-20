@@ -39,24 +39,23 @@ def predicted_change_ids() -> list[str]:
     ]
 
 
-def evaluate_delta(dataset: dict) -> None:
+def evaluate_delta(dataset: dict) -> dict:
     """Score deterministic delta changes against the reviewed expected IDs."""
     predicted = set(predicted_change_ids())
     expected = set(dataset.get("expected_change_ids", []))
     metrics = precision_recall_f1(predicted, expected)
-    logger.info(
-        "delta_scorecard",
-        extra={
-            "precision": metrics.precision,
-            "recall": metrics.recall,
-            "f1": metrics.f1,
-            "predicted": len(predicted),
-            "expected": len(expected),
-        },
-    )
+    scorecard = {
+        "precision": metrics.precision,
+        "recall": metrics.recall,
+        "f1": metrics.f1,
+        "predicted": len(predicted),
+        "expected": len(expected),
+    }
+    logger.info("delta_scorecard", extra=scorecard)
+    return scorecard
 
 
-def evaluate_retrieval(dataset: dict) -> None:
+def evaluate_retrieval(dataset: dict) -> dict | None:
     """Score search alone so a missing LLM key cannot hide retrieval quality."""
     results = []
     for case in dataset.get("qa_cases", []):
@@ -80,24 +79,23 @@ def evaluate_retrieval(dataset: dict) -> None:
                 "reason": "qa_cases have no reviewed expected_retrieval_ids",
             },
         )
-        return
-    logger.info(
-        "retrieval_scorecard",
-        extra={
-            "cases": len(results),
-            "mean_recall_at_k": sum(item["recall_at_k"] for item in results) / len(results),
-            "mean_mrr": sum(item["mrr"] for item in results) / len(results),
-            "results": results,
-        },
-    )
+        return None
+    scorecard = {
+        "cases": len(results),
+        "mean_recall_at_k": sum(item["recall_at_k"] for item in results) / len(results),
+        "mean_mrr": sum(item["mrr"] for item in results) / len(results),
+        "results": results,
+    }
+    logger.info("retrieval_scorecard", extra=scorecard)
+    return scorecard
 
 
-def evaluate_generation(dataset: dict) -> None:
+def evaluate_generation(dataset: dict) -> dict | None:
     """Score LLM text and citations after retrieval; needs a configured provider."""
     cases = dataset.get("qa_cases", [])
     if not cases:
         logger.warning("generation_evaluation_not_run", extra={"reason": "qa_cases is empty"})
-        return
+        return None
     service = GroundedChatService()
     results = []
     for case in cases:
@@ -109,7 +107,7 @@ def evaluate_generation(dataset: dict) -> None:
                     "reason": "LLM provider is unavailable; retrieval metrics still ran",
                 },
             )
-            return
+            return None
         results.append(
             {
                 "question": case["question"],
@@ -123,24 +121,24 @@ def evaluate_generation(dataset: dict) -> None:
                 "status": answer.status,
             }
         )
-    logger.info(
-        "chat_scorecard",
-        extra={
-            "cases": len(results),
-            "answer_correctness": sum(item["correct"] for item in results) / len(results),
-            "mean_citation_accuracy": sum(item["citation_accuracy"] for item in results)
-            / len(results),
-            "mean_citation_coverage": sum(item["citation_coverage"] for item in results)
-            / len(results),
-            "results": results,
-        },
-    )
+    scorecard = {
+        "cases": len(results),
+        "answer_correctness": sum(item["correct"] for item in results) / len(results),
+        "mean_citation_accuracy": sum(item["citation_accuracy"] for item in results) / len(results),
+        "mean_citation_coverage": sum(item["citation_coverage"] for item in results) / len(results),
+        "results": results,
+    }
+    logger.info("chat_scorecard", extra=scorecard)
+    return scorecard
 
 
 def main(write_candidates: bool, skip_generation: bool = False) -> None:
     """Print all independent scorecards; candidate output never edits labels."""
-    predicted = set(predicted_change_ids())
+    if not DATASET.exists():
+        logger.warning("evaluation_not_run", extra={"reason": "ground_truth.json is absent"})
+        return
     if write_candidates:
+        predicted = set(predicted_change_ids())
         candidate_file = DATASET.with_name("predicted_change_ids.json")
         candidate_file.write_text(
             json.dumps({"predicted_change_ids": sorted(predicted)}, indent=2), encoding="utf-8"
@@ -149,9 +147,6 @@ def main(write_candidates: bool, skip_generation: bool = False) -> None:
             "evaluation_candidates_written",
             extra={"path": str(candidate_file), "count": len(predicted)},
         )
-    if not DATASET.exists():
-        logger.warning("evaluation_not_run", extra={"reason": "ground_truth.json is absent"})
-        return
     dataset = json.loads(DATASET.read_text(encoding="utf-8"))
     evaluate_delta(dataset)
     logger.info("known_failure_cases", extra={"cases": dataset.get("known_failure_cases", [])})

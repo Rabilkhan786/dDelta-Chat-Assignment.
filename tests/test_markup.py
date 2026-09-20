@@ -63,3 +63,23 @@ def test_markup_does_not_draw_removed_content_on_revision_b(tmp_path):
 
     with pymupdf.open(destination) as marked:
         assert marked[0].first_annot is None
+
+
+def test_markup_skips_changed_content_outside_revision_b_pages(tmp_path) -> None:
+    source = tmp_path / "revision_b.pdf"
+    with pymupdf.open() as document:
+        document.new_page(width=200, height=200)
+        document.save(source)
+    added = DeltaEntry(
+        change_type=DeltaType.ADDED,
+        element_type=ElementType.TEXT,
+        page_number=2,
+        region=BoundingBox(x0=10, y0=10, x1=50, y1=25),
+        description="Added text",
+        confidence=1,
+    )
+
+    destination = write_markup(source, tmp_path / "marked.pdf", [added])
+
+    with pymupdf.open(destination) as marked:
+        assert marked[0].first_annot is None

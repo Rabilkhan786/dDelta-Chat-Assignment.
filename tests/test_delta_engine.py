@@ -7,7 +7,6 @@ from src.canonical.model import (
     Element,
     ElementType,
 )
-from src.chat.llm import GroqChatProvider
 from src.delta.engine import DeltaEngine
 
 
@@ -71,11 +70,6 @@ def test_ocr_confidence_discounts_similarity() -> None:
     assert delta.confidence == 0.5
 
 
-def test_llm_cost_estimate_uses_configured_token_rates() -> None:
-    """Cost telemetry must be deterministic without making a provider call."""
-    assert GroqChatProvider._estimate_cost(1_000_000, 1_000_000) == 0.375
-
-
 def test_low_ocr_confidence_in_revision_a_is_not_lost_when_b_is_native():
     old = Element(
         id="a",
@@ -102,6 +96,30 @@ def test_removed_labels_far_above_each_other_are_not_joined():
     )
     upper = lower.model_copy(update={"region": BoundingBox(x0=10, y0=10, x1=50, y1=20)})
     assert not DeltaEngine._can_join(lower, upper)
+
+
+def test_adjacent_removed_fragments_are_joined_into_one_callout() -> None:
+    first = DeltaEntry(
+        change_type=DeltaType.REMOVED,
+        element_type=ElementType.TEXT,
+        page_number=1,
+        description="Removed text: 'MECHANICAL'",
+        confidence=0.9,
+        region=BoundingBox(x0=10, y0=10, x1=60, y1=20),
+    )
+    second = first.model_copy(
+        update={
+            "description": "Removed text: 'INTERLOCK'",
+            "confidence": 0.8,
+            "region": BoundingBox(x0=10, y0=21, x1=60, y1=31),
+        }
+    )
+
+    joined = DeltaEngine._join_adjacent_fragments([first, second])
+
+    assert len(joined) == 1
+    assert joined[0].description == "Removed text: 'MECHANICAL INTERLOCK'"
+    assert joined[0].confidence == 0.8
 
 
 def test_removed_element_id_belongs_to_previous_revision() -> None:

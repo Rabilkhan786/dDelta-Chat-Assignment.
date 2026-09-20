@@ -17,6 +17,7 @@ uses native PDF + scanned PDF/OCR; DWG remains an explicit adapter stub.
 | One-command ingest → report → chat | `uv run python main.py run --question "What changed on PSV-9066?"` | Validated locally with the configured Groq provider; still a trusted-local demo |
 | Request traces, timing, tokens/cost | Shared request ID, shared JSON log, per-request JSONL trace, stage timings, retrieval hit counts, live provider token/cost validation | Cost remains an estimate based on configured prices |
 | Runnable evaluation scorecard | `make eval`; delta, retrieval, generation scorecards; six QA cases covering PID A, PID B, and delta entries | Still a small single-pair reviewed benchmark |
+| Reproducible code checks | Locked `uv` environment, Ruff, pytest, and branch-aware `make coverage` | Coverage verifies execution paths, not document accuracy |
 | Failure reporting | `eval/RESULTS.md` records dense-OCR limits and explicit provider-error behavior | These limits are not fixed by passing unit tests |
 | Secrets and environment template | `.env.example`, ignored `.env`/logs; tracked-key-pattern check found no matches | Not an exhaustive history/PII audit; users must review their own input documents |
 | Samples and provenance | Three test pairings documented in `data/samples/README.md` | Only one is labelled; one is an unrelated negative pair |

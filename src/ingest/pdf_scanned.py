@@ -22,7 +22,9 @@ class ScannedPDFAdapter(FormatAdapter):
     """Render each page to an image and OCR it with Tesseract into the canonical model."""
 
     def __init__(self, dpi: int | None = None) -> None:
-        self.dpi = dpi or settings.ingest.ocr_dpi
+        self.dpi = settings.ingest.ocr_dpi if dpi is None else dpi
+        if self.dpi < 72:
+            raise ValueError("OCR DPI must be at least 72.")
 
     def supports(self, file_path: Path) -> bool:
         return Path(file_path).suffix.lower() == ".pdf"

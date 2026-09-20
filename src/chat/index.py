@@ -1,14 +1,8 @@
-"""Hybrid retrieval over PID A, PID B, and the generated delta report.
-
-Every question searches the same evidence collection. BM25 keeps exact technical
-terms reliable, Chroma adds semantic matches, RRF combines both rankings, and an
-optional cross-encoder reranks the short candidate list.
-"""
+"""Hybrid retrieval over PID A, PID B, and the generated delta report."""
 
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import asdict, dataclass, replace
 from functools import lru_cache
 
@@ -17,16 +11,11 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from rank_bm25 import BM25Plus
 
 from src.canonical.model import CanonicalDocument
+from src.chat.query import is_broad_change_question, keyword_tokens, route_question
 from src.config.settings import project_path, settings
 from src.observability.logging import get_logger, stage
 
 logger = get_logger(__name__)
-
-TOKEN_PATTERN = re.compile(r"[A-Za-z]+\d+[A-Za-z]*|\d+(?:\.\d+)?[A-Za-z]*|[A-Za-z]+")
-STOP_WORDS = frozenset(
-    "a an the what which is are was were do does did on of to for in and please "
-    "about say says revision document text".split()
-)
 
 
 @dataclass(frozen=True)
@@ -182,6 +171,7 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
             for text, values in zip(
                 raw.get("documents", []) or [],
                 raw.get("metadatas", []) or [],
+                strict=True,
             )
         ]
 
@@ -241,22 +231,6 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
         return results
 
 
-def keyword_tokens(text: str) -> list[str]:
-    """Tokenize technical text without rewriting the user's question."""
-    tokens: list[str] = []
-    for raw_token in TOKEN_PATTERN.findall(text):
-        token = raw_token.lower()
-        if token in STOP_WORDS or len(token) == 1:
-            continue
-
-        tokens.append(token)
-        compact = re.fullmatch(r"([a-z]+)(\d+(?:\.\d+)?[a-z]*)", token)
-        if compact:
-            tokens.extend(compact.groups())
-
-    return list(dict.fromkeys(tokens))
-
-
 def _keyword_scores(query: str, items: list[Excerpt]) -> dict[str, float]:
     """Score exact lexical overlap with BM25+."""
     corpus = [keyword_tokens(item.text) for item in items]
@@ -267,7 +241,7 @@ def _keyword_scores(query: str, items: list[Excerpt]) -> dict[str, float]:
     scores = BM25Plus(corpus).get_scores(tokens)
     return {
         _excerpt_id(item): float(score)
-        for item, words, score in zip(items, corpus, scores)
+        for item, words, score in zip(items, corpus, scores, strict=True)
         if set(tokens).intersection(words)
     }
 
@@ -325,44 +299,6 @@ def _balanced_candidate_pool(
         preferred_ids = []
     selected_ids = list(dict.fromkeys(fused_ids + lexical_ids + semantic_ids + preferred_ids))
     return [item_by_id[item_id] for item_id in selected_ids]
-
-
-def route_question(query: str) -> str | None:
-    """Return a soft source preference; comparison questions keep all sources."""
-    text = query.lower()
-    revision_a = re.search(r"\b(?:(?:rev(?:ision)?|pid)\.? a|old revision|base revision)\b", text)
-    revision_b = re.search(r"\b(?:(?:rev(?:ision)?|pid)\.? b|new revision|revised)\b", text)
-    if (revision_a and revision_b) or re.search(
-        r"\b(?:compare|comparison|differences?|between)\b", text
-    ):
-        return None
-    if re.search(r"\b(?:changes?|changed|added|removed|modified|moved)\b", text):
-        return "delta_report"
-    if revision_a:
-        return "pid_a"
-    if revision_b:
-        return "pid_b"
-    return None
-
-
-def is_broad_change_question(query: str) -> bool:
-    """Return true when a change question has no specific technical subject."""
-    if route_question(query) != "delta_report":
-        return False
-    generic_words = {
-        "all",
-        "change",
-        "changed",
-        "changes",
-        "difference",
-        "differences",
-        "modified",
-        "new",
-        "removed",
-        "summarize",
-        "summary",
-    }
-    return not (set(keyword_tokens(query)) - generic_words)
 
 
 def prefer_source(

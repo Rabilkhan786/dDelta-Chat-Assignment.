@@ -4,10 +4,10 @@ import logging
 import re
 import time
 import uuid
+from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Iterator
 
 from pythonjsonlogger.json import JsonFormatter
 
