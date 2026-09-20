@@ -35,11 +35,14 @@ class ScannedPDFAdapter(FormatAdapter):
             raise FileNotFoundError(f"PDF does not exist: {file_path}")
 
         with stage(logger, "scanned_pdf_ingestion"):
-            with pymupdf.open(file_path) as pdf:
-                pages = [
-                    self._parse_page(pdf_page, page_number)
-                    for page_number, pdf_page in enumerate(pdf, start=1)
-                ]
+            try:
+                with pymupdf.open(file_path) as pdf:
+                    pages = [
+                        self._parse_page(pdf_page, page_number)
+                        for page_number, pdf_page in enumerate(pdf, start=1)
+                    ]
+            except pymupdf.FileDataError as error:
+                raise ValueError(f"Unable to open PDF '{file_path.name}'.") from error
 
         return CanonicalDocument(
             metadata=DocumentMetadata(
