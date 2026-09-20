@@ -1,6 +1,6 @@
 """Small readable drawing tests; the dense supplied scan remains a separate stress case."""
 
-import fitz
+import pymupdf
 
 from src.config.settings import settings
 from src.pipeline import DeltaPipeline, adapter_for
@@ -11,7 +11,7 @@ def test_scanned_and_native_revisions_use_the_same_delta_pipeline(tmp_path, monk
     native_b = tmp_path / "native_b.pdf"
     scanned_a = tmp_path / "scanned_a.pdf"
     for destination, pressure in [(native_a, 10), (native_b, 12)]:
-        with fitz.open() as document:
+        with pymupdf.open() as document:
             page = document.new_page(width=400, height=300)
             for y, text in [
                 (50, "PSV-9066A"),
@@ -20,9 +20,9 @@ def test_scanned_and_native_revisions_use_the_same_delta_pipeline(tmp_path, monk
             ]:
                 page.insert_text((40, y), text, fontsize=11)
             document.save(destination)
-    with fitz.open(native_a) as native, fitz.open() as scan:
+    with pymupdf.open(native_a) as native, pymupdf.open() as scan:
         page = scan.new_page(width=400, height=300)
-        page.insert_image(page.rect, pixmap=native[0].get_pixmap(matrix=fitz.Matrix(3, 3)))
+        page.insert_image(page.rect, pixmap=native[0].get_pixmap(matrix=pymupdf.Matrix(3, 3)))
         scan.save(scanned_a)
 
     for field, filename in [
