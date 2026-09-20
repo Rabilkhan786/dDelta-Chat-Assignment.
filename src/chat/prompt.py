@@ -17,8 +17,11 @@ def build_grounded_prompt(question: str, evidence: list[Excerpt]) -> str:
         "document content, while delta-report excerpts describe detected revision changes. "
         "Do not treat ordinary PID text as proof that something changed. Treat delta entries "
         "literally: an added or modified text entry does not by itself mean equipment, "
-        "piping, or a location changed. If the evidence does not support an answer, say so. "
-        "Cite every factual statement using the supplied citation exactly. Use normal ASCII "
+        "piping, or a location changed. Use delta-summary only for aggregate statements such "
+        "as the total number or types of changes. For each specific change, cite its individual "
+        "delta-N entry when that evidence is available. If the evidence does not support an "
+        "answer, say so. Cite every factual statement using the supplied citation exactly. "
+        "Use normal ASCII "
         "square brackets [ and ]; do not replace them with Unicode bracket styles.\n\n"
         f"Question: {question}\n\nEvidence:\n{context}"
     )
