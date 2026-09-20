@@ -20,6 +20,8 @@ __pycache__/
 logs/
 data/output/
 data/chroma_db/
+data/reports/*
+!data/reports/.gitkeep
 eval/datasets/predicted_change_ids.json
 
 # OS
