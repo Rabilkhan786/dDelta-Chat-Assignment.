@@ -15,17 +15,25 @@ def test_cross_encoder_reranker_changes_candidate_order(monkeypatch) -> None:
         Excerpt("weak evidence", "pid_a", "A", 1, "a"),
         Excerpt("strong evidence", "pid_b", "B", 1, "b"),
     ]
+
     ranked = rerank.rerank("question", candidates)
+
     assert ranked[0].element_id == "b"
+    assert len(ranked) == 2
 
 
-def test_reranker_filters_weak_evidence_without_a_second_top_k_limit(monkeypatch):
+def test_reranker_orders_candidates_without_dropping_negative_scores(monkeypatch):
     class ScoredModel:
         def predict(self, pairs):
             return [-5.0] + [2.0] * (len(pairs) - 1)
 
     monkeypatch.setattr(rerank, "_model", lambda: ScoredModel())
-    candidates = [Excerpt(f"evidence {i}", "pid_a", "A", 1, str(i)) for i in range(8)]
+    candidates = [
+        Excerpt(f"evidence {i}", "pid_a", "A", 1, str(i))
+        for i in range(8)
+    ]
+
     results = rerank.rerank("question", candidates)
-    assert len(results) == 7
-    assert "0" not in [item.element_id for item in results]
+
+    assert len(results) == 8
+    assert results[-1].element_id == "0"
