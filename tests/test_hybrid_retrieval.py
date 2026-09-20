@@ -151,12 +151,12 @@ def test_fusion_has_no_source_specific_boost() -> None:
     items = [pid, delta]
 
     lexical = {
-        index._excerpt_id(pid): 1.0,
+        index._excerpt_id(pid): 2.0,
         index._excerpt_id(delta): 1.0,
     }
     semantic = {
         index._excerpt_id(pid): 1.0,
-        index._excerpt_id(delta): 1.0,
+        index._excerpt_id(delta): 2.0,
     }
 
     results = index._fuse_candidates(items, lexical, semantic)
