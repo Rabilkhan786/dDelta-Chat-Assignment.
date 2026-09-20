@@ -1,73 +1,59 @@
-# Local validation — 2026-09-20
+# Validation notes
 
-These are observed smoke-test results, not a claim of general document accuracy.
-Implementation note: these measurements predate the compact three-entry delta
-index, five-case QA dataset, and per-request trace cleanup. Rerun the scorecard
-before treating the numbers below as current validation.
-No ground-truth labels were changed during this cleanup.
-Code checks use Ruff and pytest. The suite covers ingestion, hybrid retrieval,
-reranking, delta confidence/alignment, citations, API, logging,
-metric arithmetic, and a simple native/OCR pipeline. One upstream
-Starlette/httpx deprecation warning remains; it is not a test failure.
+The repository uses GitHub Actions CI to run the locked environment sync, Ruff
+lint/format checks, and pytest on a clean Linux runner with Tesseract installed.
+Use the latest CI result as the source of truth for code checks.
 
-Final checks: **64 tests passed**, Ruff lint/format checks passed, and
-`uv sync --locked` succeeded. These validate code behavior, not the unresolved
-dense-scan or live-generation quality requirements below.
+The measurements below are historical smoke observations from the supplied
+samples. They are useful failure evidence, not a current benchmark and not a
+claim of general document accuracy.
 
-## Default native revision pair
+## Primary synthetic revision pair
 
-Command: `uv run python main.py run --question "What changed on PSV 9066?"`
+The supplied primary pair previously produced:
 
-- 875 native lines in A, 874 in B.
-- Three changes: one added, one removed, one modified; 872 unchanged.
-- Compatibility score: 0.989.
-- 2,624 indexed excerpts across both documents and the report.
-- Retrieved `[delta_report | PID revision_b | page 1 | delta-95]`.
-- One request ID followed ingestion, alignment, reporting, indexing, retrieval,
-  reranking, and the visible provider failure.
-- Generation status: `provider_error`, because `GROQ_API_KEY` was not configured.
-  This is not a successful generated chat exchange.
+- 875 extracted native lines in Revision A and 874 in Revision B.
+- Three meaningful changes: one modified tag, one removed callout, and one
+  added note.
+- 872 unchanged aligned elements.
+- Revision compatibility score 0.989.
 
-`uv run python -m eval.run_eval` produced:
+The current implementation keeps the unchanged count in the report summary but
+writes and indexes only the three meaningful changes as `delta-1`,
+`delta-2`, and `delta-3`.
 
-```json
-{"delta": {"precision": 1.0, "recall": 1.0, "f1": 1.0, "predicted": 3, "expected": 3}}
-{"retrieval": {"cases": 1, "recall_at_5": 1.0, "mrr": 1.0}}
-{"generation": {"status": "not_run", "reason": "provider unavailable"}}
-```
+The reviewed change labels remain:
 
-These historical scores were recorded with the earlier three-change/one-question dataset. Its
-historical human-review status has not been independently verified. They do not
-establish answer correctness, groundedness, or OCR accuracy.
+1. `9066A` changed to `9066C`.
+2. `MECHANICAL INTERLOCK` was removed.
+3. `NOTE 24: NEW BLOWDOWN VALVE ADDED PER REV B.` was added.
 
-## Retrieval smoke checks with real local models
+The current QA dataset contains five retrieval/chat cases covering Revision A,
+Revision B, and each of the three delta-report entries. Rerun
+`uv run python -m eval.run_eval` after `uv run python main.py run` to obtain
+current metrics.
 
-| Question | Observed result |
-| --- | --- |
-| What changed on PSV-9066? | `delta-95`, cross-encoder score approximately 3.034 |
-| What changed on PSV 9066? | Same `delta-95`, score approximately 3.220 |
-| Who won the World Cup? | No evidence in the recorded pre-cleanup smoke check |
-
-Scores are raw model outputs, not probabilities. Unknown identifier suffixes,
-source constraints, keyword/vector fusion, and citation rejection also have
-controlled unit tests; those are not additional real-document benchmark cases.
-
-## Failures and negative cases
+## Known failure and stress cases
 
 | Case | Observation | Decision |
 | --- | --- | --- |
-| Supplied different-system PDFs | Overlap 0.465; old 0.12 threshold wrongly accepted them | Threshold now 0.60, with a regression test; still only a heuristic warning |
-| Dense scanned copy versus original native page | OCR recovered 131 lines versus 875 native; 853 reported changes despite the same content; overlap 0.386 | Treat as a failed comparison-quality stress case, not meaningful revisions |
-| Dense scan retrieval | “What does revision A say about compressor?” returned no evidence in the recorded run | Historical false-negative case; the hard reranker rejection threshold has since been removed |
-| Sparse-layout OCR experiment (`--psm 11`) | 835 lines and 447 matches, but 901 reported changes on the same-content pair | Do not adopt globally just for higher extraction count; default unchanged |
-| Groq answer generation | Missing key, visible error and evidence references | Needs configured provider and human answer/citation review |
+| Different-system PDFs | Historical token overlap was 0.465 | Keep the compatibility warning; it is a heuristic, not proof of document identity |
+| Dense scanned copy vs native original | Historical OCR extraction produced many false deltas on the dense drawing | Keep as a candid OCR/layout failure case, not an accuracy benchmark |
+| Moved and substantially edited label | May become remove + add because second-pass alignment requires high text similarity | Document limitation rather than hiding it |
+| Groq answer generation without a key | Provider cannot run | Report generation as not run/provider error; never count it as a successful eval |
 
-The dense scan still completed routing, OCR, canonical serialization, report,
-markup, and real model indexing (1,861 excerpts). Successful execution is not
-successful comparison quality. A separate simple scanned/native test fixture
-correctly detects a single pressure change from 10 to 12 bar; it does not erase
-the dense drawing failure.
+A small synthetic scanned/native test fixture is included in pytest and checks
+that the common pipeline can detect a simple pressure change. That controlled
+test does not erase the dense-drawing OCR limitation.
 
-Full raw traces remain local in ignored `logs/project.log` because they can
-contain source text and prompts. Timing depends on cold model downloads and
-concurrent work, so this run is not a latency benchmark.
+## What the results do not prove
+
+- Three labelled changes are not a broad delta benchmark.
+- Five QA cases are not a broad retrieval benchmark.
+- Keyword answer coverage is not semantic factual correctness.
+- Citation-source matching is not claim-level entailment.
+- Compatibility token overlap is not document-identity verification.
+- Successful OCR execution is not proof of OCR quality.
+
+Runtime traces and prompts remain local under ignored `logs/` because they can
+contain source-document text.
