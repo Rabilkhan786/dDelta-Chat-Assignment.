@@ -102,3 +102,17 @@ def test_removed_labels_far_above_each_other_are_not_joined():
     )
     upper = lower.model_copy(update={"region": BoundingBox(x0=10, y0=10, x1=50, y1=20)})
     assert not DeltaEngine._can_join(lower, upper)
+
+
+def test_removed_element_id_belongs_to_previous_revision() -> None:
+    old = Element(
+        id="old-id",
+        page_number=1,
+        type=ElementType.TEXT,
+        text="removed note",
+    )
+
+    delta = DeltaEngine().compare(AlignmentResult(unmatched_left=[old]))[0]
+
+    assert delta.element_id is None
+    assert delta.previous_element_id == "old-id"
