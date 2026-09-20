@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pytest
 
 from src.chat import index
-from src.chat.index import Excerpt, reciprocal_rank_fusion, route_question
+from src.chat.index import Excerpt, reciprocal_rank_fusion
 
 
 def test_rrf_rewards_an_identifier_found_by_both_retrievers() -> None:
@@ -16,24 +16,17 @@ def test_rrf_rewards_an_identifier_found_by_both_retrievers() -> None:
     assert scores["PSV-9066"] > scores["P-101"]
 
 
-def test_change_question_prefers_delta_report() -> None:
-    assert route_question("What changed on PSV-9066?") == {"delta_report"}
-
-
-def test_comparison_question_keeps_all_sources() -> None:
-    assert route_question("Compare revision A and revision B") is None
-
-
 def test_keyword_tokens_match_compact_spaced_and_hyphenated_tags() -> None:
     compact = set(index.keyword_tokens("PSV9066A"))
     spaced = set(index.keyword_tokens("PSV 9066A"))
     hyphenated = set(index.keyword_tokens("PSV-9066A"))
+
     assert {"psv", "9066a"} <= compact & spaced & hyphenated
     assert "1.5" in index.keyword_tokens("1.5 bar")
 
 
 class FakeStore:
-    """Exercise real keyword search and fusion with controlled vector distances."""
+    """Exercise keyword search and fusion with controlled vector distances."""
 
     def __init__(self, items, distance=100):
         self.items = items
@@ -63,8 +56,20 @@ class FakeStore:
 def test_exact_tag_survives_poor_vectors_and_small_corpus(monkeypatch):
     store = FakeStore(
         [
-            Excerpt("PSV-9066A pressure 1.5 bar", "pid_a", "A", 1, "target"),
-            Excerpt("PSV-9066B pressure 15 bar", "pid_b", "B", 1, "other"),
+            Excerpt(
+                "Revision A document text: PSV-9066A pressure 1.5 bar",
+                "pid_a",
+                "A",
+                1,
+                "target",
+            ),
+            Excerpt(
+                "Revision B document text: PSV-9066B pressure 15 bar",
+                "pid_b",
+                "B",
+                1,
+                "other",
+            ),
         ]
     )
     monkeypatch.setattr(index, "_vector_store", lambda: store)
@@ -77,7 +82,9 @@ def test_exact_tag_survives_poor_vectors_and_small_corpus(monkeypatch):
 
 
 def test_no_keyword_overlap_and_weak_vectors_return_no_evidence(monkeypatch):
-    store = FakeStore([Excerpt("pump pressure", "pid_a", "A", 1, "pump")])
+    store = FakeStore(
+        [Excerpt("Revision A document text: pump pressure", "pid_a", "A", 1, "pump")]
+    )
     monkeypatch.setattr(index, "_vector_store", lambda: store)
     monkeypatch.setattr(index.settings.reranker, "enabled", False)
 
@@ -88,28 +95,72 @@ def test_empty_index_and_invalid_limits(monkeypatch):
     monkeypatch.setattr(index, "_vector_store", lambda: FakeStore([]))
 
     assert index.search("pressure") == []
+
     with pytest.raises(ValueError, match="top_k"):
         index.search("pressure", top_k=0)
+
     with pytest.raises(ValueError, match="Query"):
         index.search("   ")
 
 
-def test_delta_index_reads_generated_report_entries() -> None:
+def test_delta_index_contains_summary_and_individual_changes() -> None:
     report = {
         "entries": [
             {
                 "delta_id": "delta-1",
+                "change_type": "modified",
+                "element_type": "text",
+                "page_number": 1,
+                "confidence": 0.8,
+                "description": "text changed from '9066A' to '9066C'",
+            },
+            {
+                "delta_id": "delta-2",
+                "change_type": "removed",
+                "element_type": "text",
+                "page_number": 1,
+                "confidence": 1.0,
+                "description": "Removed text: 'MECHANICAL INTERLOCK'",
+            },
+            {
+                "delta_id": "delta-3",
                 "change_type": "added",
                 "element_type": "note",
                 "page_number": 1,
                 "confidence": 1.0,
-                "description": "Added note: 'new'",
-            }
+                "description": "Added note: 'NOTE 24'",
+            },
         ]
     }
 
-    excerpts = index._delta_excerpts(report, "B", "B")
+    excerpts = index._delta_excerpts(report, "revision_b", "B")
 
-    assert len(excerpts) == 1
-    assert excerpts[0].element_id == "delta-1"
-    assert excerpts[0].change_type == "added"
+    assert [item.element_id for item in excerpts] == [
+        "delta-summary",
+        "delta-1",
+        "delta-2",
+        "delta-3",
+    ]
+    assert "3 changes detected" in excerpts[0].text
+    assert "9066A" in excerpts[0].text
+    assert "MECHANICAL INTERLOCK" in excerpts[0].text
+    assert "NOTE 24" in excerpts[0].text
+
+
+def test_fusion_has_no_source_specific_boost() -> None:
+    pid = Excerpt("same evidence", "pid_a", "A", 1, "pid")
+    delta = Excerpt("same evidence", "delta_report", "B", 1, "delta-1")
+    items = [pid, delta]
+
+    lexical = {
+        index._excerpt_id(pid): 1.0,
+        index._excerpt_id(delta): 1.0,
+    }
+    semantic = {
+        index._excerpt_id(pid): 1.0,
+        index._excerpt_id(delta): 1.0,
+    }
+
+    results = index._fuse_candidates(items, lexical, semantic)
+
+    assert results[0].score == results[1].score
