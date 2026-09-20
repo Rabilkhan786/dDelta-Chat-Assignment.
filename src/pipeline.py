@@ -79,7 +79,7 @@ class DeltaPipeline:
             markup_path = write_markup(
                 revision_b, project_path(settings.paths.delta_markup), deltas
             )
-            indexed_documents = build_index(pid_a, pid_b, deltas)
+            indexed_documents = build_index(pid_a, pid_b, report)
         self.logger.info(
             "pipeline_completed",
             extra={"deltas": len(deltas), "indexed_documents": indexed_documents},
