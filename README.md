@@ -152,15 +152,16 @@ can be disabled for a faster, RRF-only demo. `retrieval.top_k` is the single fin
 result limit; `candidate_k` controls how many candidates each retrieval method
 can contribute to the reranker.
 
-### Query handling: no rewriting, one small source preference
+### Query handling: direct retrieval without rewriting or routing
 
 Every question searches the same evidence collection: PID A, PID B, and the
-generated delta report. Deterministic routing uses delta-report evidence for
-change questions and puts the requested PID first for explicit revision-A or
-revision-B questions. A broad change question reserves the complete small delta
-report; a specific change question keeps only its retrieved delta entries.
-Comparison questions keep the cross-encoder order. There is no query rewriting,
-query expansion, multi-query agent, or conversation-memory step.
+generated delta report. The code does not guess the user's intent from fixed
+phrases, filter by source, or rewrite the question. BM25 and Chroma retrieve a
+balanced candidate list, RRF combines their rankings, and the cross-encoder
+chooses the final evidence. The complete delta report is kept in the candidate
+pool when it is small enough, so its entries remain available to the reranker
+without being forced into every answer. The grounded prompt tells the model to
+ignore unrelated retrieved evidence.
 
 BM25 tokenization handles common technical identifier formatting without
 changing the query itself. For example, compact, spaced, and hyphenated forms
@@ -263,7 +264,7 @@ src/
   canonical/       shared Pydantic representation and JSON writer
   ingest/          native PDF, scanned OCR, routing, DWG seam, line/classifier helpers
   delta/           compatibility check, alignment, deterministic delta, reports
-  chat/            query routing, hybrid retrieval, reranking, provider, grounded answers
+  chat/            query tokenization, hybrid retrieval, reranking, provider, grounded answers
   config/          YAML defaults and typed settings
   markup/          optional PDF bounding-box overlay
   observability/   structured JSON request traces

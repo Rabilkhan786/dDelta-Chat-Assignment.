@@ -13,7 +13,7 @@ uses native PDF + scanned PDF/OCR; DWG remains an explicit adapter stub.
 | Canonical format seam | Shared document/page/line models with boxes, source and OCR confidence | Equal granularity does not guarantee equal line segmentation |
 | Typed, located, confidence-scored delta | Two-pass deterministic alignment; added/removed/modified/moved; regression tests | Same-page matching only; confidence is heuristic |
 | Human/machine report | Markdown + JSON; default real run found three changes | Not a CAD geometry or table-cell diff |
-| Cited chat over both PIDs and report | BM25+ + Chroma + RRF + cross-encoder; source preference; exact citation validation tests | Six live generation cases are only a small smoke set |
+| Cited chat over both PIDs and report | BM25+ + Chroma + RRF + cross-encoder over all sources; exact citation validation tests | Six live generation cases are only a small smoke set |
 | One-command ingest → report → chat | `uv run python main.py run --question "What changed on PSV-9066?"` | Validated locally with the configured Groq provider; still a trusted-local demo |
 | Request traces, timing, tokens/cost | Shared request ID, shared JSON log, per-request JSONL trace, stage timings, retrieval hit counts, live provider token/cost validation | Cost remains an estimate based on configured prices |
 | Runnable evaluation scorecard | `make eval`; delta, retrieval, generation scorecards; six QA cases covering PID A, PID B, and delta entries | Still a small single-pair reviewed benchmark |
@@ -29,8 +29,8 @@ uses native PDF + scanned PDF/OCR; DWG remains an explicit adapter stub.
 - Keep ingestion, canonical models, delta, chat, logging, and evaluation separate.
   Do not add service layers, agent frameworks, or a second UI.
 - Use the user's question directly for retrieval and reranking. There is no
-  query rewriting or expansion. A small deterministic route uses delta evidence
-  for change questions and prefers an explicitly requested revision.
+  query rewriting, phrase-based routing, source filtering, or expansion. All
+  indexed sources remain available, and the cross-encoder ranks the evidence.
 - Keep keyword search for identifiers and vector search for natural-language
   similarity; search all indexed sources uniformly and rerank a short candidate
   list with the existing cross-encoder.

@@ -178,6 +178,29 @@ def test_no_keyword_overlap_and_weak_vectors_return_no_evidence(monkeypatch):
     assert index.search("What is the lunar weather?") == []
 
 
+def test_different_question_wording_still_searches_all_sources(monkeypatch):
+    store = FakeStore(
+        [
+            Excerpt("PSV-9066 appears in revision A", "pid_a", "A", 1, "pid-line"),
+            Excerpt(
+                "PSV-9066 pressure text was modified",
+                "delta_report",
+                "B",
+                1,
+                "delta-1",
+            ),
+        ],
+        distance=0,
+    )
+    monkeypatch.setattr(index, "_vector_store", lambda: store)
+    monkeypatch.setattr(index.settings.reranker, "enabled", False)
+
+    results = index.search("Could you walk me through PSV-9066?", top_k=2)
+
+    assert {item.source for item in results} == {"pid_a", "delta_report"}
+    assert store.queries == ["Could you walk me through PSV-9066?"]
+
+
 def test_empty_index_and_invalid_limits(monkeypatch):
     monkeypatch.setattr(index, "_vector_store", lambda: FakeStore([]))
 
@@ -286,7 +309,7 @@ def test_reranker_pool_reserves_candidates_from_each_retriever() -> None:
     assert {item.element_id for item in pool} == {"lexical", "semantic", "fused"}
 
 
-def test_candidate_pool_keeps_a_small_preferred_source_complete() -> None:
+def test_candidate_pool_keeps_the_small_delta_report_available() -> None:
     summary = Excerpt("3 changes", "delta_report", "B", 1, "delta-summary")
     modified = Excerpt("modified", "delta_report", "B", 1, "delta-1")
     removed = Excerpt("removed", "delta_report", "B", 1, "delta-2")
@@ -298,7 +321,6 @@ def test_candidate_pool_keeps_a_small_preferred_source_complete() -> None:
         {},
         {},
         count=3,
-        preferred_source="delta_report",
     )
 
     assert {item.element_id for item in pool} == {
@@ -306,18 +328,3 @@ def test_candidate_pool_keeps_a_small_preferred_source_complete() -> None:
         "delta-1",
         "delta-2",
     }
-
-
-def test_source_preference_reorders_without_filtering() -> None:
-    pid = Excerpt("PID evidence", "pid_b", "B", 1, "pid")
-    delta = Excerpt("delta evidence", "delta_report", "B", 1, "delta")
-    reordered = index.prefer_source([pid, delta], "delta_report")
-    assert reordered == [delta, pid]
-
-
-def test_delta_route_can_remove_pid_noise_without_emptying_results() -> None:
-    pid = Excerpt("PID evidence", "pid_b", "B", 1, "pid")
-    delta = Excerpt("delta evidence", "delta_report", "B", 1, "delta")
-
-    assert index.prefer_source([pid, delta], "delta_report", only_preferred=True) == [delta]
-    assert index.prefer_source([pid], "delta_report", only_preferred=True) == [pid]

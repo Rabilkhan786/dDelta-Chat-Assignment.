@@ -69,15 +69,14 @@ threshold, the service says it cannot support an answer instead of guessing.
 This one example does not establish rejection accuracy for all unsupported queries.
 
 The retriever searches PID A, PID B, and the delta report for every question.
-There is no query rewriting. A small deterministic preference puts delta
-evidence first for change questions and the requested PID first for explicit
-revision questions. Change questions use delta-report evidence only when it is
-available, avoiding ordinary PID text that could be mistaken for a change. The
-`delta-summary` excerpt contains aggregate counts only, while `delta-N` entries
-contain the specific changes. Broad questions such as `What changed?` can
-therefore retrieve both the overview and precise evidence, while BM25 still
-handles exact technical identifiers. Citations identify the current index
-snapshot; delta entry numbers can change when a different pair is indexed.
+There is no query rewriting, phrase-based routing, or source filtering. BM25,
+Chroma, RRF, and the cross-encoder rank evidence from all sources. The complete
+small delta report stays available to the reranker, but it is not forced into
+the final answer. The `delta-summary` excerpt contains aggregate counts only,
+while `delta-N` entries contain the specific changes. BM25 handles exact
+technical identifiers, and the grounded prompt tells the model to ignore
+unrelated evidence. Citations identify the current index snapshot; delta entry
+numbers can change when a different pair is indexed.
 
 ## 4. Show a request trace
 

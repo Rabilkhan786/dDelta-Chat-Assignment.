@@ -38,7 +38,7 @@ current metrics.
 The configured Groq provider was exercised successfully on 21 September 2026.
 On the supplied primary pair and the small checked-in labels, the run produced:
 
-- Code checks: `116` tests passed with `95.68%` branch-aware coverage.
+- Code checks: `106` tests passed with `95.69%` branch-aware coverage.
 - Delta precision/recall/F1: `1.0 / 1.0 / 1.0` over three labelled changes.
 - Retrieval Recall@5: `1.0` over six questions.
 - Retrieval MRR: `1.0` over six questions.
