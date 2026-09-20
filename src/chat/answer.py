@@ -11,6 +11,15 @@ from src.observability.logging import get_logger, request_context, stage
 
 logger = get_logger(__name__)
 
+CITATION_BRACKETS = str.maketrans(
+    {
+        "【": "[",
+        "】": "]",
+        "［": "[",
+        "］": "]",
+    }
+)
+
 
 @dataclass(frozen=True)
 class GroundedAnswer:
@@ -57,7 +66,8 @@ class GroundedChatService:
                     request_id,
                     "provider_error",
                 )
-            used = list(dict.fromkeys(re.findall(r"\[[^\[\]\n]+\]", response.text)))
+            normalized_text = response.text.translate(CITATION_BRACKETS)
+            used = list(dict.fromkeys(re.findall(r"\[[^\[\]\n]+\]", normalized_text)))
             if not used or any(item not in citations for item in used):
                 logger.warning("answer_citations_rejected", extra={"citation_count": len(used)})
                 return GroundedAnswer(
@@ -66,6 +76,7 @@ class GroundedChatService:
                     request_id,
                     "unsupported",
                 )
+
             # Valid source references do not by themselves prove factual entailment.
             logger.info("answer_completed", extra={"citations_used": len(used)})
-            return GroundedAnswer(response.text, used, request_id)
+            return GroundedAnswer(normalized_text, used, request_id)
