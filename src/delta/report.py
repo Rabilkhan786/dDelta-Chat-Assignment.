@@ -7,6 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 from src.canonical.model import CanonicalDocument, DeltaEntry
+from src.delta.compatibility import CompatibilityResult
 from src.observability.logging import get_logger, stage
 
 logger = get_logger(__name__)
@@ -19,15 +20,17 @@ class DeltaReportGenerator:
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate(self, old_doc: CanonicalDocument, new_doc: CanonicalDocument, deltas: list[DeltaEntry]) -> dict:
+    def generate(self, old_doc: CanonicalDocument, new_doc: CanonicalDocument,
+                 deltas: list[DeltaEntry], compatibility: CompatibilityResult | None = None) -> dict:
         """Build the report and write it to disk. Returns the dict for indexing/eval."""
         with stage(logger, "delta_report_generation"):
-            report = self._build_report(old_doc, new_doc, deltas)
+            report = self._build_report(old_doc, new_doc, deltas, compatibility)
             self._write_markdown(report)
             self._write_json(report)
         return report
 
-    def _build_report(self, old_doc: CanonicalDocument, new_doc: CanonicalDocument, deltas: list[DeltaEntry]) -> dict:
+    def _build_report(self, old_doc: CanonicalDocument, new_doc: CanonicalDocument,
+                      deltas: list[DeltaEntry], compatibility: CompatibilityResult | None) -> dict:
         counts = Counter(delta.change_type.value for delta in deltas)
         report = {
             "documents": {
@@ -39,14 +42,21 @@ class DeltaReportGenerator:
             },
             "summary": {
                 "total_entries": len(deltas),
-                "actual_changes": counts.get("modified", 0) + counts.get("added", 0) + counts.get("removed", 0),
+                "actual_changes": counts.get("modified", 0) + counts.get("moved", 0) + counts.get("added", 0) + counts.get("removed", 0),
                 "unchanged": counts.get("unchanged", 0),
                 "modified": counts.get("modified", 0),
                 "added": counts.get("added", 0),
                 "removed": counts.get("removed", 0),
+                "moved": counts.get("moved", 0),
             },
             "entries": [],
         }
+        if compatibility:
+            report["revision_compatibility"] = {
+                "score": compatibility.score,
+                "compatible": compatibility.compatible,
+                "warning": compatibility.message,
+            }
 
         for delta in deltas:
             entry = {
@@ -55,6 +65,9 @@ class DeltaReportGenerator:
                 "page_number": delta.page_number,
                 "confidence": round(delta.confidence, 2),
                 "description": delta.description,
+                "element_id": delta.element_id,
+                "previous_element_id": delta.previous_element_id,
+                "location_changed": delta.location_changed,
             }
             if delta.region:
                 entry["bounding_box"] = delta.region.model_dump()
@@ -76,9 +89,13 @@ class DeltaReportGenerator:
             f"- Modified  : {summary['modified']}",
             f"- Added     : {summary['added']}",
             f"- Removed   : {summary['removed']}", "",
+            f"- Moved     : {summary['moved']}", "",
             "---", "",
             "## Delta Entries", "",
         ]
+        compatibility = report.get("revision_compatibility")
+        if compatibility and compatibility["warning"]:
+            lines[4:4] = ["## Compatibility warning", "", compatibility["warning"], ""]
 
         for index, entry in enumerate(report["entries"], start=1):
             lines += [
@@ -94,7 +111,12 @@ class DeltaReportGenerator:
                 lines.append(f"- Bounding Box : ({bbox['x0']:.2f}, {bbox['y0']:.2f}) → ({bbox['x1']:.2f}, {bbox['y1']:.2f})")
             lines.append("")
 
-        (self.output_dir / "delta_report.md").write_text("\n".join(lines), encoding="utf-8")
+        self._write_text("delta_report.md", "\n".join(lines))
 
     def _write_json(self, report: dict) -> None:
-        (self.output_dir / "delta_report.json").write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+        self._write_text("delta_report.json", json.dumps(report, indent=2, sort_keys=True))
+
+    def _write_text(self, file_name: str, content: str) -> None:
+        """Keep generated reports LF-normalized on every operating system."""
+        with (self.output_dir / file_name).open("w", encoding="utf-8", newline="\n") as output_file:
+            output_file.write(content)

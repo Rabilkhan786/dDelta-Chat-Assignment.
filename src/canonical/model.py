@@ -28,7 +28,7 @@ class BoundingBox(BaseModel):
 
 
 class Element(BaseModel):
-    """Smallest unit extracted from a document."""
+    """One line of text or a supported technical tag in a document."""
 
     id: str
     page_number: int
@@ -72,6 +72,7 @@ class Alignment(BaseModel):
     right: Element
     similarity: float
     bbox_distance: float
+    matched_after_move: bool = False
 
 
 class AlignmentResult(BaseModel):
@@ -88,6 +89,7 @@ class DeltaType(str, Enum):
     ADDED = "added"
     REMOVED = "removed"
     MODIFIED = "modified"
+    MOVED = "moved"
     UNCHANGED = "unchanged"
 
 
@@ -100,3 +102,6 @@ class DeltaEntry(BaseModel):
     region: BoundingBox | None = None
     description: str
     confidence: float
+    element_id: str | None = None
+    previous_element_id: str | None = None
+    location_changed: bool = False

@@ -12,11 +12,13 @@ from src.chat.index import build_index
 from src.config.settings import project_path, settings
 from src.delta.align import Aligner
 from src.delta.engine import DeltaEngine
+from src.delta.compatibility import check_revision_compatibility
 from src.delta.report import DeltaReportGenerator
 from src.ingest.base import FormatAdapter
 from src.ingest.pdf_native import NativePDFAdapter
 from src.ingest.pdf_scanned import ScannedPDFAdapter
 from src.ingest.registry import AutomaticPDFAdapter
+from src.markup.pdf import write_markup
 from src.observability.logging import get_logger, request_context, stage
 
 
@@ -29,6 +31,8 @@ class PipelineResult:
     deltas: list[DeltaEntry]
     report: dict
     indexed_documents: int
+    request_id: str
+    markup_path: Path
 
 
 class DeltaPipeline:
@@ -36,7 +40,8 @@ class DeltaPipeline:
 
     def __init__(self, adapter: FormatAdapter, request_id: str | None = None) -> None:
         self.adapter = adapter
-        self.logger = get_logger(__name__, request_id or str(uuid.uuid4()))
+        self.request_id = request_id or str(uuid.uuid4())
+        self.logger = get_logger(__name__, self.request_id)
 
     def run(self, revision_a: Path, revision_b: Path) -> PipelineResult:
         """Create canonical artifacts, deterministic delta/report, and retrieval index."""
@@ -47,12 +52,19 @@ class DeltaPipeline:
             pid_b = parsed_b.model_copy(update={"metadata": parsed_b.metadata.model_copy(update={"revision": "B"})})
             write_canonical_document(pid_a, project_path(settings.paths.canonical_a))
             write_canonical_document(pid_b, project_path(settings.paths.canonical_b))
+            compatibility = check_revision_compatibility(pid_a, pid_b)
+            self.logger.info("revision_compatibility_checked", extra={
+                "score": compatibility.score, "compatible": compatibility.compatible,
+            })
             alignment = Aligner().align(pid_a, pid_b)
             deltas = DeltaEngine().compare(alignment)
-            report = DeltaReportGenerator(project_path(settings.paths.delta_json).parent).generate(pid_a, pid_b, deltas)
+            report = DeltaReportGenerator(project_path(settings.paths.delta_json).parent).generate(
+                pid_a, pid_b, deltas, compatibility,
+            )
+            markup_path = write_markup(revision_b, project_path(settings.paths.delta_markup), deltas)
             indexed_documents = build_index(pid_a, pid_b, deltas)
         self.logger.info("pipeline_completed", extra={"deltas": len(deltas), "indexed_documents": indexed_documents})
-        return PipelineResult(pid_a, pid_b, deltas, report, indexed_documents)
+        return PipelineResult(pid_a, pid_b, deltas, report, indexed_documents, self.request_id, markup_path)
 
 
 def adapter_for(name: str) -> FormatAdapter:

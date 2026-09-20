@@ -25,8 +25,10 @@ def precision_recall_f1(predicted: set[str], expected: set[str]) -> Classificati
 
 
 def report_entry_id(entry: dict[str, Any]) -> str:
-    """Create a stable evaluator ID from the machine-readable delta entry."""
-    payload = json.dumps(entry, sort_keys=True, separators=(",", ":"))
+    """Create a stable ID without invalidating reviewed labels when report metadata grows."""
+    core_keys = ("change_type", "element_type", "page_number", "confidence", "description", "bounding_box")
+    payload = json.dumps({key: entry.get(key) for key in core_keys if key in entry},
+        sort_keys=True, separators=(",", ":"))
     return sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
@@ -44,3 +46,20 @@ def citation_accuracy(citations: list[str], expected_fragments: list[str]) -> fl
         return 0.0
     hits = sum(1 for fragment in expected_fragments if any(fragment in citation for citation in citations))
     return hits / len(expected_fragments)
+
+
+def retrieval_recall_at_k(result_ids: list[str], expected_ids: list[str], k: int) -> float:
+    """Measure whether human-labelled evidence appears in the first k results."""
+    expected = set(expected_ids)
+    if not expected:
+        return 0.0
+    return len(set(result_ids[:k]) & expected) / len(expected)
+
+
+def mean_reciprocal_rank(result_ids: list[str], expected_ids: list[str]) -> float:
+    """Score the rank of the first human-labelled relevant excerpt."""
+    expected = set(expected_ids)
+    for position, result_id in enumerate(result_ids, start=1):
+        if result_id in expected:
+            return 1 / position
+    return 0.0

@@ -1,81 +1,96 @@
 # Demo walkthrough
 
-1. **Install.**
+This is a two-to-four minute walkthrough of what the repository actually runs.
 
-   ```bash
-   uv sync
-   sudo apt-get install tesseract-ocr   # or: brew install tesseract
-   ```
+## 1. Install and compare the supplied revision pair
 
-2. **Run the pipeline** on the default sample pair (a genuine revision pair —
-   see `data/samples/synthetic_revision/PROVENANCE.md`).
+```bash
+uv sync
+uv run python main.py run
+```
 
-   ```bash
-   uv run python main.py run
-   ```
+The command detects each input PDF. The supplied default pair has selectable
+text, so it uses the native adapter. The resulting line-level canonical files
+are saved under `data/output/`, and the report is written to
+`data/reports/delta_report.json` and `.md`.
 
-   The JSON logs show one request ID spanning native-PDF ingestion for both
-   revisions, alignment, delta classification, report generation, and
-   retrieval-index building, each with a stage duration. On this pair, the
-   delta engine finds exactly the 3 edits that were actually made, against
-   494 unchanged elements:
+Open the JSON report and point out:
 
-   ```
-   summary: {"total_entries": 497, "actual_changes": 3, "unchanged": 494,
-             "modified": 1, "added": 1, "removed": 1}
+- the `revision_compatibility` score and any warning;
+- summary counts for added, removed, modified, and moved elements;
+- a changed entry's page, bounding box, confidence, element ID, and
+  `location_changed` flag.
 
-   modified | text | page 1 | confidence 0.89 | 'PSV 9066A' -> 'PSV 9066C'
-   removed  | text | page 1 | confidence 1.00 | 'MECHANICAL INTERLOCK'
-   added    | text | page 1 | confidence 1.00 | 'NOTE 24: NEW BLOWDOWN VALVE ADDED PER REV B.'
-   ```
+Open `data/reports/revision_b_markup.pdf` too. It adds simple colored boxes to
+the changed text regions: green for added, red for removed, orange for modified,
+and purple for moved. This is a bbox overlay, not a claimed pixel or CAD diff.
 
-   Full reports: `data/reports/delta_report.md` and `.json`.
+The compare path is deterministic: it does not call Groq or any other LLM.
 
-3. **Try the scanned-PDF adapter** (Tesseract OCR, no text layer in the
-   input):
+## 2. Show scanned-PDF routing
 
-   ```bash
-   uv run python main.py run \
-     --revision-a data/samples/scanned/lift_gas_scanned.pdf \
-     --revision-b data/samples/synthetic_revision/revision_a.pdf \
-     --adapter auto
-   ```
+```bash
+uv run python main.py run \
+  --revision-a data/samples/scanned/lift_gas_scanned.pdf \
+  --revision-b data/samples/synthetic_revision/revision_a.pdf
+```
 
-   The router logs `pdf_adapter_selected` with 0 selectable characters for
-   the scanned file, routes it to `ScannedPDFAdapter`, and OCR recovers text,
-   per-word bounding boxes, and confidence into the same canonical schema
-   native PDFs use.
+The JSON trace records `ScannedPDFAdapter` for the raster-only input. OCR words
+are grouped into lines before they become canonical elements, so they have the
+same granularity as lines extracted from a native PDF. Each OCR element includes
+a bounding box and confidence.
 
-4. **Grounded chat.**
+## 3. Show cited hybrid chat
 
-   ```bash
-   cp .env.example .env   # set GROQ_API_KEY
-   uv run python main.py chat "What changed on the PSV valve?"
-   ```
+```bash
+cp .env.example .env
+# Set GROQ_API_KEY in .env
+uv run python main.py chat "What changed on PSV-9066?"
+```
 
-   Retrieval embeds PID A, PID B, and the delta report into Chroma
-   (downloads a small embedding model the first time), retrieves the top-k
-   matches for the question, and requires the LLM to cite one of them for
-   every claim. If nothing relevant is retrieved, chat says so instead of
-   guessing; if the LLM call itself fails, the retrieved citations are
-   still returned. Inspect `logs/project.log` for the request ID, retrieval
-   hit count, model name, token counts, and `estimated_cost_usd`.
+The retriever combines BM25 exact matching with Chroma semantic matching using
+Reciprocal Rank Fusion, then re-ranks the short candidate list with a compact
+cross-encoder. The final answer is prompted only with retrieved
+evidence and returns citations in this stable form:
 
-5. **Tests and eval.**
+```text
+[delta_report | PID revision_b | page 1 | delta-3]
+```
 
-   ```bash
-   uv run pytest -q
-   uv run python -m eval.run_eval
-   ```
+Ask an unsupported question too. If nothing passes the retrieval quality
+threshold, the service says it cannot support an answer instead of guessing.
 
-   `eval/datasets/ground_truth.json` is filled in with the 3 real change IDs
-   from step 2 and one chat QA case. A real run prints:
+## 4. Show a request trace
 
-   ```
-   delta_scorecard: precision=1.0 recall=1.0 f1=1.0 predicted=3 expected=3
-   ```
+Open `logs/project.log` and filter one request ID. It contains structured JSON
+for routing, ingestion, compatibility, alignment, delta, reporting, index
+build, retrieval, and the LLM call. LLM records include model, prompt,
+response, token counts, cost estimate, and failures.
 
-   followed by the chat scorecard (answer correctness + citation accuracy),
-   which needs `GROQ_API_KEY` and network access — the harness logs a clear
-   `chat_evaluation_failed` and still exits 0 rather than fabricating a
-   score if either is unavailable.
+## 5. Run the checks
+
+```bash
+make test
+make eval
+```
+
+The evaluation command keeps document-delta metrics separate from retrieval
+Recall@K/MRR and answer/citation scoring. Labels live in the repository and are
+never fabricated by the evaluator. Known failure cases are printed from the
+dataset.
+
+## Assignment checklist
+
+| Requirement | Implementation |
+| --- | --- |
+| Two real formats | Native PDF and scanned PDF/OCR |
+| Format seam | `FormatAdapter`; DWG stub is honest and callable |
+| Structured delta | Typed, located, confidence-scored JSON + Markdown + PDF bbox markup |
+| Grounded chat | Hybrid retrieval over PID A, PID B, delta report; citations |
+| Determinism | No LLM in compatibility, alignment, or delta classification |
+| Observability | JSON request traces, stage timings, token/cost, visible failures |
+| Evaluation | Label-driven delta, retrieval, answer, citation metrics |
+| Single-process API | Optional FastAPI `/compare`, `/chat`, `/report`, `/health` |
+
+The intentional scope cuts are DWG parsing, table/cell understanding, and
+geometry recognition. They are documented rather than overstated.

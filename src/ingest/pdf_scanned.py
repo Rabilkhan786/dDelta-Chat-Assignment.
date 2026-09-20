@@ -8,9 +8,11 @@ import fitz
 import pytesseract
 from PIL import Image
 
-from src.canonical.model import BoundingBox, CanonicalDocument, DocumentMetadata, Element, ElementType, Page
+from src.canonical.model import BoundingBox, CanonicalDocument, DocumentMetadata, Element, Page
 from src.config.settings import settings
 from src.ingest.base import FormatAdapter
+from src.ingest.classify import classify_text
+from src.ingest.lines import ocr_lines
 from src.observability.logging import get_logger, stage
 
 logger = get_logger(__name__)
@@ -54,20 +56,15 @@ class ScannedPDFAdapter(FormatAdapter):
         ocr_data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
 
         elements: list[Element] = []
-        for index, text in enumerate(ocr_data["text"]):
-            text = text.strip()
-            confidence = float(ocr_data["conf"][index])
-            if not text or confidence < 0:
-                continue
-            left, top, width, height = (ocr_data[key][index] for key in ("left", "top", "width", "height"))
+        for index, line in enumerate(ocr_lines(ocr_data, scale), start=1):
             elements.append(Element(
-                id=f"p{page_number}_ocr{index}",
+                id=f"p{page_number}_l{index}",
                 page_number=page_number,
-                type=ElementType.TEXT,
-                text=text,
-                bbox=BoundingBox(x0=left / scale, y0=top / scale, x1=(left + width) / scale, y1=(top + height) / scale),
+                type=classify_text(str(line["text"])),
+                text=str(line["text"]),
+                bbox=BoundingBox(x0=float(line["x0"]), y0=float(line["y0"]), x1=float(line["x1"]), y1=float(line["y1"])),
                 source="ocr",
-                ocr_confidence=round(confidence / 100, 2),
+                ocr_confidence=round(float(line["confidence"]), 2),
             ))
 
         logger.info("ocr_page_extracted", extra={"page": page_number, "elements": len(elements)})

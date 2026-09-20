@@ -52,3 +52,12 @@ def test_grounded_chat_returns_evidence_when_provider_fails(monkeypatch: pytest.
     answer = GroundedChatService(FailingProvider()).answer("What is the pump pressure?")
     assert answer.citations
     assert "could not complete" in answer.text
+
+
+def test_grounded_chat_returns_evidence_when_provider_is_not_configured(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Missing credentials must not turn retrieved evidence into an uncaught error."""
+    _stub_search(monkeypatch, [Excerpt("pump pressure is 10 bar", "pid_a", "A", 1, "a-1")])
+    monkeypatch.setattr("src.chat.answer.configured_provider", lambda: (_ for _ in ()).throw(RuntimeError("missing key")))
+    answer = GroundedChatService().answer("What is the pump pressure?")
+    assert answer.citations
+    assert "could not complete" in answer.text

@@ -33,6 +33,15 @@ class ChromaConfig(BaseModel):
 
 class RetrievalConfig(BaseModel):
     top_k: int = Field(gt=0)
+    candidate_k: int = Field(gt=0)
+    rrf_k: int = Field(gt=0)
+    minimum_vector_similarity: float = Field(ge=0.0, le=1.0)
+
+
+class RerankerConfig(BaseModel):
+    enabled: bool = True
+    model: str
+    top_k: int = Field(gt=0)
 
 
 class IngestConfig(BaseModel):
@@ -47,11 +56,17 @@ class PathsConfig(BaseModel):
     canonical_b: str
     delta_json: str
     delta_markdown: str
+    delta_markup: str
 
 
 class AlignConfig(BaseModel):
     similarity_threshold: float = Field(ge=0.0, le=100.0)
     max_bbox_distance: float = Field(gt=0.0)
+    moved_similarity_threshold: float = Field(ge=0.0, le=100.0)
+
+
+class CompatibilityConfig(BaseModel):
+    minimum_similarity: float = Field(ge=0.0, le=1.0)
 
 
 class Settings(BaseModel):
@@ -60,9 +75,11 @@ class Settings(BaseModel):
     embedding: EmbeddingConfig
     chroma: ChromaConfig
     retrieval: RetrievalConfig
+    reranker: RerankerConfig
     ingest: IngestConfig
     paths: PathsConfig
     align: AlignConfig
+    compatibility: CompatibilityConfig
 
 
 CONFIG_PATH = Path(__file__).with_name("config.yaml")

@@ -56,7 +56,8 @@ class GroqChatProvider:
         estimated_cost_usd = self._estimate_cost(input_tokens, output_tokens)
 
         logger.info("llm_completed", extra={"model": settings.llm.model, "input_tokens": input_tokens,
-            "output_tokens": output_tokens, "estimated_cost_usd": estimated_cost_usd})
+            "output_tokens": output_tokens, "estimated_cost_usd": estimated_cost_usd, "prompt": prompt,
+            "response": response.choices[0].message.content or ""})
 
         return LLMResponse(response.choices[0].message.content or "", input_tokens, output_tokens, estimated_cost_usd)
 

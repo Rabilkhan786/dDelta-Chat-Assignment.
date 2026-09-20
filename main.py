@@ -18,13 +18,15 @@ def run_command(arguments: argparse.Namespace) -> None:
     """Run ingestion through report/index creation for one document pair."""
     result = DeltaPipeline(adapter_for(arguments.adapter)).run(Path(arguments.revision_a), Path(arguments.revision_b))
     logger.info("run_complete", extra={"report": str(project_path(settings.paths.delta_markdown)),
-        "changes": result.report["summary"]["actual_changes"], "indexed_excerpts": result.indexed_documents})
+        "changes": result.report["summary"]["actual_changes"], "indexed_excerpts": result.indexed_documents,
+        "request_id": result.request_id})
 
 
 def chat_command(arguments: argparse.Namespace) -> None:
     """Answer one grounded question after `run` has built the retrieval sources."""
     answer = GroundedChatService().answer(arguments.question)
-    logger.info("chat_answer", extra={"answer": answer.text, "citations": answer.citations})
+    logger.info("chat_answer", extra={"answer": answer.text, "citations": answer.citations,
+        "request_id": answer.request_id})
 
 
 def parser() -> argparse.ArgumentParser:

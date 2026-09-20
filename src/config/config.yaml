@@ -22,6 +22,15 @@ chroma:
 
 retrieval:
   top_k: 5
+  candidate_k: 15
+  rrf_k: 60
+  minimum_vector_similarity: 0.35
+
+# The reranker only sees the small post-RRF candidate list, never full documents.
+reranker:
+  enabled: true
+  model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  top_k: 5
 
 # A PDF with at least this many selectable characters is treated as native;
 # otherwise it is routed to the Tesseract OCR adapter.
@@ -38,8 +47,14 @@ paths:
 
   delta_json: "data/reports/delta_report.json"
   delta_markdown: "data/reports/delta_report.md"
+  delta_markup: "data/reports/revision_b_markup.pdf"
 
 # How aggressively matched elements are aligned between revisions.
 align:
   similarity_threshold: 80.0
   max_bbox_distance: 75.0
+  moved_similarity_threshold: 94.0
+
+# Low overlap does not stop a run, but is made visible in the report and API.
+compatibility:
+  minimum_similarity: 0.12

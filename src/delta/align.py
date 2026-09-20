@@ -1,10 +1,8 @@
 """Match elements between two document revisions before they are classified.
 
 Matching strategy, in order:
-1. Same page
-2. Same element type
-3. Nearby bounding boxes
-4. Highest text similarity (RapidFuzz)
+1. Same page, type, nearby position, and best text similarity.
+2. For unmatched items, same page and very high text similarity even if moved.
 """
 
 from __future__ import annotations
@@ -26,6 +24,7 @@ class Aligner:
     def __init__(self, similarity_threshold: float | None = None, max_bbox_distance: float | None = None) -> None:
         self.similarity_threshold = similarity_threshold or settings.align.similarity_threshold
         self.max_bbox_distance = max_bbox_distance or settings.align.max_bbox_distance
+        self.moved_similarity_threshold = settings.align.moved_similarity_threshold
 
     def align(self, old_document: CanonicalDocument, new_document: CanonicalDocument) -> AlignmentResult:
         with stage(logger, "document_alignment"):
@@ -36,34 +35,49 @@ class Aligner:
         old_elements = self._flatten(old_document)
         new_elements = self._flatten(new_document)
         matched_new: set[int] = set()
-
+        unmatched_left: list[Element] = []
         for old in old_elements:
-            best_index, best_similarity, best_distance = None, 0.0, float("inf")
-
-            for index, new in enumerate(new_elements):
-                if index in matched_new or old.page_number != new.page_number or old.type != new.type:
-                    continue
-
-                distance = self._bbox_distance(old.bbox, new.bbox)
-                if distance > self.max_bbox_distance:
-                    continue
-
-                similarity = fuzz.WRatio(old.text.strip(), new.text.strip())
-                if similarity > best_similarity or (similarity == best_similarity and distance < best_distance):
-                    best_index, best_similarity, best_distance = index, similarity, distance
-
-            if best_index is not None and best_similarity >= self.similarity_threshold:
-                matched = new_elements[best_index]
-                result.matches.append(Alignment(left=old, right=matched, similarity=best_similarity, bbox_distance=best_distance))
-                matched_new.add(best_index)
+            candidate = self._best_candidate(old, new_elements, matched_new, nearby_only=True)
+            if candidate and candidate[1] >= self.similarity_threshold:
+                index, similarity, distance = candidate
+                result.matches.append(Alignment(left=old, right=new_elements[index], similarity=similarity, bbox_distance=distance))
+                matched_new.add(index)
             else:
-                result.unmatched_left.append(old)
+                unmatched_left.append(old)
 
-        result.unmatched_right = [element for index, element in enumerate(new_elements) if index not in matched_new]
+        still_unmatched: list[Element] = []
+        for old in unmatched_left:
+            candidate = self._best_candidate(old, new_elements, matched_new, nearby_only=False)
+            if candidate and candidate[1] >= self.moved_similarity_threshold:
+                index, similarity, distance = candidate
+                result.matches.append(Alignment(left=old, right=new_elements[index], similarity=similarity,
+                    bbox_distance=distance, matched_after_move=True))
+                matched_new.add(index)
+            else:
+                still_unmatched.append(old)
+
+        result.unmatched_left = still_unmatched
+        result.unmatched_right = [item for index, item in enumerate(new_elements) if index not in matched_new]
 
         logger.info("alignment_completed", extra={"matches": len(result.matches),
             "unmatched_left": len(result.unmatched_left), "unmatched_right": len(result.unmatched_right)})
         return result
+
+    def _best_candidate(self, old: Element, candidates: list[Element], used: set[int], nearby_only: bool) -> tuple[int, float, float] | None:
+        """Find one unused same-page, same-type candidate using explicit rules."""
+        best: tuple[int, float, float] | None = None
+        for index, new in enumerate(candidates):
+            if index in used or old.page_number != new.page_number or old.type != new.type:
+                continue
+            distance = self._bbox_distance(old.bbox, new.bbox)
+            if nearby_only and distance > self.max_bbox_distance:
+                continue
+            # Plain ratio avoids WRatio's subset bias (for example, matching
+            # the tag "9066A" to an unrelated one-character label "9").
+            similarity = fuzz.ratio(old.text.strip(), new.text.strip())
+            if best is None or similarity > best[1] or (similarity == best[1] and distance < best[2]):
+                best = (index, similarity, distance)
+        return best
 
     @staticmethod
     def _flatten(document: CanonicalDocument) -> list[Element]:

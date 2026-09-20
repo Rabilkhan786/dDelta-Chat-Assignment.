@@ -7,5 +7,8 @@ chat:
 eval:
 	uv run python -m eval.run_eval
 
+serve:
+	uv run uvicorn src.api:app --reload
+
 test:
 	uv run pytest -q
