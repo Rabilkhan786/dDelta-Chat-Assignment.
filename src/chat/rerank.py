@@ -36,7 +36,4 @@ def rerank(query: str, candidates: list[Excerpt]) -> list[Excerpt]:
         key=lambda item: float(item[1]),
         reverse=True,
     )
-    return [
-        replace(item, score=round(float(score), 6))
-        for item, score in ordered
-    ]
+    return [replace(item, score=round(float(score), 6)) for item, score in ordered]
