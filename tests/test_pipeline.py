@@ -28,8 +28,8 @@ def test_scanned_and_native_revisions_use_the_same_delta_pipeline(tmp_path, monk
     for field, filename in [
         ("canonical_a", "a.json"),
         ("canonical_b", "b.json"),
-        ("delta_json", "delta_report.json"),
-        ("delta_markdown", "delta_report.md"),
+        ("delta_json", "custom_delta.json"),
+        ("delta_markdown", "custom_delta.md"),
         ("delta_markup", "markup.pdf"),
     ]:
         monkeypatch.setattr(settings.paths, field, str(tmp_path / filename))
@@ -49,7 +49,10 @@ def test_scanned_and_native_revisions_use_the_same_delta_pipeline(tmp_path, monk
     assert changes[0].change_type.value == "modified"
     assert "10 bar" in changes[0].description and "12 bar" in changes[0].description
     assert result.report["revision_compatibility"]["compatible"]
+    assert len(result.report["entries"]) == 1
+    assert result.report["entries"][0]["delta_id"] == "delta-1"
+    assert result.report["entries"][0]["location_revision"] == "B"
     assert indexed[0][0] == result.pid_a
-    assert (tmp_path / "delta_report.json").exists()
-    assert (tmp_path / "delta_report.md").exists()
+    assert (tmp_path / "custom_delta.json").exists()
+    assert (tmp_path / "custom_delta.md").exists()
     assert result.markup_path.exists()
