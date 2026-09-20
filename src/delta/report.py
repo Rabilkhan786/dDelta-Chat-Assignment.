@@ -1,4 +1,4 @@
-"""Render the delta as a human-readable Markdown report and a machine-readable JSON report."""
+"""Render the delta as human-readable Markdown and machine-readable JSON."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from src.canonical.model import CanonicalDocument, DeltaEntry
+from src.canonical.model import CanonicalDocument, DeltaEntry, DeltaType
 from src.delta.compatibility import CompatibilityResult
 from src.observability.logging import get_logger, stage
 
@@ -14,11 +14,13 @@ logger = get_logger(__name__)
 
 
 class DeltaReportGenerator:
-    """Builds one report dict, then writes it as both Markdown and JSON."""
+    """Build one report and write it to the configured JSON and Markdown paths."""
 
-    def __init__(self, output_dir: Path):
-        self.output_dir = output_dir
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self, json_path: Path, markdown_path: Path) -> None:
+        self.json_path = json_path
+        self.markdown_path = markdown_path
+        self.json_path.parent.mkdir(parents=True, exist_ok=True)
+        self.markdown_path.parent.mkdir(parents=True, exist_ok=True)
 
     def generate(
         self,
@@ -27,7 +29,7 @@ class DeltaReportGenerator:
         deltas: list[DeltaEntry],
         compatibility: CompatibilityResult | None = None,
     ) -> dict:
-        """Build the report and write it to disk. Returns the dict for indexing/eval."""
+        """Build the report and write both configured artifacts."""
         with stage(logger, "delta_report_generation"):
             report = self._build_report(old_doc, new_doc, deltas, compatibility)
             self._write_markdown(report)
@@ -42,20 +44,20 @@ class DeltaReportGenerator:
         compatibility: CompatibilityResult | None,
     ) -> dict:
         counts = Counter(delta.change_type.value for delta in deltas)
+        changes = [delta for delta in deltas if delta.change_type != DeltaType.UNCHANGED]
+
         report = {
             "documents": {
                 "old": old_doc.metadata.file_name,
                 "new": new_doc.metadata.file_name,
+                "pid_a": old_doc.metadata.pid,
+                "pid_b": new_doc.metadata.pid,
                 "old_revision": old_doc.metadata.revision,
                 "new_revision": new_doc.metadata.revision,
-                "pid": old_doc.metadata.pid,
             },
             "summary": {
                 "total_entries": len(deltas),
-                "actual_changes": counts.get("modified", 0)
-                + counts.get("moved", 0)
-                + counts.get("added", 0)
-                + counts.get("removed", 0),
+                "actual_changes": len(changes),
                 "unchanged": counts.get("unchanged", 0),
                 "modified": counts.get("modified", 0),
                 "added": counts.get("added", 0),
@@ -64,6 +66,7 @@ class DeltaReportGenerator:
             },
             "entries": [],
         }
+
         if compatibility:
             report["revision_compatibility"] = {
                 "score": compatibility.score,
@@ -71,11 +74,15 @@ class DeltaReportGenerator:
                 "warning": compatibility.message,
             }
 
-        for delta in deltas:
+        for index, delta in enumerate(changes, start=1):
             entry = {
+                "delta_id": f"delta-{index}",
                 "change_type": delta.change_type.value,
                 "element_type": delta.element_type.value,
                 "page_number": delta.page_number,
+                "location_revision": (
+                    "A" if delta.change_type == DeltaType.REMOVED else "B"
+                ),
                 "confidence": round(delta.confidence, 2),
                 "description": delta.description,
                 "element_id": delta.element_id,
@@ -90,59 +97,84 @@ class DeltaReportGenerator:
 
     def _write_markdown(self, report: dict) -> None:
         summary = report["summary"]
+        documents = report["documents"]
+
         lines = [
             "# Delta Report",
             "",
             "## Document Information",
             "",
-            f"Old Document : {report['documents']['old']}",
-            "",
-            f"New Document : {report['documents']['new']}",
-            "",
-            "## Summary",
-            "",
-            f"- Total Entries  : {summary['total_entries']}",
-            f"- Actual Changes : {summary['actual_changes']}",
-            "",
-            f"- Unchanged : {summary['unchanged']}",
-            f"- Modified  : {summary['modified']}",
-            f"- Added     : {summary['added']}",
-            f"- Removed   : {summary['removed']}",
-            "",
-            f"- Moved     : {summary['moved']}",
-            "",
-            "---",
-            "",
-            "## Delta Entries",
+            f"- PID A: {documents['pid_a']} ({documents['old']})",
+            f"- PID B: {documents['pid_b']} ({documents['new']})",
             "",
         ]
+
         compatibility = report.get("revision_compatibility")
         if compatibility and compatibility["warning"]:
-            lines[4:4] = ["## Compatibility warning", "", compatibility["warning"], ""]
+            lines.extend(
+                [
+                    "## Compatibility Warning",
+                    "",
+                    compatibility["warning"],
+                    "",
+                ]
+            )
 
-        for index, entry in enumerate(report["entries"], start=1):
-            lines += [
-                f"### Entry {index}",
+        lines.extend(
+            [
+                "## Summary",
                 "",
-                f"- Type : {entry['change_type']}",
-                f"- Element : {entry['element_type']}",
-                f"- Page : {entry['page_number']}",
-                f"- Confidence : {entry['confidence']:.2f}",
-                f"- Description : {entry['description']}",
+                f"- Compared entries: {summary['total_entries']}",
+                f"- Actual changes: {summary['actual_changes']}",
+                f"- Unchanged: {summary['unchanged']}",
+                f"- Modified: {summary['modified']}",
+                f"- Added: {summary['added']}",
+                f"- Removed: {summary['removed']}",
+                f"- Moved: {summary['moved']}",
+                "",
+                "---",
+                "",
+                "## Changes",
+                "",
             ]
+        )
+
+        if not report["entries"]:
+            lines.extend(["No meaningful changes were detected.", ""])
+
+        for entry in report["entries"]:
+            lines.extend(
+                [
+                    f"### {entry['delta_id']}",
+                    "",
+                    f"- Type: {entry['change_type']}",
+                    f"- Element: {entry['element_type']}",
+                    f"- Revision location: {entry['location_revision']}",
+                    f"- Page: {entry['page_number']}",
+                    f"- Confidence: {entry['confidence']:.2f}",
+                    f"- Description: {entry['description']}",
+                ]
+            )
             if "bounding_box" in entry:
                 bbox = entry["bounding_box"]
                 lines.append(
-                    f"- Bounding Box : ({bbox['x0']:.2f}, {bbox['y0']:.2f}) → ({bbox['x1']:.2f}, {bbox['y1']:.2f})"
+                    "- Bounding Box: "
+                    f"({bbox['x0']:.2f}, {bbox['y0']:.2f}) -> "
+                    f"({bbox['x1']:.2f}, {bbox['y1']:.2f})"
                 )
             lines.append("")
 
-        self._write_text("delta_report.md", "\n".join(lines))
+        self._write_text(self.markdown_path, "\n".join(lines))
 
     def _write_json(self, report: dict) -> None:
-        self._write_text("delta_report.json", json.dumps(report, indent=2, sort_keys=True))
+        self._write_text(
+            self.json_path,
+            json.dumps(report, indent=2, sort_keys=True),
+        )
 
-    def _write_text(self, file_name: str, content: str) -> None:
-        """Keep generated reports LF-normalized on every operating system."""
-        with (self.output_dir / file_name).open("w", encoding="utf-8", newline="\n") as output_file:
+    @staticmethod
+    def _write_text(path: Path, content: str) -> None:
+        """Write LF-normalized report output on every operating system."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w", encoding="utf-8", newline="\n") as output_file:
             output_file.write(content)
