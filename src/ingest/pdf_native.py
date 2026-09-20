@@ -3,7 +3,7 @@
 from hashlib import sha256
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 from src.canonical.model import BoundingBox, CanonicalDocument, DocumentMetadata, Element, Page
 from src.ingest.base import FormatAdapter
@@ -29,9 +29,9 @@ class NativePDFAdapter(FormatAdapter):
         if not file_path.is_file():
             raise FileNotFoundError(f"PDF does not exist: {file_path}")
         try:
-            with fitz.open(file_path) as pdf:
+            with pymupdf.open(file_path) as pdf:
                 return sum(len(page.get_text("text").strip()) for page in pdf)
-        except fitz.FileDataError as error:
+        except pymupdf.FileDataError as error:
             raise ValueError(f"Unable to open PDF '{file_path.name}'.") from error
 
     def parse(self, file_path: Path) -> CanonicalDocument:
@@ -43,12 +43,12 @@ class NativePDFAdapter(FormatAdapter):
 
         with stage(logger, "native_pdf_ingestion"):
             try:
-                with fitz.open(file_path) as pdf:
+                with pymupdf.open(file_path) as pdf:
                     pages = [
                         self._parse_page(pdf_page, page_number)
                         for page_number, pdf_page in enumerate(pdf, start=1)
                     ]
-            except fitz.FileDataError as error:
+            except pymupdf.FileDataError as error:
                 raise ValueError(f"Unable to open PDF '{file_path.name}'.") from error
 
         return CanonicalDocument(
@@ -62,7 +62,7 @@ class NativePDFAdapter(FormatAdapter):
         )
 
     @staticmethod
-    def _parse_page(pdf_page: fitz.Page, page_number: int) -> Page:
+    def _parse_page(pdf_page: pymupdf.Page, page_number: int) -> Page:
         elements: list[Element] = []
         text = pdf_page.get_text("dict")
         line_index = 0
