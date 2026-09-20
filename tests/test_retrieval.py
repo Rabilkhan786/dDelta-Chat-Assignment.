@@ -1,4 +1,4 @@
-"""Unit tests for the deterministic pieces of hybrid retrieval."""
+"""Hybrid retrieval, metadata, fusion, and candidate-pool tests."""
 
 from types import SimpleNamespace
 
@@ -7,6 +7,8 @@ import pytest
 from src.canonical.model import CanonicalDocument, DocumentMetadata, Element, ElementType, Page
 from src.chat import index
 from src.chat.index import Excerpt, reciprocal_rank_fusion
+
+# Chat Index
 
 
 def test_rrf_rewards_an_identifier_found_by_both_retrievers() -> None:

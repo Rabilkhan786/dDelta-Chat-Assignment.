@@ -1,9 +1,18 @@
+"""Grounded answers, prompts, reranking, and provider-boundary tests."""
+
+from types import SimpleNamespace
+
 import pytest
 
-from src.chat import index
+from src.chat import index, llm, rerank
 from src.chat.answer import GroundedChatService
 from src.chat.index import Excerpt
-from src.chat.llm import LLMResponse
+from src.chat.llm import GroqChatProvider, LLMResponse
+from src.chat.prompt import build_grounded_prompt
+from src.chat.query import keyword_tokens
+from src.config.settings import settings
+
+# Chat Answer
 
 
 class FakeProvider:
@@ -213,3 +222,127 @@ def test_chat_rejects_unknown_element_citation(monkeypatch):
     result = GroundedChatService(UnknownElementProvider()).answer("What was removed?")
 
     assert result.status == "unsupported"
+
+
+# Chat Support
+
+
+def test_missing_groq_key_fails_with_a_clear_message(monkeypatch) -> None:
+    monkeypatch.setattr(llm, "load_dotenv", lambda: None)
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+
+    with pytest.raises(RuntimeError, match="GROQ_API_KEY"):
+        GroqChatProvider()
+
+
+def test_groq_completion_returns_text_tokens_and_cost() -> None:
+    calls = []
+
+    def create(**kwargs):
+        calls.append(kwargs)
+        return SimpleNamespace(
+            usage=SimpleNamespace(prompt_tokens=100, completion_tokens=20),
+            choices=[SimpleNamespace(message=SimpleNamespace(content="grounded answer"))],
+        )
+
+    provider = object.__new__(GroqChatProvider)
+    provider.client = SimpleNamespace(
+        chat=SimpleNamespace(completions=SimpleNamespace(create=create))
+    )
+
+    response = provider.complete("evidence prompt")
+
+    assert response.text == "grounded answer"
+    assert response.input_tokens == 100
+    assert response.output_tokens == 20
+    assert response.estimated_cost_usd is not None
+    assert calls[0]["model"] == settings.llm.model
+
+
+def test_cost_estimate_uses_configured_token_rates() -> None:
+    assert GroqChatProvider._estimate_cost(1_000_000, 1_000_000) == 0.375
+    assert GroqChatProvider._estimate_cost(None, 1) is None
+
+
+def test_configured_provider_rejects_unknown_provider(monkeypatch) -> None:
+    monkeypatch.setattr(settings.llm, "provider", "unknown")
+    with pytest.raises(ValueError, match="Unsupported LLM provider"):
+        llm.configured_provider()
+
+
+def test_configured_provider_builds_groq_provider(monkeypatch) -> None:
+    sentinel = object()
+    monkeypatch.setattr(settings.llm, "provider", "groq")
+    monkeypatch.setattr(llm, "GroqChatProvider", lambda: sentinel)
+    assert llm.configured_provider() is sentinel
+
+
+# Query tokenization
+
+
+def test_keyword_tokens_match_common_identifier_formats() -> None:
+    compact = set(keyword_tokens("PSV9066A"))
+    spaced = set(keyword_tokens("PSV 9066A"))
+    hyphenated = set(keyword_tokens("PSV-9066A"))
+
+    assert {"psv", "9066a"} <= compact & spaced & hyphenated
+    assert "1.5" in keyword_tokens("1.5 bar")
+
+
+# Cross-encoder reranking
+
+
+class _FakeCrossEncoder:
+    def predict(self, pairs: list[tuple[str, str]]) -> list[float]:
+        return [0.1 if "weak" in text else 0.9 for _, text in pairs]
+
+
+def test_cross_encoder_reranker_changes_candidate_order(monkeypatch) -> None:
+    monkeypatch.setattr(rerank, "_model", lambda: _FakeCrossEncoder())
+    candidates = [
+        Excerpt("weak evidence", "pid_a", "A", 1, "a"),
+        Excerpt("strong evidence", "pid_b", "B", 1, "b"),
+    ]
+
+    ranked = rerank.rerank("question", candidates)
+
+    assert ranked[0].element_id == "b"
+    assert len(ranked) == 2
+
+
+def test_reranker_orders_candidates_without_dropping_negative_scores(monkeypatch):
+    class ScoredModel:
+        def predict(self, pairs):
+            return [-5.0] + [2.0] * (len(pairs) - 1)
+
+    monkeypatch.setattr(rerank, "_model", lambda: ScoredModel())
+    candidates = [Excerpt(f"evidence {i}", "pid_a", "A", 1, str(i)) for i in range(8)]
+
+    results = rerank.rerank("question", candidates)
+
+    assert len(results) == 8
+    assert results[-1].element_id == "0"
+
+
+def test_reranker_returns_empty_input_without_loading_a_model(monkeypatch) -> None:
+    monkeypatch.setattr(
+        rerank,
+        "_model",
+        lambda: (_ for _ in ()).throw(AssertionError("model should not load")),
+    )
+    assert rerank.rerank("question", []) == []
+
+
+# Grounded prompt construction
+
+
+def test_prompt_preserves_question_and_limits_unnecessary_citations() -> None:
+    question = "Could you walk me through 9066C in the newer drawing?"
+    evidence = [Excerpt("9066C", "pid_b", "revision_b", 1, "p1_l873")]
+
+    prompt = build_grounded_prompt(question, evidence)
+
+    assert f"Question: {question}" in prompt
+    assert "Use the minimum citations needed" in prompt
+    assert "do not add change history unless the question asks for it" in prompt
+    assert "[pid_b | PID revision_b | page 1 | p1_l873]" in prompt

@@ -270,7 +270,7 @@ src/
   observability/   structured JSON request traces
   api.py           optional FastAPI wrapper
 eval/              label-driven metrics and scorecard
-tests/             flat, module-named unit and integration tests
+tests/             seven feature-level unit and integration test files
 data/samples/      sample pairs and provenance notes
 ```
 
