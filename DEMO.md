@@ -68,10 +68,12 @@ threshold, the service says it cannot support an answer instead of guessing.
 `Who won the World Cup?` returned no evidence in the recorded local smoke check.
 This one example does not establish rejection accuracy for all unsupported queries.
 
-The semantic retriever and cross-encoder receive the original user question
-unchanged. BM25 tokenization handles compact, spaced, and hyphenated technical
-identifiers without creating a rewritten query. Citations identify the current
-index snapshot; delta entry numbers can change when a different pair is indexed.
+The retriever searches PID A, PID B, and the delta report together for every
+question. There is no query rewriting or source routing. A delta-summary excerpt
+helps broad questions such as `What changed?` retrieve the actual report
+changes, while BM25 still handles exact technical identifiers. Citations
+identify the current index snapshot; delta entry numbers can change when a
+different pair is indexed.
 
 ## 4. Show a request trace
 
