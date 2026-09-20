@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from src.canonical.model import CanonicalDocument, DocumentMetadata, Element, ElementType, Page
 from src.chat import index
 from src.chat.index import Excerpt, reciprocal_rank_fusion
 
@@ -23,6 +24,53 @@ def test_keyword_tokens_match_compact_spaced_and_hyphenated_tags() -> None:
 
     assert {"psv", "9066a"} <= compact & spaced & hyphenated
     assert "1.5" in index.keyword_tokens("1.5 bar")
+
+
+def test_indexed_pid_text_has_no_retrieval_scaffolding() -> None:
+    document = CanonicalDocument(
+        metadata=DocumentMetadata(
+            document_id="id",
+            pid="pid-a",
+            file_name="a.pdf",
+            file_type="pdf",
+            revision="A",
+        ),
+        pages=[
+            Page(
+                page_number=1,
+                width=100,
+                height=100,
+                elements=[
+                    Element(
+                        id="a-1",
+                        page_number=1,
+                        type=ElementType.TEXT,
+                        text="PSV-9066A",
+                    )
+                ],
+            )
+        ],
+    )
+
+    assert index._document_excerpts(document, "pid_a")[0].text == "PSV-9066A"
+
+
+def test_keyword_search_ignores_revision_scaffolding_and_rewards_change_words() -> None:
+    ordinary = Excerpt("pump pressure", "pid_b", "B", 1, "pump")
+    existing_note = Excerpt("NOTE 33", "pid_b", "B", 1, "note-33")
+    added_note = Excerpt(
+        "Delta report change. added: Added note: NOTE 24 NEW BLOWDOWN VALVE",
+        "delta_report",
+        "B",
+        1,
+        "delta-3",
+    )
+    scores = index._keyword_scores(
+        "What note was added in revision B?", [ordinary, existing_note, added_note]
+    )
+
+    assert index._excerpt_id(ordinary) not in scores
+    assert scores[index._excerpt_id(added_note)] > scores[index._excerpt_id(existing_note)]
 
 
 class FakeStore:
@@ -175,3 +223,44 @@ def test_fusion_has_no_source_specific_boost() -> None:
     results = index._fuse_candidates(items, lexical, semantic)
 
     assert results[0].score == results[1].score
+
+
+def test_reranker_pool_reserves_candidates_from_each_retriever() -> None:
+    lexical_target = Excerpt("exact identifier", "delta_report", "B", 1, "lexical")
+    semantic_target = Excerpt("semantic meaning", "pid_b", "B", 1, "semantic")
+    fused_target = Excerpt("supported by both", "pid_a", "A", 1, "fused")
+    items = [lexical_target, semantic_target, fused_target]
+    lexical = {
+        index._excerpt_id(lexical_target): 3,
+        index._excerpt_id(fused_target): 2,
+    }
+    semantic = {
+        index._excerpt_id(semantic_target): 3,
+        index._excerpt_id(fused_target): 2,
+    }
+    fused = index._fuse_candidates(items, lexical, semantic)
+
+    pool = index._balanced_candidate_pool(items, fused, lexical, semantic, count=1)
+
+    assert {item.element_id for item in pool} == {"lexical", "semantic", "fused"}
+
+
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        ("What changed in revision B?", "delta_report"),
+        ("What does revision A say?", "pid_a"),
+        ("Show revision B", "pid_b"),
+        ("Compare revision A and revision B", None),
+        ("Show the heat exchanger", None),
+    ],
+)
+def test_query_routing_is_a_small_source_preference(query, expected) -> None:
+    assert index.route_question(query) == expected
+
+
+def test_source_preference_reorders_without_filtering() -> None:
+    pid = Excerpt("PID evidence", "pid_b", "B", 1, "pid")
+    delta = Excerpt("delta evidence", "delta_report", "B", 1, "delta")
+    reordered = index.prefer_source([pid, delta], "delta_report")
+    assert reordered == [delta, pid]

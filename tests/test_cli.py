@@ -6,6 +6,14 @@ import main
 from src.chat.answer import GroundedAnswer
 
 
+class _ConsoleStream:
+    def __init__(self):
+        self.settings = None
+
+    def reconfigure(self, **settings):
+        self.settings = settings
+
+
 def test_run_can_chat_with_the_pipeline_request_id(monkeypatch):
     result = SimpleNamespace(
         report={"summary": {"actual_changes": 3}}, indexed_documents=8, request_id="demo-request"
@@ -25,3 +33,13 @@ def test_run_can_chat_with_the_pipeline_request_id(monkeypatch):
 
 def test_plain_run_does_not_require_a_question():
     assert main.parser().parse_args(["run"]).question is None
+
+
+def test_console_uses_utf8_for_model_punctuation(monkeypatch):
+    output = _ConsoleStream()
+    errors = _ConsoleStream()
+    monkeypatch.setattr(main.sys, "stdout", output)
+    monkeypatch.setattr(main.sys, "stderr", errors)
+    main.configure_console_output()
+    assert output.settings == {"encoding": "utf-8", "errors": "replace"}
+    assert errors.settings == {"encoding": "utf-8", "errors": "replace"}

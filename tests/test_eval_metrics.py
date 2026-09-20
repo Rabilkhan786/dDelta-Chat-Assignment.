@@ -39,3 +39,7 @@ def test_missing_labels_and_empty_answers_are_not_scored_as_success():
     assert citation_accuracy([], ["pid_a"]) == 0
     assert citation_coverage([], []) == 0
     assert retrieval_recall_at_k([], [], 5) == 0
+
+
+def test_answer_keywords_tolerate_model_unicode_spacing():
+    assert answer_correct("Added NOTE\u202f24 for the valve", ["NOTE 24"])

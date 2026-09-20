@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from dataclasses import dataclass
 from hashlib import sha256
 from typing import Any
@@ -46,8 +47,13 @@ def answer_correct(answer_text: str, expected_keywords: list[str]) -> bool:
     """Keyword-coverage proxy, not a test of factual correctness or entailment."""
     if not expected_keywords:
         return False
-    lowered = answer_text.lower()
-    return all(keyword.lower() in lowered for keyword in expected_keywords)
+    normalized_answer = _normalized_text(answer_text)
+    return all(_normalized_text(keyword) in normalized_answer for keyword in expected_keywords)
+
+
+def _normalized_text(text: str) -> str:
+    """Normalize harmless Unicode/whitespace variants before keyword scoring."""
+    return " ".join(unicodedata.normalize("NFKC", text).casefold().split())
 
 
 def citation_accuracy(citations: list[str], expected_fragments: list[str]) -> float:

@@ -1,6 +1,7 @@
 """Grounded answer orchestration and citation enforcement."""
 
 import re
+import unicodedata
 import uuid
 from dataclasses import dataclass
 
@@ -19,6 +20,7 @@ CITATION_BRACKETS = str.maketrans(
         "］": "]",
     }
 )
+BRACKET_PATTERN = re.compile(r"\[[^\[\]\n]+\]")
 
 
 @dataclass(frozen=True)
@@ -66,9 +68,8 @@ class GroundedChatService:
                     request_id,
                     "provider_error",
                 )
-            normalized_text = response.text.translate(CITATION_BRACKETS)
-            used = list(dict.fromkeys(re.findall(r"\[[^\[\]\n]+\]", normalized_text)))
-            if not used or any(item not in citations for item in used):
+            normalized_text, used, unknown = _normalize_citations(response.text, citations)
+            if not used or unknown:
                 logger.warning("answer_citations_rejected", extra={"citation_count": len(used)})
                 return GroundedAnswer(
                     "I cannot support a cited answer from the retrieved evidence.",
@@ -80,3 +81,32 @@ class GroundedChatService:
             # Valid source references do not by themselves prove factual entailment.
             logger.info("answer_completed", extra={"citations_used": len(used)})
             return GroundedAnswer(normalized_text, used, request_id)
+
+
+def _normalize_citations(text: str, allowed: list[str]) -> tuple[str, list[str], list[str]]:
+    """Normalize citation typography while preserving exact source identity."""
+    text = text.translate(CITATION_BRACKETS)
+    allowed_by_key = {_citation_key(item): item for item in allowed}
+    used: list[str] = []
+    unknown: list[str] = []
+
+    def replace(match: re.Match) -> str:
+        candidate = match.group(0)
+        # Bracketed prose is not a citation. Citations have pipe-separated
+        # source, PID, page, and element fields.
+        if "|" not in candidate:
+            return candidate
+        canonical = allowed_by_key.get(_citation_key(candidate))
+        if canonical is None:
+            unknown.append(candidate)
+            return candidate
+        used.append(canonical)
+        return canonical
+
+    normalized_text = BRACKET_PATTERN.sub(replace, text)
+    return normalized_text, list(dict.fromkeys(used)), unknown
+
+
+def _citation_key(citation: str) -> str:
+    """Treat Unicode spaces as formatting, never as a different source."""
+    return " ".join(unicodedata.normalize("NFKC", citation).split())

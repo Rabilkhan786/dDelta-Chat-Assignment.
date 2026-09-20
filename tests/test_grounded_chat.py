@@ -133,3 +133,53 @@ def test_chat_rejects_unicode_bracket_variant_for_unknown_citation(monkeypatch):
 
     assert result.status == "unsupported"
     assert result.citations == []
+
+
+def test_chat_normalizes_unicode_spaces_inside_known_citation(monkeypatch):
+    class UnicodeSpaceProvider:
+        def complete(self, prompt):
+            return LLMResponse(
+                "Pressure is 10 bar [pid_a | PID A | page\u202f1 | a-1]",
+                1,
+                1,
+                0.0,
+            )
+
+    _stub_search(monkeypatch, [Excerpt("10 bar", "pid_a", "A", 1, "a-1")])
+    result = GroundedChatService(UnicodeSpaceProvider()).answer("pressure?")
+
+    assert result.status == "answered"
+    assert result.text == "Pressure is 10 bar [pid_a | PID A | page 1 | a-1]"
+
+
+def test_chat_allows_bracketed_prose_with_an_exact_citation(monkeypatch):
+    class BracketedProseProvider:
+        def complete(self, prompt):
+            return LLMResponse(
+                "Added [NOTE 24] [pid_a | PID A | page 1 | a-1]",
+                1,
+                1,
+                0.0,
+            )
+
+    _stub_search(monkeypatch, [Excerpt("NOTE 24", "pid_a", "A", 1, "a-1")])
+    result = GroundedChatService(BracketedProseProvider()).answer("note?")
+
+    assert result.status == "answered"
+    assert result.citations == ["[pid_a | PID A | page 1 | a-1]"]
+
+
+def test_chat_still_rejects_unknown_pipe_separated_citation(monkeypatch):
+    class UnknownCitationProvider:
+        def complete(self, prompt):
+            return LLMResponse(
+                "Claim [pid_a | PID A | page 1 | a-1] [invented | citation]",
+                1,
+                1,
+                0.0,
+            )
+
+    _stub_search(monkeypatch, [Excerpt("NOTE 24", "pid_a", "A", 1, "a-1")])
+    result = GroundedChatService(UnknownCitationProvider()).answer("note?")
+
+    assert result.status == "unsupported"

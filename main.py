@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from src.chat.answer import GroundedAnswer, GroundedChatService
@@ -11,6 +12,14 @@ from src.observability.logging import get_logger
 from src.pipeline import DeltaPipeline, adapter_for
 
 logger = get_logger(__name__)
+
+
+def configure_console_output() -> None:
+    """Use UTF-8 so model punctuation cannot crash the Windows CLI."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure:
+            reconfigure(encoding="utf-8", errors="replace")
 
 
 def run_command(arguments: argparse.Namespace) -> None:
@@ -80,5 +89,6 @@ def parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
+    configure_console_output()
     parsed = parser().parse_args()
     parsed.func(parsed)

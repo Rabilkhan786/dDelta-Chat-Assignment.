@@ -28,10 +28,27 @@ The reviewed change labels remain:
 2. `MECHANICAL INTERLOCK` was removed.
 3. `NOTE 24: NEW BLOWDOWN VALVE ADDED PER REV B.` was added.
 
-The current QA dataset contains five retrieval/chat cases covering Revision A,
+The current QA dataset contains six retrieval/chat cases covering Revision A,
 Revision B, and each of the three delta-report entries. Rerun
 `uv run python -m eval.run_eval` after `uv run python main.py run` to obtain
 current metrics.
+
+## Latest local validation
+
+The configured Groq provider was exercised successfully on 21 September 2026.
+On the supplied primary pair and the small checked-in labels, the run produced:
+
+- Delta precision/recall/F1: `1.0 / 1.0 / 1.0` over three labelled changes.
+- Retrieval Recall@5: `1.0` over six questions.
+- Retrieval MRR: `0.9167` over six questions.
+- Answer keyword correctness: `1.0` over six generated answers.
+- Citation accuracy: `0.7639`; broad answers sometimes included additional,
+  valid retrieved citations beyond the expected fragments.
+- Citation coverage: `1.0` over six generated answers.
+
+All six generation cases completed with status `answered`. Token counts and
+estimated cost were recorded in the local request traces. These are regression
+smoke results for a tiny dataset, not a general accuracy claim.
 
 ## Known failure and stress cases
 

@@ -144,22 +144,31 @@ cross-encoder reranker (small candidate list)
 BM25 is important for identifiers such as `PSV-9066`, `P-101`, `DN150`, and
 `10 bar`; semantic search is useful for questions such as “what pressure
 changes happened?”. A compact cross-encoder (`ms-marco-MiniLM-L-6-v2`) then
-reranks only the post-RRF candidates. It is configurable in `config.yaml` and
+reranks a balanced short list from BM25, semantic search, and RRF. Reserving
+candidates from each method prevents semantic results from crowding an exact
+identifier or change out before reranking. It is configurable in `config.yaml` and
 can be disabled for a faster, RRF-only demo. `retrieval.top_k` is the single final
-result limit; `candidate_k` controls the short list sent to the reranker.
+result limit; `candidate_k` controls how many candidates each retrieval method
+can contribute to the reranker.
 
-### Query handling: no rewriting and no routing
+### Query handling: no rewriting, one small source preference
 
 Every question searches the same evidence collection: PID A, PID B, and the
-generated delta report. There is no query rewriting, query expansion,
-intent-based source routing, source filtering, source boosting, multi-query
-agent, or conversation-memory step.
+generated delta report. A deterministic preference puts delta-report evidence
+first for change questions and the requested PID first for explicit revision-A
+or revision-B questions. Comparison questions keep the cross-encoder order.
+This preference never filters evidence. There is no query rewriting, query
+expansion, source filtering, multi-query agent, or conversation-memory step.
 
 BM25 tokenization handles common technical identifier formatting without
 changing the query itself. For example, compact, spaced, and hyphenated forms
 such as `PSV9066A`, `PSV 9066A`, and `PSV-9066A` expose compatible lexical
 tokens. Chroma semantic search and the cross-encoder receive the original
 question unchanged.
+
+Only extracted source text is indexed; labels such as “Revision B document
+text” stay in metadata and citations. Common question/scaffolding words are
+excluded from BM25 so they cannot make every excerpt look like a keyword hit.
 
 The delta report includes an aggregate-only summary excerpt with the number and
 types of detected changes. Individual `delta-N` excerpts carry the actual change
@@ -242,7 +251,8 @@ confuse the simple line matcher, OCR can misread small dense drawing text, and
 document-token overlap is only a warning—not a revision guarantee.
 The supplied dense scanned/native same-content pair produced 853 false changes
 in the local stress check; it is **not a supported accuracy benchmark**. See
-[eval/RESULTS.md](eval/RESULTS.md) for the measured results and generation gap.
+[eval/RESULTS.md](eval/RESULTS.md) for the measured live smoke results and
+documented limitations.
 
 ## Repository map
 

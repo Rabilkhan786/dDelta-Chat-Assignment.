@@ -24,7 +24,8 @@ logger = get_logger(__name__)
 
 TOKEN_PATTERN = re.compile(r"[A-Za-z]+\d+[A-Za-z]*|\d+(?:\.\d+)?[A-Za-z]*|[A-Za-z]+")
 STOP_WORDS = frozenset(
-    "a an the what which is are was were do does did on of to for in and please".split()
+    "a an the what which is are was were do does did on of to for in and please "
+    "about say says revision document text".split()
 )
 
 
@@ -66,10 +67,9 @@ def _vector_store() -> Chroma:
 
 def _document_excerpts(document: CanonicalDocument, source: str) -> list[Excerpt]:
     """Create searchable excerpts from one canonical PID revision."""
-    revision = document.metadata.revision or "unknown"
     return [
         Excerpt(
-            f"Revision {revision} document text: {element.text.strip()}",
+            element.text.strip(),
             source,
             document.metadata.pid,
             page.page_number,
@@ -203,13 +203,22 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
             lexical_scores,
             semantic_scores,
         )
-        candidates = fused_candidates[:candidate_count]
-
         if settings.reranker.enabled:
             from src.chat.rerank import rerank
 
+            candidates = _balanced_candidate_pool(
+                all_items,
+                fused_candidates,
+                lexical_scores,
+                semantic_scores,
+                candidate_count,
+            )
             candidates = rerank(query, candidates)
+        else:
+            candidates = fused_candidates[:candidate_count]
 
+        preferred_source = route_question(query)
+        candidates = prefer_source(candidates, preferred_source)
         results = candidates[:result_count]
         logger.info(
             "retrieval_completed",
@@ -219,6 +228,8 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
                 "keyword_hits": len(lexical_scores),
                 "semantic_hits": len(semantic_scores),
                 "fused_candidates": len(fused_candidates),
+                "reranked_candidates": len(candidates),
+                "preferred_source": preferred_source or "all",
                 "reranker_enabled": settings.reranker.enabled,
             },
         )
@@ -230,7 +241,7 @@ def keyword_tokens(text: str) -> list[str]:
     tokens: list[str] = []
     for raw_token in TOKEN_PATTERN.findall(text):
         token = raw_token.lower()
-        if token in STOP_WORDS:
+        if token in STOP_WORDS or len(token) == 1:
             continue
 
         tokens.append(token)
@@ -287,6 +298,47 @@ def _fuse_candidates(
         candidates,
         key=lambda item: (-(item.score or 0), _excerpt_id(item)),
     )
+
+
+def _balanced_candidate_pool(
+    items: list[Excerpt],
+    fused: list[Excerpt],
+    lexical: dict[str, float],
+    semantic: dict[str, float],
+    count: int,
+) -> list[Excerpt]:
+    """Reserve reranker candidates from fusion and from each retriever."""
+    item_by_id = {_excerpt_id(item): item for item in items}
+    fused_ids = [_excerpt_id(item) for item in fused[:count]]
+    lexical_ids = sorted(lexical, key=lambda key: (-lexical[key], key))[:count]
+    semantic_ids = sorted(semantic, key=lambda key: (-semantic[key], key))[:count]
+    selected_ids = list(dict.fromkeys(fused_ids + lexical_ids + semantic_ids))
+    return [item_by_id[item_id] for item_id in selected_ids]
+
+
+def route_question(query: str) -> str | None:
+    """Return a soft source preference; comparison questions keep all sources."""
+    text = query.lower()
+    revision_a = re.search(r"\b(?:(?:rev(?:ision)?|pid)\.? a|old revision|base revision)\b", text)
+    revision_b = re.search(r"\b(?:(?:rev(?:ision)?|pid)\.? b|new revision|revised)\b", text)
+    if (revision_a and revision_b) or re.search(
+        r"\b(?:compare|comparison|differences?|between)\b", text
+    ):
+        return None
+    if re.search(r"\b(?:changes?|changed|added|removed|modified|moved)\b", text):
+        return "delta_report"
+    if revision_a:
+        return "pid_a"
+    if revision_b:
+        return "pid_b"
+    return None
+
+
+def prefer_source(candidates: list[Excerpt], preferred_source: str | None) -> list[Excerpt]:
+    """Put preferred evidence first without discarding any candidate."""
+    if preferred_source is None:
+        return candidates
+    return sorted(candidates, key=lambda item: item.source != preferred_source)
 
 
 def reciprocal_rank_fusion(
