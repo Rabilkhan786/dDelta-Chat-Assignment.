@@ -91,10 +91,18 @@ def _delta_excerpts(report: dict, pid: str, revision: str | None) -> list[Excerp
     excerpts: list[Excerpt] = []
 
     if entries:
-        details = " ".join(f"{entry['change_type']}: {entry['description']}" for entry in entries)
+        summary = report.get("summary", {})
+        actual_changes = int(summary.get("actual_changes", len(entries)))
+        modified = int(summary.get("modified", 0))
+        removed = int(summary.get("removed", 0))
+        added = int(summary.get("added", 0))
+        moved = int(summary.get("moved", 0))
         excerpts.append(
             Excerpt(
-                f"Delta report summary. {len(entries)} changes detected. {details}",
+                "Delta report summary. "
+                f"{actual_changes} changes detected: "
+                f"{modified} modified, {removed} removed, "
+                f"{added} added, {moved} moved.",
                 "delta_report",
                 pid,
                 1,
