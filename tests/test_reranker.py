@@ -28,10 +28,7 @@ def test_reranker_orders_candidates_without_dropping_negative_scores(monkeypatch
             return [-5.0] + [2.0] * (len(pairs) - 1)
 
     monkeypatch.setattr(rerank, "_model", lambda: ScoredModel())
-    candidates = [
-        Excerpt(f"evidence {i}", "pid_a", "A", 1, str(i))
-        for i in range(8)
-    ]
+    candidates = [Excerpt(f"evidence {i}", "pid_a", "A", 1, str(i)) for i in range(8)]
 
     results = rerank.rerank("question", candidates)
 
