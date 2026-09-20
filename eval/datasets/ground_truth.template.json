@@ -7,10 +7,11 @@
     {
       "question": "What changed near the compressor?",
       "expected_answer_keywords": ["compressor"],
-      "expected_citations": ["pid_b | page 1"]
+      "expected_citations": ["delta_report | PID revision_b | page 1 | delta-1"],
+      "expected_retrieval_ids": ["delta-1"]
     }
   ],
   "known_failure_cases": [
-    "Describe here where the system is known to fall short, e.g. moved content that alignment fails to match."
+    "Describe where the system is known to fall short, for example moved content that alignment fails to match."
   ]
 }
