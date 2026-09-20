@@ -15,7 +15,7 @@ from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from rank_bm25 import BM25Plus
 
-from src.canonical.model import CanonicalDocument, DeltaEntry
+from src.canonical.model import CanonicalDocument
 from src.config.settings import project_path, settings
 from src.observability.logging import get_logger, stage
 
@@ -82,35 +82,38 @@ def _document_excerpts(document: CanonicalDocument, source: str) -> list[Excerpt
     ]
 
 
-def _delta_excerpts(deltas: list[DeltaEntry], pid: str, revision: str | None) -> list[Excerpt]:
-    changes = [delta for delta in deltas if delta.change_type.value != "unchanged"]
-    return [
-        Excerpt(
-            f"{delta.change_type.value}: {delta.description}",
-            "delta_report",
-            pid,
-            delta.page_number,
-            f"delta-{index}",
-            revision,
-            delta.element_type.value,
-            delta.change_type.value,
-            json.dumps(delta.region.model_dump()) if delta.region else None,
-            delta.confidence,
+def _delta_excerpts(report: dict, pid: str, revision: str | None) -> list[Excerpt]:
+    """Create chat evidence directly from the generated delta-report entries."""
+    excerpts = []
+    for entry in report.get("entries", []):
+        bbox = entry.get("bounding_box")
+        excerpts.append(
+            Excerpt(
+                f"{entry['change_type']}: {entry['description']}",
+                "delta_report",
+                pid,
+                int(entry["page_number"]),
+                entry["delta_id"],
+                revision,
+                entry.get("element_type"),
+                entry.get("change_type"),
+                json.dumps(bbox) if bbox else None,
+                float(entry["confidence"]) if entry.get("confidence") is not None else None,
+            )
         )
-        for index, delta in enumerate(changes, start=1)
-    ]
+    return excerpts
 
 
 def build_index(
     pid_a: CanonicalDocument,
     pid_b: CanonicalDocument,
-    deltas: list[DeltaEntry],
+    report: dict,
 ) -> int:
     """Build vector storage; BM25 is rebuilt from the small active corpus."""
     excerpts = (
         _document_excerpts(pid_a, "pid_a")
         + _document_excerpts(pid_b, "pid_b")
-        + _delta_excerpts(deltas, pid_b.metadata.pid, pid_b.metadata.revision)
+        + _delta_excerpts(report, pid_b.metadata.pid, pid_b.metadata.revision)
     )
     if not excerpts:
         raise ValueError("Cannot build a retrieval index from empty canonical documents.")
