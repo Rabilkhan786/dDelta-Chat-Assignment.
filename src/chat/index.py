@@ -87,9 +87,10 @@ def _document_excerpts(document: CanonicalDocument, source: str) -> list[Excerpt
 def _delta_excerpts(
     deltas: list[DeltaEntry], pid: str, revision: str | None
 ) -> list[Excerpt]:
+    changes = [delta for delta in deltas if delta.change_type.value != "unchanged"]
     return [
         Excerpt(
-            f"{delta.change_type.value} {delta.element_type.value}: {delta.description}",
+            f"{delta.change_type.value}: {delta.description}",
             "delta_report",
             pid,
             delta.page_number,
@@ -100,7 +101,7 @@ def _delta_excerpts(
             json.dumps(delta.region.model_dump()) if delta.region else None,
             delta.confidence,
         )
-        for index, delta in enumerate(deltas, start=1)
+        for index, delta in enumerate(changes, start=1)
     ]
 
 
@@ -169,12 +170,13 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
             min(candidate_count, len(all_items)),
         )
         preferred_sources = route_question(query)
-        candidates = _fuse_candidates(
+        fused_candidates = _fuse_candidates(
             all_items,
             lexical_scores,
             semantic_scores,
             preferred_sources,
-        )[:candidate_count]
+        )
+        candidates = fused_candidates[:candidate_count]
 
         if settings.reranker.enabled:
             from src.chat.rerank import rerank
@@ -187,6 +189,9 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
             extra={
                 "hits": len(results),
                 "query": query,
+                "keyword_hits": len(lexical_scores),
+                "semantic_hits": len(semantic_scores),
+                "fused_candidates": len(fused_candidates),
                 "route": sorted(preferred_sources) if preferred_sources else "all",
                 "reranker_enabled": settings.reranker.enabled,
             },
