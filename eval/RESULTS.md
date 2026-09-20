@@ -1,9 +1,12 @@
 # Local validation — 2026-09-20
 
 These are observed smoke-test results, not a claim of general document accuracy.
+Retrieval implementation note: query rewriting and the hard reranker rejection
+threshold were removed after these recorded runs; rerun the scorecard before
+using the numbers as current validation.
 No ground-truth labels were changed during this cleanup.
-Code checks use Ruff and pytest. The suite covers ingestion, query preparation,
-hybrid retrieval, reranking, delta confidence/alignment, citations, API, logging,
+Code checks use Ruff and pytest. The suite covers ingestion, hybrid retrieval,
+reranking, delta confidence/alignment, citations, API, logging,
 metric arithmetic, and a simple native/OCR pipeline. One upstream
 Starlette/httpx deprecation warning remains; it is not a test failure.
 
@@ -43,7 +46,7 @@ establish answer correctness, groundedness, or OCR accuracy.
 | --- | --- |
 | What changed on PSV-9066? | `delta-95`, cross-encoder score approximately 3.034 |
 | What changed on PSV 9066? | Same `delta-95`, score approximately 3.220 |
-| Who won the World Cup? | No evidence after rejection threshold |
+| Who won the World Cup? | No evidence in the recorded pre-cleanup smoke check |
 
 Scores are raw model outputs, not probabilities. Unknown identifier suffixes,
 source constraints, keyword/vector fusion, and citation rejection also have
@@ -55,7 +58,7 @@ controlled unit tests; those are not additional real-document benchmark cases.
 | --- | --- | --- |
 | Supplied different-system PDFs | Overlap 0.465; old 0.12 threshold wrongly accepted them | Threshold now 0.60, with a regression test; still only a heuristic warning |
 | Dense scanned copy versus original native page | OCR recovered 131 lines versus 875 native; 853 reported changes despite the same content; overlap 0.386 | Treat as a failed comparison-quality stress case, not meaningful revisions |
-| Dense scan retrieval | “What does revision A say about compressor?” returned no evidence at the default reranker threshold | False-negative retrieval case; threshold is not calibrated |
+| Dense scan retrieval | “What does revision A say about compressor?” returned no evidence in the recorded run | Historical false-negative case; the hard reranker rejection threshold has since been removed |
 | Sparse-layout OCR experiment (`--psm 11`) | 835 lines and 447 matches, but 901 reported changes on the same-content pair | Do not adopt globally just for higher extraction count; default unchanged |
 | Groq answer generation | Missing key, visible error and evidence references | Needs configured provider and human answer/citation review |
 
