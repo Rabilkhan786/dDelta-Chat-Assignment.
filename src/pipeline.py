@@ -67,7 +67,10 @@ class DeltaPipeline:
             )
             alignment = Aligner().align(pid_a, pid_b)
             deltas = DeltaEngine().compare(alignment)
-            report = DeltaReportGenerator(project_path(settings.paths.delta_json).parent).generate(
+            report = DeltaReportGenerator(
+                project_path(settings.paths.delta_json),
+                project_path(settings.paths.delta_markdown),
+            ).generate(
                 pid_a,
                 pid_b,
                 deltas,
