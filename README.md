@@ -161,9 +161,10 @@ such as `PSV9066A`, `PSV 9066A`, and `PSV-9066A` expose compatible lexical
 tokens. Chroma semantic search and the cross-encoder receive the original
 question unchanged.
 
-The delta report includes a concise summary excerpt containing all detected
-changes. This gives broad questions such as `What changed?` meaningful evidence
-without adding hard-coded question rules.
+The delta report includes an aggregate-only summary excerpt with the number and
+types of detected changes. Individual `delta-N` excerpts carry the actual change
+details. This lets broad questions such as `What changed?` retrieve the overview
+and the precise supporting entries without hard-coded question rules.
 
 ### Unsupported questions and citations
 
