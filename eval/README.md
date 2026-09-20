@@ -45,7 +45,8 @@ not additional human-reviewed drawing labels.
 - Dense OCR can split or misread labels, creating false deltas.
 - A moved and substantially edited label can become an addition and a removal.
 - Shared boilerplate can make unrelated drawings pass the compatibility check.
-- Query preparation cannot resolve pronouns or infer unstated equipment tags.
-- Reranker thresholds can reject valid evidence; tune precision and recall on
-  a larger reviewed set, not just the supplied positive question.
+- Direct-query retrieval does not resolve pronouns or infer unstated equipment tags.
+- The semantic similarity cutoff can still reject valid evidence; tune
+  precision and recall on a larger reviewed set, not just the supplied positive
+  question. The reranker itself only changes candidate order.
 - No live generated-answer score is valid until a configured provider run succeeds.
