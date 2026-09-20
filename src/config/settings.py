@@ -36,14 +36,12 @@ class RetrievalConfig(BaseModel):
     candidate_k: int = Field(gt=0)
     rrf_k: int = Field(gt=0)
     minimum_vector_similarity: float = Field(ge=0.0, le=1.0)
-    rewrite_query: bool = True
     source_boost: float = Field(default=1.25, ge=1.0)
 
 
 class RerankerConfig(BaseModel):
     enabled: bool = True
     model: str
-    minimum_score: float = 0.0
 
 
 class IngestConfig(BaseModel):
