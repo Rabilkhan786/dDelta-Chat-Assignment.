@@ -145,7 +145,7 @@ class DeltaEngine:
             region=element.bbox,
             description=f"Removed {element.type.value}: '{element.text}'",
             confidence=self._confidence(100.0, element),
-            element_id=element.id,
+            previous_element_id=element.id,
         )
 
     def _added(self, element: Element) -> DeltaEntry:
