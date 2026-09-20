@@ -2,7 +2,13 @@ import logging
 
 import pytest
 
-from src.observability.logging import RequestLoggerAdapter, RequestTraceHandler, get_logger, request_context, stage
+from src.observability.logging import (
+    RequestLoggerAdapter,
+    RequestTraceHandler,
+    get_logger,
+    request_context,
+    stage,
+)
 
 
 class _RecordCollector(logging.Handler):
