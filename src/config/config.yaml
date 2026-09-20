@@ -25,7 +25,6 @@ retrieval:
   candidate_k: 15
   rrf_k: 60
   minimum_vector_similarity: 0.35
-  source_boost: 1.25
 
 # The reranker only sees the small post-RRF candidate list, never full documents.
 reranker:
