@@ -10,7 +10,7 @@ What this produces (see PROVENANCE.md in each folder for details):
 
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 SAMPLES = Path(__file__).parent
 SOURCE = SAMPLES / "synthetic_revision" / "revision_a.pdf"
@@ -18,15 +18,15 @@ SOURCE = SAMPLES / "synthetic_revision" / "revision_a.pdf"
 
 def make_revision_b() -> None:
     """Apply one modify, one removal, and one addition to page 1 of revision_a.pdf."""
-    doc = fitz.open(SOURCE)
+    doc = pymupdf.open(SOURCE)
     page = doc[0]
 
     # Modify: rename a pressure safety valve tag.
-    modify_rect = fitz.Rect(853, 75, 868, 86)
+    modify_rect = pymupdf.Rect(853, 75, 868, 86)
     page.add_redact_annot(modify_rect)
 
     # Remove: drop the "MECHANICAL INTERLOCK" callout entirely.
-    remove_rect = fitz.Rect(931, 171, 962, 182)
+    remove_rect = pymupdf.Rect(931, 171, 962, 182)
     page.add_redact_annot(remove_rect)
 
     page.apply_redactions()
@@ -43,15 +43,15 @@ def make_revision_b() -> None:
 
 def make_scanned_sample() -> None:
     """Rasterize page 1 of revision_a.pdf into an image-only PDF (no text layer)."""
-    doc = fitz.open(SOURCE)
+    doc = pymupdf.open(SOURCE)
     original_page = doc[0]
     original_rect = original_page.rect
-    pixmap = original_page.get_pixmap(matrix=fitz.Matrix(2, 2))
+    pixmap = original_page.get_pixmap(matrix=pymupdf.Matrix(2, 2))
     doc.close()
 
     # Keep the new page the same physical size (in points) as the original so
     # recovered OCR bounding boxes stay comparable to the native PDF's coordinates.
-    scanned = fitz.open()
+    scanned = pymupdf.open()
     page = scanned.new_page(width=original_rect.width, height=original_rect.height)
     page.insert_image(page.rect, pixmap=pixmap)
 
