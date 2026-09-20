@@ -4,8 +4,9 @@ Run the default comparison first, then `uv run python -m eval.run_eval`.
 Use `--skip-generation` to evaluate delta and retrieval without calling a provider.
 Each scorecard is emitted as JSON to the console and `logs/project.log`.
 
-The existing ground-truth file is preserved. It contains three expected changes
-and one QA case over the default synthetic revision pair, not all sample pairs.
+The ground-truth file contains three expected changes and five QA cases over the
+default synthetic revision pair. The QA labels cover PID A, PID B, and each of
+the three delta-report changes; they do not cover every sample pair.
 Its note describes earlier re-keying after extraction changed to lines. This
 cleanup has not independently verified the historical human-review claim.
 Do not regenerate labels from predictions to improve scores.
@@ -15,7 +16,7 @@ Do not regenerate labels from predictions to improve scores.
 | Metric | Meaning | Limitation |
 | --- | --- | --- |
 | Delta precision/recall/F1 | Exact match of predicted and labelled change hashes | Hashes include description, confidence and location; equivalent changes can mismatch after extraction changes |
-| Retrieval Recall@K | Fraction of labelled relevant IDs retrieved in the first K hits | Only one question currently has a relevance label |
+| Retrieval Recall@K | Fraction of labelled relevant IDs retrieved in the first K hits | Five reviewed questions are still a small retrieval sample |
 | MRR | Reciprocal rank of the first labelled relevant result | Does not judge unlabelled relevant results |
 | Answer correctness | All expected keywords occur in generated text | Keyword proxy; a wrong sentence can contain the right word |
 | Citation accuracy | Fraction of returned citations matching a labelled source fragment | Source precision, not claim-level entailment |
