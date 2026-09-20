@@ -39,7 +39,7 @@ def chat_command(arguments: argparse.Namespace) -> None:
 
 
 def log_answer(answer: GroundedAnswer) -> None:
-    """Expose answer, citations, and completion status in the request trace."""
+    """Log the answer and show a readable CLI response."""
     logger.info(
         "chat_answer",
         extra={
@@ -49,6 +49,11 @@ def log_answer(answer: GroundedAnswer) -> None:
             "status": answer.status,
         },
     )
+    print(answer.text)
+    if answer.citations:
+        print("\nCitations:")
+        for source in answer.citations:
+            print(f"- {source}")
 
 
 def parser() -> argparse.ArgumentParser:
