@@ -82,9 +82,7 @@ def test_exact_tag_survives_poor_vectors_and_small_corpus(monkeypatch):
 
 
 def test_no_keyword_overlap_and_weak_vectors_return_no_evidence(monkeypatch):
-    store = FakeStore(
-        [Excerpt("Revision A document text: pump pressure", "pid_a", "A", 1, "pump")]
-    )
+    store = FakeStore([Excerpt("Revision A document text: pump pressure", "pid_a", "A", 1, "pump")])
     monkeypatch.setattr(index, "_vector_store", lambda: store)
     monkeypatch.setattr(index.settings.reranker, "enabled", False)
 
