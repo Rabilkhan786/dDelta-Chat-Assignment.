@@ -4,47 +4,82 @@
     "552d3be9d7deeeda",
     "b5fe5d692114f90a"
   ],
-  "label_notes": "The primary synthetic pair has three reviewed changes: PSV tag 9066A to 9066C, removed MECHANICAL INTERLOCK callout, and added NOTE 24. Retrieval labels cover PID A, PID B, and all three delta-report entries.",
+  "label_notes": "The primary synthetic pair has three reviewed changes: PSV tag 9066A to 9066C, removed MECHANICAL INTERLOCK callout, and added NOTE 24. Retrieval labels cover a broad delta-summary question, PID A, PID B, and all three individual delta-report entries.",
   "qa_cases": [
     {
+      "question": "What changed?",
+      "expected_answer_keywords": [
+        "9066C",
+        "MECHANICAL INTERLOCK",
+        "NOTE 24"
+      ],
+      "expected_citations": [
+        "delta_report | PID revision_b | page 1 | delta-summary"
+      ],
+      "expected_retrieval_ids": [
+        "delta-summary"
+      ]
+    },
+    {
       "question": "What changed on PSV-9066?",
-      "expected_answer_keywords": ["9066C"],
+      "expected_answer_keywords": [
+        "9066C"
+      ],
       "expected_citations": [
         "delta_report | PID revision_b | page 1 | delta-1"
       ],
-      "expected_retrieval_ids": ["delta-1"]
+      "expected_retrieval_ids": [
+        "delta-1"
+      ]
     },
     {
       "question": "What callout was removed?",
-      "expected_answer_keywords": ["MECHANICAL INTERLOCK"],
+      "expected_answer_keywords": [
+        "MECHANICAL INTERLOCK"
+      ],
       "expected_citations": [
         "delta_report | PID revision_b | page 1 | delta-2"
       ],
-      "expected_retrieval_ids": ["delta-2"]
+      "expected_retrieval_ids": [
+        "delta-2"
+      ]
     },
     {
       "question": "What note was added in revision B?",
-      "expected_answer_keywords": ["NOTE 24", "BLOWDOWN VALVE"],
+      "expected_answer_keywords": [
+        "NOTE 24",
+        "BLOWDOWN VALVE"
+      ],
       "expected_citations": [
         "delta_report | PID revision_b | page 1 | delta-3"
       ],
-      "expected_retrieval_ids": ["delta-3"]
+      "expected_retrieval_ids": [
+        "delta-3"
+      ]
     },
     {
       "question": "What does revision A say about 9066A?",
-      "expected_answer_keywords": ["9066A"],
+      "expected_answer_keywords": [
+        "9066A"
+      ],
       "expected_citations": [
         "pid_a | PID revision_a | page 1 | p1_l95"
       ],
-      "expected_retrieval_ids": ["p1_l95"]
+      "expected_retrieval_ids": [
+        "p1_l95"
+      ]
     },
     {
       "question": "What does revision B say about 9066C?",
-      "expected_answer_keywords": ["9066C"],
+      "expected_answer_keywords": [
+        "9066C"
+      ],
       "expected_citations": [
         "pid_b | PID revision_b | page 1 | p1_l873"
       ],
-      "expected_retrieval_ids": ["p1_l873"]
+      "expected_retrieval_ids": [
+        "p1_l873"
+      ]
     }
   ],
   "known_failure_cases": [
