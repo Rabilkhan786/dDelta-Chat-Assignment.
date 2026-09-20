@@ -228,7 +228,7 @@ The scorecard separates:
 - generated-answer keyword correctness;
 - citation precision and coverage against expected citation fragments.
 
-The current file has three expected changes and five QA cases covering PID A,
+The current file has three expected changes and six QA cases covering PID A,
 PID B, and each delta-report change. Existing change labels are preserved, but
 their historical human-review status has not been independently verified in
 this cleanup. Keyword coverage is not semantic answer correctness;
