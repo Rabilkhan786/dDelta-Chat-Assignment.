@@ -122,9 +122,10 @@ so low-confidence OCR in A is not hidden by a clean native PDF in B.
 ## Grounded chat and hybrid retrieval
 
 The index contains one excerpt for every text element in Revision A and
-Revision B, plus one excerpt for each meaningful delta-report change. Unchanged
-delta entries are not indexed. Metadata includes source, PID, revision, page,
-element ID, element type, change type, bounding box, and confidence.
+Revision B, one concise delta-report summary, and one excerpt for each meaningful
+delta-report change. Unchanged delta entries are not indexed. Metadata includes
+source, PID, revision, page, element ID, element type, change type, bounding box,
+and confidence.
 
 Retrieval is intentionally small and local:
 
@@ -147,11 +148,12 @@ reranks only the post-RRF candidates. It is configurable in `config.yaml` and
 can be disabled for a faster, RRF-only demo. `retrieval.top_k` is the single final
 result limit; `candidate_k` controls the short list sent to the reranker.
 
-### Query handling: no rewriting
+### Query handling: no rewriting and no routing
 
-The retriever uses the user's question as written. There is no query-rewrite,
-query-expansion, synonym-generation, multi-query agent, or conversation-memory
-step.
+Every question searches the same evidence collection: PID A, PID B, and the
+generated delta report. There is no query rewriting, query expansion,
+intent-based source routing, source filtering, source boosting, multi-query
+agent, or conversation-memory step.
 
 BM25 tokenization handles common technical identifier formatting without
 changing the query itself. For example, compact, spaced, and hyphenated forms
@@ -159,10 +161,9 @@ such as `PSV9066A`, `PSV 9066A`, and `PSV-9066A` expose compatible lexical
 tokens. Chroma semantic search and the cross-encoder receive the original
 question unchanged.
 
-A small source preference remains inside retrieval: change questions prefer the
-delta report, explicit Revision A/B questions prefer that revision, and
-comparison questions search all sources equally. This is an RRF score boost,
-not a hard filter.
+The delta report includes a concise summary excerpt containing all detected
+changes. This gives broad questions such as `What changed?` meaningful evidence
+without adding hard-coded question rules.
 
 ### Unsupported questions and citations
 
