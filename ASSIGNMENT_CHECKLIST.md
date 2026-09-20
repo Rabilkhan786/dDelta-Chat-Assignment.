@@ -15,12 +15,12 @@ uses native PDF + scanned PDF/OCR; DWG remains an explicit adapter stub.
 | Human/machine report | Markdown + JSON; default real run found three changes | Not a CAD geometry or table-cell diff |
 | Cited chat over both PIDs and report | BM25+ + Chroma + RRF + cross-encoder; source preference; exact citation validation tests | Real Groq generation was not run successfully: key unavailable |
 | One-command ingest → report → chat | `uv run python main.py run --question "What changed on PSV-9066?"` | Command reached retrieved evidence, then clearly reported provider failure |
-| Request traces, timing, tokens/cost | Shared request ID across comparison/chat; JSON stages; provider token/cost instrumentation | Live token/cost telemetry not exercised without the provider key |
-| Runnable evaluation scorecard | `make eval`; separate delta, retrieval, generation functions; metric arithmetic tests | Three change labels and one QA case; no claim of a broad reviewed benchmark |
+| Request traces, timing, tokens/cost | Shared request ID, shared JSON log, per-request JSONL trace, stage timings, retrieval hit counts, provider token/cost instrumentation | Live token/cost telemetry still needs a configured provider run |
+| Runnable evaluation scorecard | `make eval`; delta, retrieval, generation scorecards; five QA cases covering PID A, PID B, and delta entries | Still a small single-pair reviewed benchmark |
 | Failure reporting | `eval/RESULTS.md` records dense-OCR and generation failures | These failures are not fixed by passing unit tests |
 | Secrets and environment template | `.env.example`, ignored `.env`/logs; tracked-key-pattern check found no matches | Not an exhaustive history/PII audit; users must review their own input documents |
 | Samples and provenance | Three test pairings documented in `data/samples/README.md` | Only one is labelled; one is an unrelated negative pair |
-| Bonus markup | PDF box annotations and removed-page guard, tested | Not pixel/geometry diff; removed boxes use A's coordinates on B |
+| Bonus markup | PDF box annotations for changes located in Revision B; removed content is deliberately report-only | Not a pixel/geometry diff and does not visualize removals on Revision A |
 | Simple runnable interface | CLI and optional single-process FastAPI | Trusted local demo; one active pair, no concurrent comparison support |
 
 ## Deliberate design choices
