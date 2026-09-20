@@ -39,10 +39,16 @@ def health() -> dict[str, str]:
 def compare(request: CompareRequest) -> dict:
     """Ingest, compare, report, and index a document pair in one request."""
     try:
-        result = DeltaPipeline(adapter_for(request.adapter)).run(Path(request.revision_a), Path(request.revision_b))
+        result = DeltaPipeline(adapter_for(request.adapter)).run(
+            Path(request.revision_a), Path(request.revision_b)
+        )
     except (FileNotFoundError, NotImplementedError, ValueError) as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
-    return {"request_id": result.request_id, "report": result.report, "indexed_excerpts": result.indexed_documents}
+    return {
+        "request_id": result.request_id,
+        "report": result.report,
+        "indexed_excerpts": result.indexed_documents,
+    }
 
 
 @app.post("/chat")
@@ -52,7 +58,12 @@ def chat(request: ChatRequest) -> dict:
         answer = GroundedChatService().answer(request.question)
     except (FileNotFoundError, ValueError) as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
-    return {"request_id": answer.request_id, "answer": answer.text, "citations": answer.citations}
+    return {
+        "request_id": answer.request_id,
+        "answer": answer.text,
+        "citations": answer.citations,
+        "status": answer.status,
+    }
 
 
 @app.get("/report")

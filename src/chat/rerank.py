@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from sentence_transformers import CrossEncoder
 
 from src.config.settings import settings
+from src.observability.logging import get_logger, stage
+
+logger = get_logger(__name__)
 
 if TYPE_CHECKING:
     from src.chat.index import Excerpt
@@ -23,12 +27,11 @@ def rerank(query: str, candidates: list[Excerpt]) -> list[Excerpt]:
     """Return the most query-relevant RRF candidates in cross-encoder order."""
     if not candidates:
         return []
-    scores = _model().predict([(query, item.text) for item in candidates])
+    with stage(logger, "cross_encoder_reranking"):
+        scores = _model().predict([(query, item.text) for item in candidates])
     ordered = sorted(zip(candidates, scores), key=lambda item: float(item[1]), reverse=True)
-    return [_with_rerank_score(item, float(score)) for item, score in ordered[:settings.reranker.top_k]]
-
-
-def _with_rerank_score(item: Excerpt, score: float) -> Excerpt:
-    """Keep the public retrieval shape while replacing its ranking score."""
-    return type(item)(item.text, item.source, item.pid, item.page_number, item.element_id,
-        item.revision, item.element_type, item.change_type, item.bbox, item.confidence, round(score, 6))
+    return [
+        replace(item, score=round(float(score), 6))
+        for item, score in ordered
+        if float(score) >= settings.reranker.minimum_score
+    ]

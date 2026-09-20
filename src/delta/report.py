@@ -20,8 +20,13 @@ class DeltaReportGenerator:
         self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate(self, old_doc: CanonicalDocument, new_doc: CanonicalDocument,
-                 deltas: list[DeltaEntry], compatibility: CompatibilityResult | None = None) -> dict:
+    def generate(
+        self,
+        old_doc: CanonicalDocument,
+        new_doc: CanonicalDocument,
+        deltas: list[DeltaEntry],
+        compatibility: CompatibilityResult | None = None,
+    ) -> dict:
         """Build the report and write it to disk. Returns the dict for indexing/eval."""
         with stage(logger, "delta_report_generation"):
             report = self._build_report(old_doc, new_doc, deltas, compatibility)
@@ -29,8 +34,13 @@ class DeltaReportGenerator:
             self._write_json(report)
         return report
 
-    def _build_report(self, old_doc: CanonicalDocument, new_doc: CanonicalDocument,
-                      deltas: list[DeltaEntry], compatibility: CompatibilityResult | None) -> dict:
+    def _build_report(
+        self,
+        old_doc: CanonicalDocument,
+        new_doc: CanonicalDocument,
+        deltas: list[DeltaEntry],
+        compatibility: CompatibilityResult | None,
+    ) -> dict:
         counts = Counter(delta.change_type.value for delta in deltas)
         report = {
             "documents": {
@@ -42,7 +52,10 @@ class DeltaReportGenerator:
             },
             "summary": {
                 "total_entries": len(deltas),
-                "actual_changes": counts.get("modified", 0) + counts.get("moved", 0) + counts.get("added", 0) + counts.get("removed", 0),
+                "actual_changes": counts.get("modified", 0)
+                + counts.get("moved", 0)
+                + counts.get("added", 0)
+                + counts.get("removed", 0),
                 "unchanged": counts.get("unchanged", 0),
                 "modified": counts.get("modified", 0),
                 "added": counts.get("added", 0),
@@ -78,20 +91,30 @@ class DeltaReportGenerator:
     def _write_markdown(self, report: dict) -> None:
         summary = report["summary"]
         lines = [
-            "# Delta Report", "",
-            "## Document Information", "",
-            f"Old Document : {report['documents']['old']}", "",
-            f"New Document : {report['documents']['new']}", "",
-            "## Summary", "",
+            "# Delta Report",
+            "",
+            "## Document Information",
+            "",
+            f"Old Document : {report['documents']['old']}",
+            "",
+            f"New Document : {report['documents']['new']}",
+            "",
+            "## Summary",
+            "",
             f"- Total Entries  : {summary['total_entries']}",
-            f"- Actual Changes : {summary['actual_changes']}", "",
+            f"- Actual Changes : {summary['actual_changes']}",
+            "",
             f"- Unchanged : {summary['unchanged']}",
             f"- Modified  : {summary['modified']}",
             f"- Added     : {summary['added']}",
-            f"- Removed   : {summary['removed']}", "",
-            f"- Moved     : {summary['moved']}", "",
-            "---", "",
-            "## Delta Entries", "",
+            f"- Removed   : {summary['removed']}",
+            "",
+            f"- Moved     : {summary['moved']}",
+            "",
+            "---",
+            "",
+            "## Delta Entries",
+            "",
         ]
         compatibility = report.get("revision_compatibility")
         if compatibility and compatibility["warning"]:
@@ -99,7 +122,8 @@ class DeltaReportGenerator:
 
         for index, entry in enumerate(report["entries"], start=1):
             lines += [
-                f"### Entry {index}", "",
+                f"### Entry {index}",
+                "",
                 f"- Type : {entry['change_type']}",
                 f"- Element : {entry['element_type']}",
                 f"- Page : {entry['page_number']}",
@@ -108,7 +132,9 @@ class DeltaReportGenerator:
             ]
             if "bounding_box" in entry:
                 bbox = entry["bounding_box"]
-                lines.append(f"- Bounding Box : ({bbox['x0']:.2f}, {bbox['y0']:.2f}) → ({bbox['x1']:.2f}, {bbox['y1']:.2f})")
+                lines.append(
+                    f"- Bounding Box : ({bbox['x0']:.2f}, {bbox['y0']:.2f}) → ({bbox['x1']:.2f}, {bbox['y1']:.2f})"
+                )
             lines.append("")
 
         self._write_text("delta_report.md", "\n".join(lines))

@@ -1,4 +1,3 @@
-
 """Command line entry point for the Delta Chat assignment."""
 
 from __future__ import annotations
@@ -6,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from src.chat.answer import GroundedChatService
+from src.chat.answer import GroundedAnswer, GroundedChatService
 from src.config.settings import project_path, settings
 from src.observability.logging import get_logger
 from src.pipeline import DeltaPipeline, adapter_for
@@ -16,17 +15,40 @@ logger = get_logger(__name__)
 
 def run_command(arguments: argparse.Namespace) -> None:
     """Run ingestion through report/index creation for one document pair."""
-    result = DeltaPipeline(adapter_for(arguments.adapter)).run(Path(arguments.revision_a), Path(arguments.revision_b))
-    logger.info("run_complete", extra={"report": str(project_path(settings.paths.delta_markdown)),
-        "changes": result.report["summary"]["actual_changes"], "indexed_excerpts": result.indexed_documents,
-        "request_id": result.request_id})
+    result = DeltaPipeline(adapter_for(arguments.adapter)).run(
+        Path(arguments.revision_a), Path(arguments.revision_b)
+    )
+    logger.info(
+        "run_complete",
+        extra={
+            "report": str(project_path(settings.paths.delta_markdown)),
+            "changes": result.report["summary"]["actual_changes"],
+            "indexed_excerpts": result.indexed_documents,
+            "request_id": result.request_id,
+        },
+    )
+    if arguments.question:
+        answer = GroundedChatService().answer(arguments.question, request_id=result.request_id)
+        log_answer(answer)
 
 
 def chat_command(arguments: argparse.Namespace) -> None:
     """Answer one grounded question after `run` has built the retrieval sources."""
     answer = GroundedChatService().answer(arguments.question)
-    logger.info("chat_answer", extra={"answer": answer.text, "citations": answer.citations,
-        "request_id": answer.request_id})
+    log_answer(answer)
+
+
+def log_answer(answer: GroundedAnswer) -> None:
+    """Expose answer, citations, and completion status in the request trace."""
+    logger.info(
+        "chat_answer",
+        extra={
+            "answer": answer.text,
+            "citations": answer.citations,
+            "request_id": answer.request_id,
+            "status": answer.status,
+        },
+    )
 
 
 def parser() -> argparse.ArgumentParser:
@@ -36,10 +58,17 @@ def parser() -> argparse.ArgumentParser:
     run = commands.add_parser("run", help="ingest, compare, report, and index a document pair")
     run.add_argument("--revision-a", default=str(project_path(settings.paths.revision_a)))
     run.add_argument("--revision-b", default=str(project_path(settings.paths.revision_b)))
-    run.add_argument("--adapter", choices=("auto", "native", "scanned"), default="auto",
-        help="automatic PDF detection is the default; explicit modes are retained for diagnostics")
+    run.add_argument("--question", help="also answer a question, using the same request trace")
+    run.add_argument(
+        "--adapter",
+        choices=("auto", "native", "scanned"),
+        default="auto",
+        help="automatic PDF detection is the default; explicit modes are retained for diagnostics",
+    )
     run.set_defaults(func=run_command)
-    chat = commands.add_parser("chat", help="ask a cited question over PID A, PID B, and the delta report")
+    chat = commands.add_parser(
+        "chat", help="ask a cited question over PID A, PID B, and the delta report"
+    )
     chat.add_argument("question")
     chat.set_defaults(func=chat_command)
     return command_parser

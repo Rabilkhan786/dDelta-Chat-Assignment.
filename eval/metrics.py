@@ -26,14 +26,24 @@ def precision_recall_f1(predicted: set[str], expected: set[str]) -> Classificati
 
 def report_entry_id(entry: dict[str, Any]) -> str:
     """Create a stable ID without invalidating reviewed labels when report metadata grows."""
-    core_keys = ("change_type", "element_type", "page_number", "confidence", "description", "bounding_box")
-    payload = json.dumps({key: entry.get(key) for key in core_keys if key in entry},
-        sort_keys=True, separators=(",", ":"))
+    core_keys = (
+        "change_type",
+        "element_type",
+        "page_number",
+        "confidence",
+        "description",
+        "bounding_box",
+    )
+    payload = json.dumps(
+        {key: entry.get(key) for key in core_keys if key in entry},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
     return sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
 def answer_correct(answer_text: str, expected_keywords: list[str]) -> bool:
-    """A human-labeled answer is 'correct' if every expected keyword appears in it."""
+    """Keyword-coverage proxy, not a test of factual correctness or entailment."""
     if not expected_keywords:
         return False
     lowered = answer_text.lower()
@@ -41,10 +51,24 @@ def answer_correct(answer_text: str, expected_keywords: list[str]) -> bool:
 
 
 def citation_accuracy(citations: list[str], expected_fragments: list[str]) -> float:
-    """Fraction of expected citation fragments (e.g. "pid_a | page 3") found in the answer's citations."""
+    """Fraction of returned citations matching a labelled relevant source fragment."""
+    if not citations or not expected_fragments:
+        return 0.0
+    unique_citations = set(citations)
+    hits = sum(
+        any(fragment in citation for fragment in expected_fragments)
+        for citation in unique_citations
+    )
+    return hits / len(unique_citations)
+
+
+def citation_coverage(citations: list[str], expected_fragments: list[str]) -> float:
+    """Fraction of labelled source fragments present; separate from citation precision."""
     if not expected_fragments:
         return 0.0
-    hits = sum(1 for fragment in expected_fragments if any(fragment in citation for citation in citations))
+    hits = sum(
+        1 for fragment in expected_fragments if any(fragment in citation for citation in citations)
+    )
     return hits / len(expected_fragments)
 
 

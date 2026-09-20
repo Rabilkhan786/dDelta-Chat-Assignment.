@@ -28,7 +28,9 @@ def _stub_search(monkeypatch: pytest.MonkeyPatch, results: list[Excerpt]) -> Non
     monkeypatch.setattr(index, "search", lambda query, top_k=None: results)
 
 
-def test_grounded_chat_uses_retrieved_evidence_and_returns_citations(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_grounded_chat_uses_retrieved_evidence_and_returns_citations(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A provider never receives raw documents, only retrieved citation-labelled excerpts."""
     _stub_search(monkeypatch, [Excerpt("pump pressure is 10 bar", "pid_a", "A", 1, "a-1")])
     provider = FakeProvider()
@@ -46,7 +48,9 @@ def test_grounded_chat_refuses_when_nothing_is_retrieved(monkeypatch: pytest.Mon
     assert "cannot support" in answer.text
 
 
-def test_grounded_chat_returns_evidence_when_provider_fails(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_grounded_chat_returns_evidence_when_provider_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """An unavailable provider must not become an unsupported fabricated answer."""
     _stub_search(monkeypatch, [Excerpt("pump pressure is 10 bar", "pid_a", "A", 1, "a-1")])
     answer = GroundedChatService(FailingProvider()).answer("What is the pump pressure?")
@@ -54,10 +58,42 @@ def test_grounded_chat_returns_evidence_when_provider_fails(monkeypatch: pytest.
     assert "could not complete" in answer.text
 
 
-def test_grounded_chat_returns_evidence_when_provider_is_not_configured(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_grounded_chat_returns_evidence_when_provider_is_not_configured(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Missing credentials must not turn retrieved evidence into an uncaught error."""
     _stub_search(monkeypatch, [Excerpt("pump pressure is 10 bar", "pid_a", "A", 1, "a-1")])
-    monkeypatch.setattr("src.chat.answer.configured_provider", lambda: (_ for _ in ()).throw(RuntimeError("missing key")))
+    monkeypatch.setattr(
+        "src.chat.answer.configured_provider",
+        lambda: (_ for _ in ()).throw(RuntimeError("missing key")),
+    )
     answer = GroundedChatService().answer("What is the pump pressure?")
     assert answer.citations
     assert "could not complete" in answer.text
+
+
+@pytest.mark.parametrize("text", ["Pressure is 10 bar.", "Pressure is 10 bar [invented source]."])
+def test_chat_rejects_missing_or_unknown_citations(monkeypatch, text):
+    class Provider:
+        def complete(self, prompt):
+            return LLMResponse(text, 1, 1, 0.0)
+
+    _stub_search(monkeypatch, [Excerpt("10 bar", "pid_a", "A", 1, "a-1")])
+    result = GroundedChatService(Provider()).answer("pressure?")
+    assert result.status == "unsupported"
+    assert result.citations == []
+
+
+def test_chat_returns_only_citations_actually_used(monkeypatch):
+    _stub_search(
+        monkeypatch,
+        [Excerpt("10 bar", "pid_a", "A", 1, "a-1"), Excerpt("12 bar", "pid_b", "B", 1, "b-1")],
+    )
+    result = GroundedChatService(FakeProvider()).answer("pressure?")
+    assert result.citations == ["[pid_a | PID A | page 1 | a-1]"]
+
+
+def test_chat_preserves_shared_request_id(monkeypatch):
+    _stub_search(monkeypatch, [])
+    result = GroundedChatService().answer("anything", request_id="pipeline-request")
+    assert result.request_id == "pipeline-request"

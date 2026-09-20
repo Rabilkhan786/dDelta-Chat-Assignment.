@@ -10,7 +10,10 @@ def test_native_pdf_normalizes_text_into_lines() -> None:
     document = NativePDFAdapter().parse(pdf_path)
     with fitz.open(pdf_path) as pdf:
         for page_index, page in enumerate(pdf):
-            expected = [line for block in page.get_text("dict")["blocks"]
-                        for line in block.get("lines", [])
-                        if "".join(span["text"] for span in line.get("spans", [])).strip()]
+            expected = [
+                line
+                for block in page.get_text("dict")["blocks"]
+                for line in block.get("lines", [])
+                if "".join(span["text"] for span in line.get("spans", [])).strip()
+            ]
             assert len(document.pages[page_index].elements) == len(expected)

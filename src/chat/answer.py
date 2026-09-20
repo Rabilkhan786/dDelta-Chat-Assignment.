@@ -1,7 +1,8 @@
 """Grounded answer orchestration and citation enforcement."""
 
-from dataclasses import dataclass
+import re
 import uuid
+from dataclasses import dataclass
 
 from src.chat import index
 from src.chat.llm import ChatProvider, configured_provider
@@ -18,6 +19,7 @@ class GroundedAnswer:
     text: str
     citations: list[str]
     request_id: str
+    status: str = "answered"
 
 
 class GroundedChatService:
@@ -26,24 +28,44 @@ class GroundedChatService:
     def __init__(self, provider: ChatProvider | None = None) -> None:
         self.provider = provider
 
-    def answer(self, question: str) -> GroundedAnswer:
+    def answer(self, question: str, request_id: str | None = None) -> GroundedAnswer:
         """Answer with evidence, or explicitly state that retrieval found no support."""
-        request_id = str(uuid.uuid4())
+        request_id = request_id or str(uuid.uuid4())
         with request_context(request_id), stage(logger, "grounded_chat"):
             evidence = index.search(question)
             citations = [citation(item) for item in evidence]
             if not evidence:
-                return GroundedAnswer("I cannot support an answer from the indexed PID A, PID B, or delta report.", [], request_id)
+                return GroundedAnswer(
+                    "I cannot support an answer from the indexed PID A, PID B, or delta report.",
+                    [],
+                    request_id,
+                    "unsupported",
+                )
 
             prompt = build_grounded_prompt(question, evidence)
             try:
                 provider = self.provider or configured_provider()
                 response = provider.complete(prompt)
             except Exception:
-                logger.exception("grounded_chat_provider_failed", extra={"evidence_count": len(evidence)})
+                logger.exception(
+                    "grounded_chat_provider_failed", extra={"evidence_count": len(evidence)}
+                )
                 return GroundedAnswer(
                     "I retrieved supporting evidence, but the configured LLM provider could not complete the request. "
                     "Check GROQ_API_KEY, billing, and provider availability before retrying.",
-                    citations, request_id,
+                    citations,
+                    request_id,
+                    "provider_error",
                 )
-        return GroundedAnswer(response.text, citations, request_id)
+            used = list(dict.fromkeys(re.findall(r"\[[^\[\]\n]+\]", response.text)))
+            if not used or any(item not in citations for item in used):
+                logger.warning("answer_citations_rejected", extra={"citation_count": len(used)})
+                return GroundedAnswer(
+                    "I cannot support a cited answer from the retrieved evidence.",
+                    [],
+                    request_id,
+                    "unsupported",
+                )
+            # Valid source references do not by themselves prove factual entailment.
+            logger.info("answer_completed", extra={"citations_used": len(used)})
+            return GroundedAnswer(response.text, used, request_id)

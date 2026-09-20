@@ -34,9 +34,18 @@ class AutomaticPDFAdapter(FormatAdapter):
         if not self.supports(file_path):
             raise ValueError(f"AutomaticPDFAdapter does not support '{file_path.suffix}'.")
         text_characters = self.native_adapter.extracted_text_characters(file_path)
-        adapter: FormatAdapter = self.native_adapter if text_characters >= self.text_threshold else self.ocr_adapter
-        logger.info("pdf_adapter_selected", extra={"adapter": type(adapter).__name__,
-            "selectable_text_characters": text_characters, "text_threshold": self.text_threshold, "file": file_path.name})
+        adapter: FormatAdapter = (
+            self.native_adapter if text_characters >= self.text_threshold else self.ocr_adapter
+        )
+        logger.info(
+            "pdf_adapter_selected",
+            extra={
+                "adapter": type(adapter).__name__,
+                "selectable_text_characters": text_characters,
+                "text_threshold": self.text_threshold,
+                "file": file_path.name,
+            },
+        )
         return adapter
 
     def parse(self, file_path: Path) -> CanonicalDocument:

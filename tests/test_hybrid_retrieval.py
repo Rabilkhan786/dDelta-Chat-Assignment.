@@ -1,6 +1,11 @@
 """Unit tests for the deterministic pieces of hybrid retrieval."""
 
-from src.chat.index import reciprocal_rank_fusion, route_question
+from types import SimpleNamespace
+
+import pytest
+
+from src.chat import index
+from src.chat.index import Excerpt, reciprocal_rank_fusion, route_question
 
 
 def test_rrf_rewards_an_identifier_found_by_both_retrievers() -> None:
@@ -14,3 +19,60 @@ def test_change_question_prefers_delta_report() -> None:
 
 def test_comparison_question_keeps_all_sources() -> None:
     assert route_question("Compare revision A and revision B") is None
+
+
+class FakeStore:
+    """Exercise real keyword search and fusion with controlled vector distances."""
+
+    def __init__(self, items, distance=100):
+        self.items = items
+        self.distance = distance
+        self.queries = []
+
+    def get(self, include):
+        return {
+            "documents": [item.text for item in self.items],
+            "metadatas": [index._metadata(item) for item in self.items],
+        }
+
+    def similarity_search_with_score(self, query, k):
+        self.queries.append(query)
+        return [
+            (SimpleNamespace(page_content=item.text, metadata=index._metadata(item)), self.distance)
+            for item in self.items[:k]
+        ]
+
+
+def test_exact_tag_survives_poor_vectors_and_small_corpus(monkeypatch):
+    store = FakeStore(
+        [
+            Excerpt("PSV-9066A pressure 1.5 bar", "pid_a", "A", 1, "target"),
+            Excerpt("PSV-9066B pressure 15 bar", "pid_b", "B", 1, "other"),
+        ]
+    )
+    monkeypatch.setattr(index, "_vector_store", lambda: store)
+    monkeypatch.setattr(index.settings.reranker, "enabled", False)
+    result = index.search("PSV 9066A 1.5 bar", top_k=1)
+    assert result[0].element_id == "target"
+    assert store.queries == ["PSV 9066A 1.5 bar", "PSV-9066A 1.5 bar"]
+
+
+def test_no_keyword_overlap_and_weak_vectors_return_no_evidence(monkeypatch):
+    store = FakeStore([Excerpt("pump pressure", "pid_a", "A", 1, "pump")])
+    monkeypatch.setattr(index, "_vector_store", lambda: store)
+    monkeypatch.setattr(index.settings.reranker, "enabled", False)
+    assert index.search("What is the lunar weather?") == []
+
+
+def test_variants_do_not_double_count_the_same_vector_evidence():
+    item = Excerpt("PSV-9066A", "pid_a", "A", 1, "tag")
+    once = index._semantic_scores(FakeStore([item], distance=0.1), ["PSV-9066A"], 1)
+    twice = index._semantic_scores(FakeStore([item], distance=0.1), ["PSV 9066A", "PSV-9066A"], 1)
+    assert once == twice
+
+
+def test_empty_index_and_invalid_limit(monkeypatch):
+    monkeypatch.setattr(index, "_vector_store", lambda: FakeStore([]))
+    assert index.search("pressure") == []
+    with pytest.raises(ValueError, match="top_k"):
+        index.search("pressure", top_k=0)

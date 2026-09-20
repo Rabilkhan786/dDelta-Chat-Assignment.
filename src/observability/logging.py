@@ -5,7 +5,6 @@ import time
 import uuid
 from contextlib import contextmanager
 from contextvars import ContextVar
-from pathlib import Path
 from typing import Iterator
 
 from pythonjsonlogger.json import JsonFormatter
@@ -41,7 +40,10 @@ def setup_logger(
             "%(asctime)s %(levelname)s %(name)s %(request_id)s %(message)s",
             rename_fields={"asctime": "timestamp", "levelname": "level", "name": "logger"},
         )
-        for handler in (logging.StreamHandler(), logging.FileHandler(output_path, encoding="utf-8")):
+        for handler in (
+            logging.StreamHandler(),
+            logging.FileHandler(output_path, encoding="utf-8"),
+        ):
             handler.setFormatter(formatter)
             logger.addHandler(handler)
         logger.propagate = False
@@ -71,6 +73,12 @@ def stage(logger: logging.LoggerAdapter, name: str) -> Iterator[None]:
     try:
         yield
     except Exception:
-        logger.exception("stage_failed", extra={"stage": name, "duration_ms": round((time.perf_counter() - started) * 1000, 2)})
+        logger.exception(
+            "stage_failed",
+            extra={"stage": name, "duration_ms": round((time.perf_counter() - started) * 1000, 2)},
+        )
         raise
-    logger.info("stage_completed", extra={"stage": name, "duration_ms": round((time.perf_counter() - started) * 1000, 2)})
+    logger.info(
+        "stage_completed",
+        extra={"stage": name, "duration_ms": round((time.perf_counter() - started) * 1000, 2)},
+    )

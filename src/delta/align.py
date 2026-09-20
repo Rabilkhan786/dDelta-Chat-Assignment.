@@ -21,16 +21,22 @@ logger = get_logger(__name__)
 class Aligner:
     """Deterministically pair up elements from an old and a new revision."""
 
-    def __init__(self, similarity_threshold: float | None = None, max_bbox_distance: float | None = None) -> None:
+    def __init__(
+        self, similarity_threshold: float | None = None, max_bbox_distance: float | None = None
+    ) -> None:
         self.similarity_threshold = similarity_threshold or settings.align.similarity_threshold
         self.max_bbox_distance = max_bbox_distance or settings.align.max_bbox_distance
         self.moved_similarity_threshold = settings.align.moved_similarity_threshold
 
-    def align(self, old_document: CanonicalDocument, new_document: CanonicalDocument) -> AlignmentResult:
+    def align(
+        self, old_document: CanonicalDocument, new_document: CanonicalDocument
+    ) -> AlignmentResult:
         with stage(logger, "document_alignment"):
             return self._align(old_document, new_document)
 
-    def _align(self, old_document: CanonicalDocument, new_document: CanonicalDocument) -> AlignmentResult:
+    def _align(
+        self, old_document: CanonicalDocument, new_document: CanonicalDocument
+    ) -> AlignmentResult:
         result = AlignmentResult()
         old_elements = self._flatten(old_document)
         new_elements = self._flatten(new_document)
@@ -40,7 +46,14 @@ class Aligner:
             candidate = self._best_candidate(old, new_elements, matched_new, nearby_only=True)
             if candidate and candidate[1] >= self.similarity_threshold:
                 index, similarity, distance = candidate
-                result.matches.append(Alignment(left=old, right=new_elements[index], similarity=similarity, bbox_distance=distance))
+                result.matches.append(
+                    Alignment(
+                        left=old,
+                        right=new_elements[index],
+                        similarity=similarity,
+                        bbox_distance=distance,
+                    )
+                )
                 matched_new.add(index)
             else:
                 unmatched_left.append(old)
@@ -50,20 +63,37 @@ class Aligner:
             candidate = self._best_candidate(old, new_elements, matched_new, nearby_only=False)
             if candidate and candidate[1] >= self.moved_similarity_threshold:
                 index, similarity, distance = candidate
-                result.matches.append(Alignment(left=old, right=new_elements[index], similarity=similarity,
-                    bbox_distance=distance, matched_after_move=True))
+                result.matches.append(
+                    Alignment(
+                        left=old,
+                        right=new_elements[index],
+                        similarity=similarity,
+                        bbox_distance=distance,
+                        matched_after_move=True,
+                    )
+                )
                 matched_new.add(index)
             else:
                 still_unmatched.append(old)
 
         result.unmatched_left = still_unmatched
-        result.unmatched_right = [item for index, item in enumerate(new_elements) if index not in matched_new]
+        result.unmatched_right = [
+            item for index, item in enumerate(new_elements) if index not in matched_new
+        ]
 
-        logger.info("alignment_completed", extra={"matches": len(result.matches),
-            "unmatched_left": len(result.unmatched_left), "unmatched_right": len(result.unmatched_right)})
+        logger.info(
+            "alignment_completed",
+            extra={
+                "matches": len(result.matches),
+                "unmatched_left": len(result.unmatched_left),
+                "unmatched_right": len(result.unmatched_right),
+            },
+        )
         return result
 
-    def _best_candidate(self, old: Element, candidates: list[Element], used: set[int], nearby_only: bool) -> tuple[int, float, float] | None:
+    def _best_candidate(
+        self, old: Element, candidates: list[Element], used: set[int], nearby_only: bool
+    ) -> tuple[int, float, float] | None:
         """Find one unused same-page, same-type candidate using explicit rules."""
         best: tuple[int, float, float] | None = None
         for index, new in enumerate(candidates):
@@ -75,7 +105,11 @@ class Aligner:
             # Plain ratio avoids WRatio's subset bias (for example, matching
             # the tag "9066A" to an unrelated one-character label "9").
             similarity = fuzz.ratio(old.text.strip(), new.text.strip())
-            if best is None or similarity > best[1] or (similarity == best[1] and distance < best[2]):
+            if (
+                best is None
+                or similarity > best[1]
+                or (similarity == best[1] and distance < best[2])
+            ):
                 best = (index, similarity, distance)
         return best
 

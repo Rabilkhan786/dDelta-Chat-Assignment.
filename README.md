@@ -22,11 +22,14 @@ available on your `PATH`. On Windows, install Tesseract and restart the shell.
 
 ```bash
 uv sync
-uv run python main.py run
-uv run python main.py chat "What changed on PSV-9066?"
+uv run python main.py run --question "What changed on PSV-9066?"
 ```
 
-The first run downloads the local sentence-transformer model used by Chroma.
+This one command ingests both revisions, writes reports, builds the index, and
+answers the question under one request ID. Use `run` without `--question` for
+comparison only, or `chat "your question"` to reuse the latest index.
+
+The first run downloads the local embedding and cross-encoder models.
 Copy `.env.example` to `.env` and set `GROQ_API_KEY` before using real LLM
 answers. The delta and retrieval steps work without a Groq key; chat returns
 retrieved evidence and a clear provider failure if the key is missing.
@@ -35,11 +38,17 @@ Useful commands:
 
 ```bash
 make run       # native/OCR routing → canonical JSON → report → index
+make demo      # same pipeline, then a cited question under one request ID
 make chat      # one grounded question
 make test      # unit and integration tests
+make check     # lint, unused imports, and formatting checks
+make format    # apply import ordering and consistent formatting
 make eval      # labelled delta, retrieval, and chat scorecard
 make serve     # optional FastAPI demo at http://127.0.0.1:8000/docs
 ```
+
+On Windows without Make, use the equivalent `uv run` commands in the Makefile.
+Configuration lives in `src/config/config.yaml`; credentials belong only in `.env`.
 
 ## What happens in a run
 
@@ -58,8 +67,9 @@ JSON + Markdown report, then hybrid retrieval index
 ```
 
 Every extractor produces `CanonicalDocument → Page → Element`. An element is a
-**line**, not a native-PDF block or a single OCR word. This makes native and
-scanned pages comparable. Each element keeps its page, bounding box, source,
+**line**, not a native-PDF block or a single OCR word. Native extraction and
+OCR can still split or read the same line differently; shared granularity does
+not eliminate those errors. Each element keeps its page, bounding box, source,
 and OCR confidence where relevant.
 
 `src/ingest/classify.py` applies only simple, auditable rules:
@@ -90,6 +100,9 @@ Before alignment, the pipeline calculates token-overlap document similarity.
 Low overlap does not silently stop the run, but the report carries a visible
 warning that the pair may be two different systems rather than revisions. This
 is deliberately a warning signal, not proof of document identity.
+The configured threshold is 0.60: the supplied unrelated pair scores 0.465,
+whereas the default revision pair scores 0.989. Those two observations are
+smoke checks, not calibration; heavy OCR errors can trigger false warnings.
 
 The report is written to:
 
@@ -100,6 +113,8 @@ The report is written to:
 Entries include type, page, bounding box, confidence, current/previous element
 IDs, and location-change metadata. The JSON report is the authoritative
 machine-readable artifact.
+Matched-element confidence uses the weaker confidence of the two revisions,
+so low-confidence OCR in A is not hidden by a clean native PDF in B.
 
 ## Grounded chat and hybrid retrieval
 
@@ -125,14 +140,48 @@ BM25 is important for identifiers such as `PSV-9066`, `P-101`, `DN150`, and
 `10 bar`; semantic search is useful for questions such as “what pressure
 changes happened?”. A compact cross-encoder (`ms-marco-MiniLM-L-6-v2`) then
 reranks only the post-RRF candidates. It is configurable in `config.yaml` and
-can be disabled for a faster, RRF-only demo. The question router only *prefers* the delta report for
-change questions or one PID for explicit revision questions. It never uses an
-agent framework and comparison questions keep all sources available.
+can be disabled for a faster, RRF-only demo. `retrieval.top_k` is the single final
+result limit; `candidate_k` controls the short list sent to the reranker.
 
-Weak results are dropped when neither keyword nor semantic retrieval clears the
-configured quality threshold. With no evidence, chat refuses rather than asks
-the model to guess. The Groq provider sits behind the two-method `ChatProvider`
-interface and is used only after retrieval.
+### Query preparation: small deterministic rewrites only
+
+`src/chat/query.py` keeps these three responsibilities separate:
+
+1. Normalize whitespace, Unicode dashes, and known tag spellings. For example,
+   `PSV 009066A` becomes `PSV-009066A`; the number, leading zeros, and suffix stay.
+   Shared keyword tokenization applies the same rules to documents and queries,
+   retains decimal values, and uses BM25+ for the small corpus.
+2. Search the original question and, only if different, one normalized semantic
+   variant. Each excerpt receives one semantic vote in RRF, not two. Set
+   `retrieval.rewrite_query: false` to disable the extra semantic variant;
+   consistent keyword tokenization still applies.
+3. Prefer the delta report for change questions, PID A/B for explicit revision
+   questions, and all sources for comparisons. This is a configurable RRF
+   source boost before candidate selection, not a hard filter. The cross-encoder
+   can still rank another source higher.
+
+No LLM rewriting, invented synonyms, multi-query agents, or conversation-history
+resolution are used. `What changed about it?` is not silently expanded into a
+guessed equipment tag. The original question reaches the reranker and answer
+provider. This keeps the behavior simple to test and explain.
+
+### Unsupported questions and citations
+
+Keyword retrieval requires actual token overlap; semantic retrieval uses a
+configured distance-based cutoff. The cross-encoder drops candidates below
+`reranker.minimum_score`. The distance conversion and raw reranker score are
+heuristics, **not probabilities**; thresholds need a larger reviewed dataset.
+Disabling reranking also disables its rejection threshold.
+
+With no evidence, chat returns `status: unsupported` without an LLM call. After
+generation, every bracketed citation must match supplied evidence, and at least
+one citation is required. Only citations actually used are returned. This checks
+source provenance, not whether every claim is entailed by its citation.
+
+The Groq provider sits behind the single-method `ChatProvider.complete()`
+interface and is used only for answer generation. Provider failure returns
+`status: provider_error`; available evidence references are diagnostic, not a
+successful answer.
 
 ## Optional HTTP API
 
@@ -145,6 +194,9 @@ same pipeline, not a microservice system.
 - `GET /health` confirms the API is running.
 
 See the interactive API documentation at `/docs` after starting it.
+This is a trusted-local, single-pair demo: each comparison replaces the active
+index and report. Do not expose it publicly or run concurrent comparisons; it
+has no authentication, upload isolation, or per-user storage.
 
 ## Observability
 
@@ -165,17 +217,29 @@ Run `make eval` after `make run`. The dataset lives in
 `eval/datasets/ground_truth.json`; labels are not generated by the evaluator.
 `--write-candidates` can create proposed delta IDs for a person to review, but
 does not edit the ground truth.
+For delta and retrieval only, use `uv run python -m eval.run_eval --skip-generation`.
+Without a configured provider, generation is explicitly reported as not run.
 
 The scorecard separates:
 
-- delta precision, recall, and F1 against human-reviewed change IDs;
+- delta precision, recall, and F1 against the existing labelled change IDs;
 - retrieval Recall@K and MRR against labelled relevant excerpt IDs;
 - generated-answer keyword correctness;
-- citation accuracy/groundedness against expected citation fragments.
+- citation precision and coverage against expected citation fragments.
+
+The current file has only three expected changes and one QA case. Existing labels
+are preserved, but their historical human-review status has not been independently
+verified in this cleanup. Keyword coverage is not semantic answer correctness;
+source-fragment matching is not factual entailment. This is a regression smoke
+test, not proof of general accuracy. See [eval/README.md](eval/README.md) for metric
+definitions, review steps, and remaining gaps.
 
 Known failures stay in the dataset. In particular, a major re-layout can still
 confuse the simple line matcher, OCR can misread small dense drawing text, and
 document-token overlap is only a warning—not a revision guarantee.
+The supplied dense scanned/native same-content pair produced 853 false changes
+in the local stress check; it is **not a supported accuracy benchmark**. See
+[eval/RESULTS.md](eval/RESULTS.md) for the measured results and generation gap.
 
 ## Repository map
 
@@ -184,7 +248,9 @@ src/
   canonical/       shared Pydantic representation and JSON writer
   ingest/          native PDF, scanned OCR, routing, DWG seam, line/classifier helpers
   delta/           compatibility check, alignment, deterministic delta, reports
-  chat/            hybrid retrieval, prompt, swappable Groq provider, answer service
+  chat/            query preparation, hybrid retrieval, reranking, provider, answers
+  config/          YAML defaults and typed settings
+  markup/          optional PDF bounding-box overlay
   observability/   structured JSON request traces
   api.py           optional FastAPI wrapper
 eval/              label-driven metrics and scorecard
@@ -201,5 +267,6 @@ not a visual-diff or geometry-detection system. The next practical improvements
 would be a reviewed DWG adapter, page matching for inserted cover sheets, and
 better OCR/layout for dense drawings.
 
-Read [DEMO.md](DEMO.md) for a short walkthrough and the acceptance-criteria
-checklist.
+Read [DEMO.md](DEMO.md) for the walkthrough and
+[ASSIGNMENT_CHECKLIST.md](ASSIGNMENT_CHECKLIST.md) for the HTML acceptance review,
+including unvalidated and incomplete items.

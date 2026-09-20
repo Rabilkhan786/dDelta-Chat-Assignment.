@@ -44,7 +44,10 @@ class NativePDFAdapter(FormatAdapter):
         with stage(logger, "native_pdf_ingestion"):
             try:
                 with fitz.open(file_path) as pdf:
-                    pages = [self._parse_page(pdf_page, page_number) for page_number, pdf_page in enumerate(pdf, start=1)]
+                    pages = [
+                        self._parse_page(pdf_page, page_number)
+                        for page_number, pdf_page in enumerate(pdf, start=1)
+                    ]
             except fitz.FileDataError as error:
                 raise ValueError(f"Unable to open PDF '{file_path.name}'.") from error
 
@@ -72,10 +75,19 @@ class NativePDFAdapter(FormatAdapter):
                 line_index += 1
                 x0, y0, x1, y1 = line["bbox"]
                 font_size = max((span["size"] for span in spans), default=None)
-                elements.append(Element(
-                    id=f"p{page_number}_l{line_index}", page_number=page_number,
-                    type=classify_text(content, font_size), text=content,
-                    bbox=BoundingBox(x0=x0, y0=y0, x1=x1, y1=y1),
-                ))
+                elements.append(
+                    Element(
+                        id=f"p{page_number}_l{line_index}",
+                        page_number=page_number,
+                        type=classify_text(content, font_size),
+                        text=content,
+                        bbox=BoundingBox(x0=x0, y0=y0, x1=x1, y1=y1),
+                    )
+                )
         logger.info("page_extracted", extra={"page": page_number, "elements": len(elements)})
-        return Page(page_number=page_number, width=pdf_page.rect.width, height=pdf_page.rect.height, elements=elements)
+        return Page(
+            page_number=page_number,
+            width=pdf_page.rect.width,
+            height=pdf_page.rect.height,
+            elements=elements,
+        )

@@ -6,6 +6,7 @@
 These are two **different** compressor systems, not two revisions of the same
 document. They are kept as a stress-test pair: running the pipeline on them
 produces a large, mostly-unhelpful delta, which is the expected and honest
-result for documents that were never the same drawing. Useful for confirming
-the pipeline doesn't crash or fabricate a false "these are similar" answer on
-unrelated inputs, not for judging delta quality.
+result for documents that were never the same drawing. Their token-overlap score
+is 0.465. The old 0.12 threshold incorrectly accepted them; the configured 0.60
+threshold now warns. This is one regression case, not a general identity test.
+Do not use these documents to judge revision-delta accuracy.

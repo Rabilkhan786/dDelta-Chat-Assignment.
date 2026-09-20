@@ -25,12 +25,15 @@ retrieval:
   candidate_k: 15
   rrf_k: 60
   minimum_vector_similarity: 0.35
+  rewrite_query: true
+  source_boost: 1.25
 
 # The reranker only sees the small post-RRF candidate list, never full documents.
 reranker:
   enabled: true
   model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
-  top_k: 5
+  # Raw model score, not a probability. Tune on reviewed questions.
+  minimum_score: 0.0
 
 # A PDF with at least this many selectable characters is treated as native;
 # otherwise it is routed to the Tesseract OCR adapter.
@@ -57,4 +60,5 @@ align:
 
 # Low overlap does not stop a run, but is made visible in the report and API.
 compatibility:
-  minimum_similarity: 0.12
+  # Conservative warning threshold, not a calibrated document-identity probability.
+  minimum_similarity: 0.60

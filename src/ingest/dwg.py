@@ -1,7 +1,7 @@
 """Stub adapter for DWG files.
 
 Kept behind the same FormatAdapter seam as the PDF adapters so a real DWG parser
-(e.g. ezdxf, ODA, or an Autodesk conversion API) can be dropped in later without
+or conversion pipeline can be added later without
 touching the delta engine, report, or chat layers.
 """
 

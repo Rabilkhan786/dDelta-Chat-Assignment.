@@ -36,7 +36,10 @@ class ScannedPDFAdapter(FormatAdapter):
 
         with stage(logger, "scanned_pdf_ingestion"):
             with fitz.open(file_path) as pdf:
-                pages = [self._parse_page(pdf_page, page_number) for page_number, pdf_page in enumerate(pdf, start=1)]
+                pages = [
+                    self._parse_page(pdf_page, page_number)
+                    for page_number, pdf_page in enumerate(pdf, start=1)
+                ]
 
         return CanonicalDocument(
             metadata=DocumentMetadata(
@@ -57,15 +60,27 @@ class ScannedPDFAdapter(FormatAdapter):
 
         elements: list[Element] = []
         for index, line in enumerate(ocr_lines(ocr_data, scale), start=1):
-            elements.append(Element(
-                id=f"p{page_number}_l{index}",
-                page_number=page_number,
-                type=classify_text(str(line["text"])),
-                text=str(line["text"]),
-                bbox=BoundingBox(x0=float(line["x0"]), y0=float(line["y0"]), x1=float(line["x1"]), y1=float(line["y1"])),
-                source="ocr",
-                ocr_confidence=round(float(line["confidence"]), 2),
-            ))
+            elements.append(
+                Element(
+                    id=f"p{page_number}_l{index}",
+                    page_number=page_number,
+                    type=classify_text(str(line["text"])),
+                    text=str(line["text"]),
+                    bbox=BoundingBox(
+                        x0=float(line["x0"]),
+                        y0=float(line["y0"]),
+                        x1=float(line["x1"]),
+                        y1=float(line["y1"]),
+                    ),
+                    source="ocr",
+                    ocr_confidence=round(float(line["confidence"]), 2),
+                )
+            )
 
         logger.info("ocr_page_extracted", extra={"page": page_number, "elements": len(elements)})
-        return Page(page_number=page_number, width=pdf_page.rect.width, height=pdf_page.rect.height, elements=elements)
+        return Page(
+            page_number=page_number,
+            width=pdf_page.rect.width,
+            height=pdf_page.rect.height,
+            elements=elements,
+        )

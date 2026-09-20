@@ -11,8 +11,8 @@ from src.canonical.serialization import write_canonical_document
 from src.chat.index import build_index
 from src.config.settings import project_path, settings
 from src.delta.align import Aligner
-from src.delta.engine import DeltaEngine
 from src.delta.compatibility import check_revision_compatibility
+from src.delta.engine import DeltaEngine
 from src.delta.report import DeltaReportGenerator
 from src.ingest.base import FormatAdapter
 from src.ingest.pdf_native import NativePDFAdapter
@@ -48,28 +48,51 @@ class DeltaPipeline:
         with request_context(self.logger.extra["request_id"]), stage(self.logger, "pipeline"):
             parsed_a = self.adapter.parse(revision_a)
             parsed_b = self.adapter.parse(revision_b)
-            pid_a = parsed_a.model_copy(update={"metadata": parsed_a.metadata.model_copy(update={"revision": "A"})})
-            pid_b = parsed_b.model_copy(update={"metadata": parsed_b.metadata.model_copy(update={"revision": "B"})})
+            pid_a = parsed_a.model_copy(
+                update={"metadata": parsed_a.metadata.model_copy(update={"revision": "A"})}
+            )
+            pid_b = parsed_b.model_copy(
+                update={"metadata": parsed_b.metadata.model_copy(update={"revision": "B"})}
+            )
             write_canonical_document(pid_a, project_path(settings.paths.canonical_a))
             write_canonical_document(pid_b, project_path(settings.paths.canonical_b))
-            compatibility = check_revision_compatibility(pid_a, pid_b)
-            self.logger.info("revision_compatibility_checked", extra={
-                "score": compatibility.score, "compatible": compatibility.compatible,
-            })
+            with stage(self.logger, "revision_compatibility"):
+                compatibility = check_revision_compatibility(pid_a, pid_b)
+            self.logger.info(
+                "revision_compatibility_checked",
+                extra={
+                    "score": compatibility.score,
+                    "compatible": compatibility.compatible,
+                },
+            )
             alignment = Aligner().align(pid_a, pid_b)
             deltas = DeltaEngine().compare(alignment)
             report = DeltaReportGenerator(project_path(settings.paths.delta_json).parent).generate(
-                pid_a, pid_b, deltas, compatibility,
+                pid_a,
+                pid_b,
+                deltas,
+                compatibility,
             )
-            markup_path = write_markup(revision_b, project_path(settings.paths.delta_markup), deltas)
+            markup_path = write_markup(
+                revision_b, project_path(settings.paths.delta_markup), deltas
+            )
             indexed_documents = build_index(pid_a, pid_b, deltas)
-        self.logger.info("pipeline_completed", extra={"deltas": len(deltas), "indexed_documents": indexed_documents})
-        return PipelineResult(pid_a, pid_b, deltas, report, indexed_documents, self.request_id, markup_path)
+        self.logger.info(
+            "pipeline_completed",
+            extra={"deltas": len(deltas), "indexed_documents": indexed_documents},
+        )
+        return PipelineResult(
+            pid_a, pid_b, deltas, report, indexed_documents, self.request_id, markup_path
+        )
 
 
 def adapter_for(name: str) -> FormatAdapter:
     """Resolve automatic routing by default while retaining legacy explicit modes."""
-    adapters = {"auto": AutomaticPDFAdapter, "native": NativePDFAdapter, "scanned": ScannedPDFAdapter}
+    adapters = {
+        "auto": AutomaticPDFAdapter,
+        "native": NativePDFAdapter,
+        "scanned": ScannedPDFAdapter,
+    }
     try:
         return adapters[name.lower()]()
     except KeyError as error:
