@@ -143,35 +143,30 @@ reranks only the post-RRF candidates. It is configurable in `config.yaml` and
 can be disabled for a faster, RRF-only demo. `retrieval.top_k` is the single final
 result limit; `candidate_k` controls the short list sent to the reranker.
 
-### Query preparation: small deterministic rewrites only
+### Query handling: no rewriting
 
-`src/chat/query.py` keeps these three responsibilities separate:
+The retriever uses the user's question as written. There is no query-rewrite,
+query-expansion, synonym-generation, multi-query agent, or conversation-memory
+step.
 
-1. Normalize whitespace, Unicode dashes, and known tag spellings. For example,
-   `PSV 009066A` becomes `PSV-009066A`; the number, leading zeros, and suffix stay.
-   Shared keyword tokenization applies the same rules to documents and queries,
-   retains decimal values, and uses BM25+ for the small corpus.
-2. Search the original question and, only if different, one normalized semantic
-   variant. Each excerpt receives one semantic vote in RRF, not two. Set
-   `retrieval.rewrite_query: false` to disable the extra semantic variant;
-   consistent keyword tokenization still applies.
-3. Prefer the delta report for change questions, PID A/B for explicit revision
-   questions, and all sources for comparisons. This is a configurable RRF
-   source boost before candidate selection, not a hard filter. The cross-encoder
-   can still rank another source higher.
+BM25 tokenization handles common technical identifier formatting without
+changing the query itself. For example, compact, spaced, and hyphenated forms
+such as `PSV9066A`, `PSV 9066A`, and `PSV-9066A` expose compatible lexical
+tokens. Chroma semantic search and the cross-encoder receive the original
+question unchanged.
 
-No LLM rewriting, invented synonyms, multi-query agents, or conversation-history
-resolution are used. `What changed about it?` is not silently expanded into a
-guessed equipment tag. The original question reaches the reranker and answer
-provider. This keeps the behavior simple to test and explain.
+A small source preference remains inside retrieval: change questions prefer the
+delta report, explicit Revision A/B questions prefer that revision, and
+comparison questions search all sources equally. This is an RRF score boost,
+not a hard filter.
 
 ### Unsupported questions and citations
 
-Keyword retrieval requires actual token overlap; semantic retrieval uses a
-configured distance-based cutoff. The cross-encoder drops candidates below
-`reranker.minimum_score`. The distance conversion and raw reranker score are
-heuristics, **not probabilities**; thresholds need a larger reviewed dataset.
-Disabling reranking also disables its rejection threshold.
+Keyword retrieval requires actual token overlap and semantic retrieval uses a
+configured distance-based cutoff. The cross-encoder only reorders the short
+post-RRF candidate list; it does not apply a second rejection threshold. The
+distance conversion and reranker score are ranking heuristics, **not
+probabilities**.
 
 With no evidence, chat returns `status: unsupported` without an LLM call. After
 generation, every bracketed citation must match supplied evidence, and at least
@@ -248,7 +243,7 @@ src/
   canonical/       shared Pydantic representation and JSON writer
   ingest/          native PDF, scanned OCR, routing, DWG seam, line/classifier helpers
   delta/           compatibility check, alignment, deterministic delta, reports
-  chat/            query preparation, hybrid retrieval, reranking, provider, answers
+  chat/            hybrid retrieval, reranking, provider, grounded answers
   config/          YAML defaults and typed settings
   markup/          optional PDF bounding-box overlay
   observability/   structured JSON request traces
