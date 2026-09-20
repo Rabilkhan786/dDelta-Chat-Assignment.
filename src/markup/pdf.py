@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 from src.canonical.model import DeltaEntry, DeltaType
 from src.observability.logging import get_logger, stage
@@ -22,7 +22,7 @@ COLORS = {
 def write_markup(source_pdf: Path, destination: Path, deltas: list[DeltaEntry]) -> Path:
     """Box changes located in Revision B; removed content stays report-only."""
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with stage(logger, "delta_markup"), fitz.open(source_pdf) as document:
+    with stage(logger, "delta_markup"), pymupdf.open(source_pdf) as document:
         for delta in deltas:
             if delta.change_type == DeltaType.UNCHANGED or not delta.region:
                 continue
@@ -42,7 +42,7 @@ def write_markup(source_pdf: Path, destination: Path, deltas: list[DeltaEntry]) 
                 )
                 continue
             page = document[delta.page_number - 1]
-            box = fitz.Rect(delta.region.x0, delta.region.y0, delta.region.x1, delta.region.y1)
+            box = pymupdf.Rect(delta.region.x0, delta.region.y0, delta.region.x1, delta.region.y1)
             annotation = page.add_rect_annot(box)
             annotation.set_colors(stroke=COLORS[delta.change_type])
             annotation.set_info(
