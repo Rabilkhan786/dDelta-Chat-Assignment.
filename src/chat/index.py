@@ -21,9 +21,7 @@ from src.observability.logging import get_logger, stage
 
 logger = get_logger(__name__)
 
-TOKEN_PATTERN = re.compile(
-    r"[A-Za-z]+\d+[A-Za-z]*|\d+(?:\.\d+)?[A-Za-z]*|[A-Za-z]+"
-)
+TOKEN_PATTERN = re.compile(r"[A-Za-z]+\d+[A-Za-z]*|\d+(?:\.\d+)?[A-Za-z]*|[A-Za-z]+")
 STOP_WORDS = frozenset(
     "a an the what which is are was were do does did on of to for in and please".split()
 )
@@ -84,9 +82,7 @@ def _document_excerpts(document: CanonicalDocument, source: str) -> list[Excerpt
     ]
 
 
-def _delta_excerpts(
-    deltas: list[DeltaEntry], pid: str, revision: str | None
-) -> list[Excerpt]:
+def _delta_excerpts(deltas: list[DeltaEntry], pid: str, revision: str | None) -> list[Excerpt]:
     changes = [delta for delta in deltas if delta.change_type.value != "unchanged"]
     return [
         Excerpt(
@@ -280,8 +276,7 @@ def _fuse_candidates(
 ) -> list[Excerpt]:
     """Fuse BM25 and semantic rankings, then apply a small source preference."""
     rankings = [
-        sorted(scores, key=lambda key: (-scores[key], key))
-        for scores in (lexical, semantic)
+        sorted(scores, key=lambda key: (-scores[key], key)) for scores in (lexical, semantic)
     ]
     scores = reciprocal_rank_fusion(rankings)
 
