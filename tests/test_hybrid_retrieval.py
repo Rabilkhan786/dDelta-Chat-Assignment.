@@ -103,6 +103,13 @@ def test_empty_index_and_invalid_limits(monkeypatch):
 
 def test_delta_index_contains_summary_and_individual_changes() -> None:
     report = {
+        "summary": {
+            "actual_changes": 3,
+            "modified": 1,
+            "removed": 1,
+            "added": 1,
+            "moved": 0,
+        },
         "entries": [
             {
                 "delta_id": "delta-1",
@@ -140,9 +147,15 @@ def test_delta_index_contains_summary_and_individual_changes() -> None:
         "delta-3",
     ]
     assert "3 changes detected" in excerpts[0].text
-    assert "9066A" in excerpts[0].text
-    assert "MECHANICAL INTERLOCK" in excerpts[0].text
-    assert "NOTE 24" in excerpts[0].text
+    assert "1 modified" in excerpts[0].text
+    assert "1 removed" in excerpts[0].text
+    assert "1 added" in excerpts[0].text
+    assert "9066A" not in excerpts[0].text
+    assert "MECHANICAL INTERLOCK" not in excerpts[0].text
+    assert "NOTE 24" not in excerpts[0].text
+    assert "9066A" in excerpts[1].text
+    assert "MECHANICAL INTERLOCK" in excerpts[2].text
+    assert "NOTE 24" in excerpts[3].text
 
 
 def test_fusion_has_no_source_specific_boost() -> None:
