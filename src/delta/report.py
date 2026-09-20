@@ -80,9 +80,7 @@ class DeltaReportGenerator:
                 "change_type": delta.change_type.value,
                 "element_type": delta.element_type.value,
                 "page_number": delta.page_number,
-                "location_revision": (
-                    "A" if delta.change_type == DeltaType.REMOVED else "B"
-                ),
+                "location_revision": ("A" if delta.change_type == DeltaType.REMOVED else "B"),
                 "confidence": round(delta.confidence, 2),
                 "description": delta.description,
                 "element_id": delta.element_id,
