@@ -1,9 +1,9 @@
 # Local validation — 2026-09-20
 
 These are observed smoke-test results, not a claim of general document accuracy.
-Retrieval implementation note: query rewriting and the hard reranker rejection
-threshold were removed after these recorded runs; rerun the scorecard before
-using the numbers as current validation.
+Implementation note: these measurements predate the compact three-entry delta
+index, five-case QA dataset, and per-request trace cleanup. Rerun the scorecard
+before treating the numbers below as current validation.
 No ground-truth labels were changed during this cleanup.
 Code checks use Ruff and pytest. The suite covers ingestion, hybrid retrieval,
 reranking, delta confidence/alignment, citations, API, logging,
@@ -36,7 +36,7 @@ Command: `uv run python main.py run --question "What changed on PSV 9066?"`
 {"generation": {"status": "not_run", "reason": "provider unavailable"}}
 ```
 
-These scores concern only the existing three-change/one-question dataset. Its
+These historical scores were recorded with the earlier three-change/one-question dataset. Its
 historical human-review status has not been independently verified. They do not
 establish answer correctness, groundedness, or OCR accuracy.
 
