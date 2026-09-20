@@ -1,4 +1,4 @@
-"""Optional small cross-encoder reranker for the post-RRF candidate list."""
+"""Optional cross-encoder reranking for the post-RRF candidate list."""
 
 from __future__ import annotations
 
@@ -19,19 +19,24 @@ if TYPE_CHECKING:
 
 @lru_cache(maxsize=1)
 def _model() -> CrossEncoder:
-    """Load once, only when a query needs reranking."""
+    """Load the reranker once per CLI/API process."""
     return CrossEncoder(settings.reranker.model)
 
 
 def rerank(query: str, candidates: list[Excerpt]) -> list[Excerpt]:
-    """Return the most query-relevant RRF candidates in cross-encoder order."""
+    """Order retrieved candidates by cross-encoder relevance."""
     if not candidates:
         return []
+
     with stage(logger, "cross_encoder_reranking"):
         scores = _model().predict([(query, item.text) for item in candidates])
-    ordered = sorted(zip(candidates, scores), key=lambda item: float(item[1]), reverse=True)
+
+    ordered = sorted(
+        zip(candidates, scores),
+        key=lambda item: float(item[1]),
+        reverse=True,
+    )
     return [
         replace(item, score=round(float(score), 6))
         for item, score in ordered
-        if float(score) >= settings.reranker.minimum_score
     ]
