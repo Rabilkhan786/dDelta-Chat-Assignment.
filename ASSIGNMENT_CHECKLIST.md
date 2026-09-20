@@ -27,8 +27,9 @@ uses native PDF + scanned PDF/OCR; DWG remains an explicit adapter stub.
 
 - Keep ingestion, canonical models, delta, chat, logging, and evaluation separate.
   Do not add service layers, agent frameworks, or a second UI.
-- Normalize only known query tag formats and whitespace; retain the original
-  question. No LLM rewriting or inferred equipment identity.
+- Use the user's question directly for semantic retrieval and reranking. There
+  is no query rewriting or expansion; BM25 tokenization handles identifier
+  formatting without changing the question.
 - Keep keyword search for identifiers and vector search for natural-language
   similarity; rerank a short candidate list with the existing cross-encoder.
 - Use one final result limit and explicit, configurable quality thresholds.
