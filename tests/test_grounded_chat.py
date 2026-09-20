@@ -97,3 +97,39 @@ def test_chat_preserves_shared_request_id(monkeypatch):
     _stub_search(monkeypatch, [])
     result = GroundedChatService().answer("anything", request_id="pipeline-request")
     assert result.request_id == "pipeline-request"
+
+
+def test_chat_accepts_unicode_bracket_variant_for_known_citation(monkeypatch):
+    class UnicodeBracketProvider:
+        def complete(self, prompt):
+            return LLMResponse(
+                "Pressure is 10 bar 【pid_a | PID A | page 1 | a-1]",
+                1,
+                1,
+                0.0,
+            )
+
+    _stub_search(monkeypatch, [Excerpt("10 bar", "pid_a", "A", 1, "a-1")])
+    result = GroundedChatService(UnicodeBracketProvider()).answer("pressure?")
+
+    assert result.status == "answered"
+    assert result.citations == ["[pid_a | PID A | page 1 | a-1]"]
+    assert "【" not in result.text
+    assert "[pid_a | PID A | page 1 | a-1]" in result.text
+
+
+def test_chat_rejects_unicode_bracket_variant_for_unknown_citation(monkeypatch):
+    class UnknownCitationProvider:
+        def complete(self, prompt):
+            return LLMResponse(
+                "Pressure is 10 bar 【invented source】",
+                1,
+                1,
+                0.0,
+            )
+
+    _stub_search(monkeypatch, [Excerpt("10 bar", "pid_a", "A", 1, "a-1")])
+    result = GroundedChatService(UnknownCitationProvider()).answer("pressure?")
+
+    assert result.status == "unsupported"
+    assert result.citations == []
