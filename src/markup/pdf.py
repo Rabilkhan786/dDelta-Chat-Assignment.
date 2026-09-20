@@ -20,11 +20,20 @@ COLORS = {
 
 
 def write_markup(source_pdf: Path, destination: Path, deltas: list[DeltaEntry]) -> Path:
-    """Box changed text regions on Revision B; skipped entries have no reliable box."""
+    """Box changes located in Revision B; removed content stays report-only."""
     destination.parent.mkdir(parents=True, exist_ok=True)
     with stage(logger, "delta_markup"), fitz.open(source_pdf) as document:
         for delta in deltas:
             if delta.change_type == DeltaType.UNCHANGED or not delta.region:
+                continue
+            if delta.change_type == DeltaType.REMOVED:
+                logger.info(
+                    "markup_region_skipped",
+                    extra={
+                        "page": delta.page_number,
+                        "reason": "removed_content_is_located_in_revision_a",
+                    },
+                )
                 continue
             if not 1 <= delta.page_number <= len(document):
                 logger.warning(
