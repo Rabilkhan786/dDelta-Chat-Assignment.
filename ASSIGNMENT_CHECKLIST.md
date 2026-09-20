@@ -16,7 +16,7 @@ uses native PDF + scanned PDF/OCR; DWG remains an explicit adapter stub.
 | Cited chat over both PIDs and report | BM25+ + Chroma + RRF + cross-encoder; source preference; exact citation validation tests | Real Groq generation was not run successfully: key unavailable |
 | One-command ingest → report → chat | `uv run python main.py run --question "What changed on PSV-9066?"` | Command reached retrieved evidence, then clearly reported provider failure |
 | Request traces, timing, tokens/cost | Shared request ID, shared JSON log, per-request JSONL trace, stage timings, retrieval hit counts, provider token/cost instrumentation | Live token/cost telemetry still needs a configured provider run |
-| Runnable evaluation scorecard | `make eval`; delta, retrieval, generation scorecards; five QA cases covering PID A, PID B, and delta entries | Still a small single-pair reviewed benchmark |
+| Runnable evaluation scorecard | `make eval`; delta, retrieval, generation scorecards; six QA cases covering PID A, PID B, and delta entries | Still a small single-pair reviewed benchmark |
 | Failure reporting | `eval/RESULTS.md` records dense-OCR and generation failures | These failures are not fixed by passing unit tests |
 | Secrets and environment template | `.env.example`, ignored `.env`/logs; tracked-key-pattern check found no matches | Not an exhaustive history/PII audit; users must review their own input documents |
 | Samples and provenance | Three test pairings documented in `data/samples/README.md` | Only one is labelled; one is an unrelated negative pair |
