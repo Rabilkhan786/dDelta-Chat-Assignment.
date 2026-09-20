@@ -4,7 +4,7 @@ import io
 from hashlib import sha256
 from pathlib import Path
 
-import fitz
+import pymupdf
 import pytesseract
 from PIL import Image
 
@@ -35,7 +35,7 @@ class ScannedPDFAdapter(FormatAdapter):
             raise FileNotFoundError(f"PDF does not exist: {file_path}")
 
         with stage(logger, "scanned_pdf_ingestion"):
-            with fitz.open(file_path) as pdf:
+            with pymupdf.open(file_path) as pdf:
                 pages = [
                     self._parse_page(pdf_page, page_number)
                     for page_number, pdf_page in enumerate(pdf, start=1)
@@ -51,10 +51,10 @@ class ScannedPDFAdapter(FormatAdapter):
             pages=pages,
         )
 
-    def _parse_page(self, pdf_page: fitz.Page, page_number: int) -> Page:
+    def _parse_page(self, pdf_page: pymupdf.Page, page_number: int) -> Page:
         """Render one page to an image at the configured DPI and OCR it."""
         scale = self.dpi / 72
-        pixmap = pdf_page.get_pixmap(matrix=fitz.Matrix(scale, scale))
+        pixmap = pdf_page.get_pixmap(matrix=pymupdf.Matrix(scale, scale))
         image = Image.open(io.BytesIO(pixmap.tobytes("png")))
         ocr_data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
 
