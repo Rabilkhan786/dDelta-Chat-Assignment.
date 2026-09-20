@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from src.observability.logging import get_logger, request_context, stage
+from src.observability.logging import RequestLoggerAdapter, RequestTraceHandler, get_logger, request_context, stage
 
 
 class _RecordCollector(logging.Handler):
@@ -52,3 +52,22 @@ def test_request_context_binds_request_id_for_nested_logs() -> None:
         logger.info("nested_event")
     event = next(record for record in collector.records if record.message == "nested_event")
     assert event.request_id == "req-xyz"
+
+
+def test_request_trace_handler_writes_one_request_file(tmp_path) -> None:
+    logger = logging.getLogger("tests.request_trace_file")
+    logger.handlers.clear()
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    handler = RequestTraceHandler(tmp_path)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+    adapter = RequestLoggerAdapter(logger, {"request_id": "fallback"})
+
+    with request_context("req-123"):
+        adapter.info("trace_event")
+
+    trace_file = tmp_path / "req-123.jsonl"
+    assert trace_file.exists()
+    assert "trace_event" in trace_file.read_text(encoding="utf-8")
