@@ -135,7 +135,7 @@ def test_delta_index_contains_summary_and_individual_changes() -> None:
                 "confidence": 1.0,
                 "description": "Added note: 'NOTE 24'",
             },
-        ]
+        ],
     }
 
     excerpts = index._delta_excerpts(report, "revision_b", "B")
