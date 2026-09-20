@@ -4,7 +4,7 @@
     "552d3be9d7deeeda",
     "b5fe5d692114f90a"
   ],
-  "label_notes": "The primary synthetic pair has three reviewed changes: PSV tag 9066A to 9066C, removed MECHANICAL INTERLOCK callout, and added NOTE 24. Retrieval labels cover a broad delta-summary question, PID A, PID B, and all three individual delta-report entries.",
+  "label_notes": "The primary synthetic pair has three reviewed changes: PSV tag 9066A to 9066C, removed MECHANICAL INTERLOCK callout, and added NOTE 24. The broad 'What changed?' case expects the aggregate delta summary plus all three individual change entries in retrieval, while specific answer claims should cite delta-1, delta-2, and delta-3.",
   "qa_cases": [
     {
       "question": "What changed?",
@@ -14,10 +14,15 @@
         "NOTE 24"
       ],
       "expected_citations": [
-        "delta_report | PID revision_b | page 1 | delta-summary"
+        "delta_report | PID revision_b | page 1 | delta-1",
+        "delta_report | PID revision_b | page 1 | delta-2",
+        "delta_report | PID revision_b | page 1 | delta-3"
       ],
       "expected_retrieval_ids": [
-        "delta-summary"
+        "delta-summary",
+        "delta-1",
+        "delta-2",
+        "delta-3"
       ]
     },
     {
