@@ -49,7 +49,7 @@ test does not erase the dense-drawing OCR limitation.
 ## What the results do not prove
 
 - Three labelled changes are not a broad delta benchmark.
-- Five QA cases are not a broad retrieval benchmark.
+- Six QA cases are not a broad retrieval benchmark.
 - Keyword answer coverage is not semantic factual correctness.
 - Citation-source matching is not claim-level entailment.
 - Compatibility token overlap is not document-identity verification.
