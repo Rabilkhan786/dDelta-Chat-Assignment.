@@ -1,7 +1,8 @@
-"""Hybrid retrieval over both revisions and the deterministic delta report.
+"""Hybrid retrieval over PID A, PID B, and the generated delta report.
 
-BM25 keeps exact drawing tags and dimensions reliable. Chroma adds semantic
-matches. Reciprocal Rank Fusion combines both rankings before optional reranking.
+Every question searches the same evidence collection. BM25 keeps exact technical
+terms reliable, Chroma adds semantic matches, RRF combines both rankings, and an
+optional cross-encoder reranks the short candidate list.
 """
 
 from __future__ import annotations
@@ -29,7 +30,7 @@ STOP_WORDS = frozenset(
 
 @dataclass(frozen=True)
 class Excerpt:
-    """One citable result with enough metadata for stable citations."""
+    """One citable retrieval result."""
 
     text: str
     source: str
@@ -50,7 +51,7 @@ def _excerpt_id(excerpt: Excerpt) -> str:
 
 @lru_cache(maxsize=1)
 def _embeddings(model: str, device: str) -> HuggingFaceEmbeddings:
-    """Reuse loaded weights across requests in the same CLI/API process."""
+    """Reuse embedding weights within the same CLI/API process."""
     return HuggingFaceEmbeddings(model_name=model, model_kwargs={"device": device})
 
 
@@ -64,9 +65,11 @@ def _vector_store() -> Chroma:
 
 
 def _document_excerpts(document: CanonicalDocument, source: str) -> list[Excerpt]:
+    """Create searchable excerpts from one canonical PID revision."""
+    revision = document.metadata.revision or "unknown"
     return [
         Excerpt(
-            element.text.strip(),
+            f"Revision {revision} document text: {element.text.strip()}",
             source,
             document.metadata.pid,
             page.page_number,
@@ -83,13 +86,31 @@ def _document_excerpts(document: CanonicalDocument, source: str) -> list[Excerpt
 
 
 def _delta_excerpts(report: dict, pid: str, revision: str | None) -> list[Excerpt]:
-    """Create chat evidence directly from the generated delta-report entries."""
-    excerpts = []
-    for entry in report.get("entries", []):
+    """Create a report summary plus one searchable excerpt per actual change."""
+    entries = report.get("entries", [])
+    excerpts: list[Excerpt] = []
+
+    if entries:
+        details = " ".join(
+            f"{entry['change_type']}: {entry['description']}" for entry in entries
+        )
+        excerpts.append(
+            Excerpt(
+                f"Delta report summary. {len(entries)} changes detected. {details}",
+                "delta_report",
+                pid,
+                1,
+                "delta-summary",
+                revision,
+                change_type="summary",
+            )
+        )
+
+    for entry in entries:
         bbox = entry.get("bounding_box")
         excerpts.append(
             Excerpt(
-                f"{entry['change_type']}: {entry['description']}",
+                f"Delta report change. {entry['change_type']}: {entry['description']}",
                 "delta_report",
                 pid,
                 int(entry["page_number"]),
@@ -101,6 +122,7 @@ def _delta_excerpts(report: dict, pid: str, revision: str | None) -> list[Excerp
                 float(entry["confidence"]) if entry.get("confidence") is not None else None,
             )
         )
+
     return excerpts
 
 
@@ -109,20 +131,21 @@ def build_index(
     pid_b: CanonicalDocument,
     report: dict,
 ) -> int:
-    """Build vector storage; BM25 is rebuilt from the small active corpus."""
+    """Build the retrieval index from both PIDs and the generated delta report."""
     excerpts = (
         _document_excerpts(pid_a, "pid_a")
         + _document_excerpts(pid_b, "pid_b")
         + _delta_excerpts(report, pid_b.metadata.pid, pid_b.metadata.revision)
     )
     if not excerpts:
-        raise ValueError("Cannot build a retrieval index from empty canonical documents.")
+        raise ValueError("Cannot build a retrieval index from empty documents.")
 
     with stage(logger, "retrieval_index_build"):
         store = _vector_store()
         existing_ids = store.get(include=[]).get("ids", [])
         if existing_ids:
             store.delete(ids=existing_ids)
+
         store.add_texts(
             texts=[item.text for item in excerpts],
             ids=[_excerpt_id(item) for item in excerpts],
@@ -134,7 +157,7 @@ def build_index(
 
 
 def search(query: str, top_k: int | None = None) -> list[Excerpt]:
-    """Retrieve the original query with BM25 + vectors, fuse, then rerank."""
+    """Search all indexed evidence with BM25, vectors, RRF, and reranking."""
     query = query.strip()
     if not query:
         raise ValueError("Query must not be empty.")
@@ -155,6 +178,7 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
                 raw.get("metadatas", []) or [],
             )
         ]
+
         if not all_items:
             logger.info(
                 "retrieval_completed",
@@ -168,12 +192,10 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
             query,
             min(candidate_count, len(all_items)),
         )
-        preferred_sources = route_question(query)
         fused_candidates = _fuse_candidates(
             all_items,
             lexical_scores,
             semantic_scores,
-            preferred_sources,
         )
         candidates = fused_candidates[:candidate_count]
 
@@ -191,7 +213,6 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
                 "keyword_hits": len(lexical_scores),
                 "semantic_hits": len(semantic_scores),
                 "fused_candidates": len(fused_candidates),
-                "route": sorted(preferred_sources) if preferred_sources else "all",
                 "reranker_enabled": settings.reranker.enabled,
             },
         )
@@ -199,12 +220,7 @@ def search(query: str, top_k: int | None = None) -> list[Excerpt]:
 
 
 def keyword_tokens(text: str) -> list[str]:
-    """Tokenize technical text without rewriting the user's query.
-
-    Hyphenated tags naturally become separate tokens. Compact identifiers such
-    as PSV9066A and DN150 also expose their alphabetic and numeric parts so they
-    can match spaced or hyphenated forms in the document.
-    """
+    """Tokenize technical text without rewriting the user's question."""
     tokens: list[str] = []
     for raw_token in TOKEN_PATTERN.findall(text):
         token = raw_token.lower()
@@ -217,32 +233,6 @@ def keyword_tokens(text: str) -> list[str]:
             tokens.extend(compact.groups())
 
     return list(dict.fromkeys(tokens))
-
-
-def route_question(question: str) -> set[str] | None:
-    """Prefer the most relevant source without filtering the other sources out."""
-    text = question.lower()
-    revision_a = re.search(
-        r"\b(?:(?:rev(?:ision)?|pid)\.? a|old revision|base revision)\b",
-        text,
-    )
-    revision_b = re.search(
-        r"\b(?:(?:rev(?:ision)?|pid)\.? b|new revision|revised)\b",
-        text,
-    )
-
-    if (revision_a and revision_b) or re.search(
-        r"\b(?:compare|comparison|differences?|between)\b",
-        text,
-    ):
-        return None
-    if re.search(r"\b(?:changes?|changed|added|removed|modified|moved)\b", text):
-        return {"delta_report"}
-    if revision_a:
-        return {"pid_a"}
-    if revision_b:
-        return {"pid_b"}
-    return None
 
 
 def _keyword_scores(query: str, items: list[Excerpt]) -> dict[str, float]:
@@ -261,7 +251,7 @@ def _keyword_scores(query: str, items: list[Excerpt]) -> dict[str, float]:
 
 
 def _semantic_scores(store: Chroma, query: str, count: int) -> dict[str, float]:
-    """Convert Chroma distances into bounded similarity values."""
+    """Convert Chroma distances into bounded similarity scores."""
     scores: dict[str, float] = {}
     for document, distance in store.similarity_search_with_score(query, k=count):
         item_id = _excerpt_id(_from_values(document.page_content, document.metadata))
@@ -275,27 +265,18 @@ def _fuse_candidates(
     items: list[Excerpt],
     lexical: dict[str, float],
     semantic: dict[str, float],
-    preferred_sources: set[str] | None,
 ) -> list[Excerpt]:
-    """Fuse BM25 and semantic rankings, then apply a small source preference."""
+    """Fuse BM25 and semantic rankings with Reciprocal Rank Fusion."""
     rankings = [
         sorted(scores, key=lambda key: (-scores[key], key)) for scores in (lexical, semantic)
     ]
     scores = reciprocal_rank_fusion(rankings)
 
-    candidates = []
-    for item in items:
-        item_id = _excerpt_id(item)
-        if item_id not in scores:
-            continue
-
-        boost = (
-            settings.retrieval.source_boost
-            if preferred_sources and item.source in preferred_sources
-            else 1.0
-        )
-        candidates.append(replace(item, score=scores[item_id] * boost))
-
+    candidates = [
+        replace(item, score=scores[_excerpt_id(item)])
+        for item in items
+        if _excerpt_id(item) in scores
+    ]
     return sorted(
         candidates,
         key=lambda item: (-(item.score or 0), _excerpt_id(item)),
@@ -306,12 +287,14 @@ def reciprocal_rank_fusion(
     rankings: list[list[str]],
     rrf_k: int | None = None,
 ) -> dict[str, float]:
-    """Combine ranked IDs; evidence found by both retrievers rises."""
+    """Combine rankings so evidence found by both retrievers rises."""
     denominator = rrf_k or settings.retrieval.rrf_k
     scores: dict[str, float] = {}
+
     for ranking in rankings:
         for rank, item_id in enumerate(dict.fromkeys(ranking), start=1):
             scores[item_id] = scores.get(item_id, 0) + 1 / (denominator + rank)
+
     return scores
 
 
